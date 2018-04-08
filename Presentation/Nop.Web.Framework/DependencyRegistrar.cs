@@ -23,6 +23,7 @@ using Nop.Data;
 using Nop.Services.Infrastructure;
 using Nop.Services.Customers;
 using Nop.Services.Installation;
+using Nop.Services.Authentication;
 
 namespace Nop.Web.Framework
 {
@@ -117,6 +118,11 @@ namespace Nop.Web.Framework
 
             //services
             builder.RegisterType<CustomerService>().As<ICustomerService>().InstancePerLifetimeScope();
+            builder.RegisterType<CustomerRegistrationService>().As<ICustomerRegistrationService>().InstancePerLifetimeScope();
+
+            builder.RegisterType<FormsAuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();
+
+
 
             //use static cache (between HTTP requests)
             builder.RegisterType<SettingService>().As<ISettingService>()

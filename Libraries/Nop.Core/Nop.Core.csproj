@@ -154,6 +154,10 @@
     <Compile Include="Domain\Logging\ActivityLogType.cs" />
     <Compile Include="Domain\Logging\Log.cs" />
     <Compile Include="Domain\Logging\LogLevel.cs" />
+    <Compile Include="Domain\Orders\Order.cs" />
+    <Compile Include="Domain\Orders\OrderStatus.cs" />
+    <Compile Include="Domain\Orders\RewardPointsHistory.cs" />
+    <Compile Include="Domain\Orders\RewardPointsSettings.cs" />
     <Compile Include="Domain\Security\AclRecord.cs" />
     <Compile Include="Domain\Security\DefaultPermissionRecord.cs" />
     <Compile Include="Domain\Security\IAclSupported.cs" />
