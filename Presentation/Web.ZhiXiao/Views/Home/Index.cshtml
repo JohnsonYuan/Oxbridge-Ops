@@ -1,0 +1,161 @@
+﻿@model IEnumerable<Nop.Core.Domain.Customers.Customer>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CustomerGuid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Username)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmailToRevalidate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AdminComment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsTaxExempt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AffiliateId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VendorId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HasShoppingCartItems)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RequireReLogin)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FailedLoginAttempts)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CannotLoginUntilDateUtc)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Active)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Deleted)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsSystemAccount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SystemName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastIpAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedOnUtc)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastLoginDateUtc)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastActivityDateUtc)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RegisteredInStoreId)
+            </th>
+            <th></th>
+        </tr>
+    
+    @foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CustomerGuid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Username)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EmailToRevalidate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AdminComment)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsTaxExempt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AffiliateId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.VendorId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.HasShoppingCartItems)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RequireReLogin)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FailedLoginAttempts)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CannotLoginUntilDateUtc)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Active)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Deleted)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsSystemAccount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SystemName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastIpAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedOnUtc)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastLoginDateUtc)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastActivityDateUtc)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RegisteredInStoreId)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+            </td>
+        </tr>
+    }
+    
+    </table>
+</body>
+</html>

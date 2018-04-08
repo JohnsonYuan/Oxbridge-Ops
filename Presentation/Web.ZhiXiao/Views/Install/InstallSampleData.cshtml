@@ -1,0 +1,90 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>初始化数据</title>
+    <style>
+        .validation-summary-errors {
+            color: red;
+        }
+
+            .validation-summary-errors ul {
+                padding-left: 0;
+                list-style: none;
+            }
+    </style>
+    @Styles.Render("~/Content/bootstrap")
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+</head>
+<body>
+    <div class="container body-content">
+        @using (Html.BeginForm("InstallSampleData", "Install", FormMethod.Post, new { id = "installation-form" }))
+        {
+            <div class="content">
+                @Html.ValidationSummary(false)
+
+                <div class="form-horizontal">
+                    <div class="panel margin-t-30">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-4 text-right">
+                                    信息
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <div class="col-xs-4">
+                                    <label class="control-label">
+                                        @Html.Label("adminEmail", "管理员邮箱")
+                                    </label>
+                                </div>
+                                <div class="col-xs-7">
+                                    @Html.TextBox("adminEmail", null, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-4">
+                                    <label class="control-label">
+                                        @Html.Label("adminPassword", "管理员密码")
+                                    </label>
+                                </div>
+                                <div class="col-xs-7">
+                                    @Html.Password("adminPassword", null, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-4">
+                                    <label class="control-label">
+                                        @Html.Label("confirmPassword", "管理员密码确认")
+                                    </label>
+                                </div>
+                                <div class="col-xs-7">
+                                    @Html.Password("confirmPassword", null, new { @class = "form-control" })
+                                </div>
+                            </div>
+
+
+                            <div class="form-group margin-t-30">
+                                <div class="col-xs-12 text-center">
+                                    <button type="submit" class="btn btn-md btn-install margin-l-5">安装</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <footer>
+            <p>&copy; @DateTime.Now.Year</p>
+        </footer>
+    </div>
+</body>
+</html>
