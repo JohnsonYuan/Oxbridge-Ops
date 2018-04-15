@@ -109,7 +109,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\UserAuthorizeAttribute.cs" />
+    <Compile Include="Controllers\AdminAuthorizeAttribute.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="CustomerLastActivityAttribute.cs" />
     <Compile Include="DependencyRegistrar.cs" />
+    <Compile Include="HtmlExtensions.cs" />
+    <Compile Include="Kendoui\DataSourceRequest.cs" />
+    <Compile Include="Kendoui\DataSourceResult.cs" />
+    <Compile Include="Kendoui\Filter.cs" />
+    <Compile Include="Kendoui\ModelStateExtensions.cs" />
+    <Compile Include="Kendoui\QueryableExtensions.cs" />
+    <Compile Include="Kendoui\Sort.cs" />
     <Compile Include="Localization\ILocalizedModel.cs" />
     <Compile Include="Localization\ILocalizedModelLocal.cs" />
     <Compile Include="Localization\LocalizedRoute.cs" />
@@ -117,14 +128,26 @@
     <Compile Include="Localization\LocalizedString.cs" />
     <Compile Include="Localization\LocalizedUrlExtenstions.cs" />
     <Compile Include="Localization\Localizer.cs" />
+    <Compile Include="Menu\Extensions.cs" />
+    <Compile Include="Menu\SiteMapNode.cs" />
+    <Compile Include="Menu\XmlSiteMap.cs" />
+    <Compile Include="Mvc\ActionConfirmationModel.cs" />
     <Compile Include="Mvc\BaseNopModel.cs" />
+    <Compile Include="Mvc\ConverterJsonResult.cs" />
+    <Compile Include="Mvc\DeleteConfirmationModel.cs" />
     <Compile Include="Mvc\IModelAttribute.cs" />
     <Compile Include="Mvc\NopMetadataProvider.cs" />
     <Compile Include="Mvc\NopModelBinder.cs" />
     <Compile Include="Mvc\NoTrimAttribute.cs" />
     <Compile Include="Mvc\NullJsonResult.cs" />
+    <Compile Include="NopResourceDisplayName.cs" />
     <Compile Include="NopValidatorFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\AdminAntiForgeryAttribute.cs" />
+    <Compile Include="Security\AdminValidateIpAddressAttribute.cs" />
+    <Compile Include="StoreClosedAttribute.cs" />
+    <Compile Include="StoreIpAddressAttribute.cs" />
+    <Compile Include="StoreLastVisitedPageAttribute.cs" />
     <Compile Include="UI\AsIsBundleOrderer.cs" />
     <Compile Include="UI\DataListExtensions.cs" />
     <Compile Include="UI\IPageHeadBuilder.cs" />
@@ -135,6 +158,7 @@
     <Compile Include="UI\Paging\IPageableModel.cs" />
     <Compile Include="UI\Paging\Pager.cs" />
     <Compile Include="UI\ResourceLocation.cs" />
+    <Compile Include="ValidatePasswordAttribute.cs" />
     <Compile Include="Validators\BaseNopValidator.cs" />
     <Compile Include="Validators\CreditCardPropertyValidator.cs" />
     <Compile Include="Validators\DecimalPropertyValidator.cs" />

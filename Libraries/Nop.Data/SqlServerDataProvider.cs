@@ -94,16 +94,17 @@ namespace Nop.Data
         /// </summary>
         public virtual void SetDatabaseInitializer()
         {
-        //    //pass some table names to ensure that we have nopCommerce 2.X installed
-        //    var tablesToValidate = new[] { "Customer", "Discount", "Order", "Product", "ShoppingCartItem" };
+            //    //pass some table names to ensure that we have nopCommerce 2.X installed
+            //    var tablesToValidate = new[] { "Customer", "Discount", "Order", "Product", "ShoppingCartItem" };
 
-        //    //custom commands (stored procedures, indexes)
+            //    //custom commands (stored procedures, indexes)
 
-        //    var customCommands = new List<string>();
-        //    customCommands.AddRange(ParseCommands(CommonHelper.MapPath("~/App_Data/Install/SqlServer.Indexes.sql"), false));
-        //    customCommands.AddRange(ParseCommands(CommonHelper.MapPath("~/App_Data/Install/SqlServer.StoredProcedures.sql"), false));
+            //    var customCommands = new List<string>();
+            //    customCommands.AddRange(ParseCommands(CommonHelper.MapPath("~/App_Data/Install/SqlServer.Indexes.sql"), false));
+            //    customCommands.AddRange(ParseCommands(CommonHelper.MapPath("~/App_Data/Install/SqlServer.StoredProcedures.sql"), false));
 
-            var initializer = new CreateTablesIfNotExist<NopObjectContext>(null, null);
+            //var initializer = new CreateTablesIfNotExist<NopObjectContext>(null, null);
+            var initializer = new Nop.Data.Initializers.DropCreateDatabaseIfModelChanges<NopObjectContext>(null, null);
             Database.SetInitializer(initializer);
         }
 

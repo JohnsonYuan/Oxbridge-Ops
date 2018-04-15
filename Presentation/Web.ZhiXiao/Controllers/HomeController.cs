@@ -7,7 +7,7 @@ using System.Web.Mvc;
 
 namespace Web.ZhiXiao.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseUserController
     {
         private ICustomerService _customerService;
 
@@ -16,8 +16,13 @@ namespace Web.ZhiXiao.Controllers
             this._customerService = customerService;
         }
 
-        //page not found
         public ActionResult Index()
+        {
+            return View();
+        }
+
+        //page not found
+        public ActionResult Users()
         {
             var customers = _customerService.GetAllCustomers();
             return View(customers);

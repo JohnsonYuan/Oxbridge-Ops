@@ -64,6 +64,13 @@ namespace Nop.Services.Security
         public static readonly PermissionRecord PublicStoreAllowNavigation = new PermissionRecord { Name = "Public store. Allow navigation", SystemName = "PublicStoreAllowNavigation", Category = "PublicStore" };
         public static readonly PermissionRecord AccessClosedStore = new PermissionRecord { Name = "Public store. Access a closed store", SystemName = "AccessClosedStore", Category = "PublicStore" };
 
+        #region 直销系统权限
+
+        public static readonly PermissionRecord ZhiXiaoRegisteredUser = new PermissionRecord { Name = "Public store. ZhiXiao Registered", SystemName = "直销系统注册用户", Category = "ZhiXiao" };
+        public static readonly PermissionRecord ZhiXiaoManagerUser = new PermissionRecord { Name = "Public store. ZhiXiao Manager", SystemName = "直销系统管理员", Category = "ZhiXiao" };
+        public static readonly PermissionRecord ZhiXiaoAdminUser = new PermissionRecord { Name = "Public store. ZhiXiao Admin", SystemName = "直销系统超级管理员", Category = "ZhiXiao" };
+
+        #endregion
 
         public virtual IEnumerable<PermissionRecord> GetPermissions()
         {
@@ -180,7 +187,11 @@ namespace Nop.Services.Security
                         EnableShoppingCart,
                         EnableWishlist,
                         PublicStoreAllowNavigation,
-                        AccessClosedStore
+                        AccessClosedStore,
+
+                        // zhixiao
+                        ZhiXiaoAdminUser,
+                        ZhiXiaoManagerUser
                     }
                 },
                 new DefaultPermissionRecord 
@@ -192,6 +203,20 @@ namespace Nop.Services.Security
                         EnableShoppingCart,
                         EnableWishlist,
                         PublicStoreAllowNavigation
+                    }
+                },
+                new DefaultPermissionRecord
+                {
+                    CustomerRoleSystemName = SystemCustomerRoleNames.Managers,
+                    PermissionRecords = new[]
+                    {
+                        DisplayPrices,
+                        EnableShoppingCart,
+                        EnableWishlist,
+                        PublicStoreAllowNavigation,
+
+                        // zhixiao
+                        ZhiXiaoManagerUser
                     }
                 },
                 new DefaultPermissionRecord 
@@ -213,7 +238,10 @@ namespace Nop.Services.Security
                         DisplayPrices,
                         EnableShoppingCart,
                         EnableWishlist,
-                        PublicStoreAllowNavigation
+                        PublicStoreAllowNavigation,
+
+                        // zhixiao
+                        ZhiXiaoManagerUser
                     }
                 },
                 new DefaultPermissionRecord 

@@ -31,6 +31,18 @@
             <div class="content">
                 @Html.ValidationSummary(false)
 
+                <script type="text/javascript">
+                    $(document).ready(function () {
+                        $('#installation-form').submit(function () {
+                            if ($('#installation-form').valid()) {
+                                $("html, body").animate({ scrollTop: 0 }, 400);
+
+                                $('button[type=submit]', this).attr('disabled', 'disabled');
+                            }
+                        });
+                    });
+                </script>
+
                 <div class="form-horizontal">
                     <div class="panel margin-t-30">
                         <div class="panel-heading">

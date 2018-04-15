@@ -16,7 +16,7 @@ using System.Web.Mvc;
 
 namespace Web.ZhiXiao.Controllers
 {
-    public class InstallController : Controller
+    public class InstallController : BasePublicController
     {
         #region Fields
 
@@ -188,6 +188,15 @@ namespace Web.ZhiXiao.Controllers
                 SqlServerCreateDatabase = true,
                 UseCustomCollation = false,
                 Collation = "SQL_Latin1_General_CP1_CI_AS",
+
+
+                // default password, and sql server account
+                AdminPassword = "123456",
+                ConfirmPassword = "13456",
+                SqlServerName =  ".",
+                SqlDatabaseName = "zhixiao",
+                SqlServerUsername = "sa",
+                SqlServerPassword = "123456"
             };
 
             return View(model);

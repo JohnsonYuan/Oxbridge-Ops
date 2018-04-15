@@ -116,7 +116,6 @@ namespace Nop.Core.Infrastructure
             {
                 RunStartupTasks();
             }
-
         }
 
         /// <summary>

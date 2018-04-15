@@ -219,15 +219,17 @@ namespace Nop.Web.Framework
                     }
                 }
 
+                // 不自动插入guest
                 //create guest if not exists
-                if (customer == null || customer.Deleted || !customer.Active || customer.RequireReLogin)
-                {
-                    customer = _customerService.InsertGuestCustomer();
-                }
+                //if (customer == null || customer.Deleted || !customer.Active || customer.RequireReLogin)
+                //{
+                //    customer = _customerService.InsertGuestCustomer();
+                //}
 
 
                 //validation
-                if (!customer.Deleted && customer.Active && !customer.RequireReLogin)
+                if (customer != null && 
+                    !customer.Deleted && customer.Active && !customer.RequireReLogin)
                 {
                     SetCustomerCookie(customer.CustomerGuid);
                     _cachedCustomer = customer;
@@ -269,37 +271,47 @@ namespace Nop.Web.Framework
                     //get language from URL
                     detectedLanguage = GetLanguageFromUrl();
                 }
-                if (detectedLanguage == null && _localizationSettings.AutomaticallyDetectLanguage)
+
+                if (this.CurrentCustomer != null)
                 {
-                    //get language from browser settings
-                    //but we do it only once
-                    if (!this.CurrentCustomer.GetAttribute<bool>(SystemCustomerAttributeNames.LanguageAutomaticallyDetected, 
-                        _genericAttributeService, _storeContext.CurrentStore.Id))
+                    if (detectedLanguage == null && _localizationSettings.AutomaticallyDetectLanguage)
                     {
-                        detectedLanguage = GetLanguageFromBrowserSettings();
-                        if (detectedLanguage != null)
+                        //get language from browser settings
+                        //but we do it only once
+                        if (!this.CurrentCustomer.GetAttribute<bool>(SystemCustomerAttributeNames.LanguageAutomaticallyDetected,
+                            _genericAttributeService, _storeContext.CurrentStore.Id))
                         {
-                            _genericAttributeService.SaveAttribute(this.CurrentCustomer, SystemCustomerAttributeNames.LanguageAutomaticallyDetected,
-                                 true, _storeContext.CurrentStore.Id);
+                            detectedLanguage = GetLanguageFromBrowserSettings();
+                            if (detectedLanguage != null)
+                            {
+                                _genericAttributeService.SaveAttribute(this.CurrentCustomer, SystemCustomerAttributeNames.LanguageAutomaticallyDetected,
+                                     true, _storeContext.CurrentStore.Id);
+                            }
+                        }
+                    }
+                    if (detectedLanguage != null)
+                    {
+                        //the language is detected. now we need to save it
+                        if (this.CurrentCustomer.GetAttribute<int>(SystemCustomerAttributeNames.LanguageId,
+                            _genericAttributeService, _storeContext.CurrentStore.Id) != detectedLanguage.Id)
+                        {
+                            _genericAttributeService.SaveAttribute(this.CurrentCustomer, SystemCustomerAttributeNames.LanguageId,
+                                detectedLanguage.Id, _storeContext.CurrentStore.Id);
                         }
                     }
                 }
-                if (detectedLanguage != null)
-                {
-                    //the language is detected. now we need to save it
-                    if (this.CurrentCustomer.GetAttribute<int>(SystemCustomerAttributeNames.LanguageId,
-                        _genericAttributeService, _storeContext.CurrentStore.Id) != detectedLanguage.Id)
-                    {
-                        _genericAttributeService.SaveAttribute(this.CurrentCustomer, SystemCustomerAttributeNames.LanguageId,
-                            detectedLanguage.Id, _storeContext.CurrentStore.Id);
-                    }
-                }
+
+                int languageId = -1;
+                Language language = null;
 
                 var allLanguages = _languageService.GetAllLanguages(storeId: _storeContext.CurrentStore.Id);
-                //find current customer language
-                var languageId = this.CurrentCustomer.GetAttribute<int>(SystemCustomerAttributeNames.LanguageId,
-                    _genericAttributeService, _storeContext.CurrentStore.Id);
-                var language = allLanguages.FirstOrDefault(x => x.Id == languageId);
+                if (this.CurrentCustomer != null)
+                {
+                    //find current customer language
+                    languageId = this.CurrentCustomer.GetAttribute<int>(SystemCustomerAttributeNames.LanguageId,
+                        _genericAttributeService, _storeContext.CurrentStore.Id);
+                    language = allLanguages.FirstOrDefault(x => x.Id == languageId);
+                }
                 if (language == null)
                 {
                     //it not found, then let's load the default currency for the current language (if specified)

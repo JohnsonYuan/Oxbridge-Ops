@@ -122,6 +122,7 @@
     <Compile Include="Domain\Common\AddressAttribute.cs" />
     <Compile Include="Domain\Common\AddressAttributeValue.cs" />
     <Compile Include="Domain\Common\AddressSettings.cs" />
+    <Compile Include="Domain\Common\AdminAreaSettings.cs" />
     <Compile Include="Domain\Common\AttributeControlType.cs" />
     <Compile Include="Domain\Common\CommonSettings.cs" />
     <Compile Include="Domain\Common\FulltextSearchMode.cs" />
@@ -154,6 +155,10 @@
     <Compile Include="Domain\Logging\ActivityLogType.cs" />
     <Compile Include="Domain\Logging\Log.cs" />
     <Compile Include="Domain\Logging\LogLevel.cs" />
+    <Compile Include="Domain\News\Events.cs" />
+    <Compile Include="Domain\News\NewsComment.cs" />
+    <Compile Include="Domain\News\NewsItem.cs" />
+    <Compile Include="Domain\News\NewsSettings.cs" />
     <Compile Include="Domain\Orders\Order.cs" />
     <Compile Include="Domain\Orders\OrderStatus.cs" />
     <Compile Include="Domain\Orders\RewardPointsHistory.cs" />
@@ -171,6 +176,8 @@
     <Compile Include="Domain\StoreInformationSettings.cs" />
     <Compile Include="Domain\Stores\IStoreMappingSupported.cs" />
     <Compile Include="Domain\Store\Store.cs" />
+    <Compile Include="Domain\Topics\Topic.cs" />
+    <Compile Include="Domain\Topics\TopicTemplate.cs" />
     <Compile Include="Domain\Vendors\Vendor.cs" />
     <Compile Include="Domain\Vendors\VendorNote.cs" />
     <Compile Include="Domain\Vendors\VendorSettings.cs" />

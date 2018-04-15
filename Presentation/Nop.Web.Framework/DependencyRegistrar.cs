@@ -24,6 +24,13 @@ using Nop.Services.Infrastructure;
 using Nop.Services.Customers;
 using Nop.Services.Installation;
 using Nop.Services.Authentication;
+using Nop.Services.Common;
+using Nop.Services.Helpers;
+using Nop.Services.Stores;
+using Nop.Services.Security;
+using Nop.Services.Orders;
+using Nop.Services.Topics;
+using Nop.Services.News;
 
 namespace Nop.Web.Framework
 {
@@ -115,14 +122,23 @@ namespace Nop.Web.Framework
 
             //work context
             builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
+            //store context
+            builder.RegisterType<WebStoreContext>().As<IStoreContext>().InstancePerLifetimeScope();
 
             //services
             builder.RegisterType<CustomerService>().As<ICustomerService>().InstancePerLifetimeScope();
             builder.RegisterType<CustomerRegistrationService>().As<ICustomerRegistrationService>().InstancePerLifetimeScope();
+            builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
 
+            builder.RegisterType<PermissionService>().As<IPermissionService>()
+                .WithParameter(ResolvedParameter.ForNamed<ICacheManager>("nop_cache_static"))
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<StoreService>().As<IStoreService>();
+            builder.RegisterType<UserAgentHelper>().As<IUserAgentHelper>().InstancePerLifetimeScope();
+
+            builder.RegisterType<EncryptionService>().As<IEncryptionService>().InstancePerLifetimeScope();
             builder.RegisterType<FormsAuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();
-
-
 
             //use static cache (between HTTP requests)
             builder.RegisterType<SettingService>().As<ISettingService>()
@@ -151,6 +167,11 @@ namespace Nop.Web.Framework
             //builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             //builder.RegisterType<SitemapGenerator>().As<ISitemapGenerator>().InstancePerLifetimeScope();
             builder.RegisterType<PageHeadBuilder>().As<IPageHeadBuilder>().InstancePerLifetimeScope();
+            builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
+
+            builder.RegisterType<RewardPointService>().As<IRewardPointService>().InstancePerLifetimeScope();
+            builder.RegisterType<TopicService>().As<ITopicService>().InstancePerLifetimeScope();
+            builder.RegisterType<NewsService>().As<INewsService>().InstancePerLifetimeScope();
 
             //Register event consumers
             var consumers = typeFinder.FindClassesOfType(typeof(IConsumer<>)).ToList();
@@ -217,9 +238,7 @@ namespace Nop.Web.Framework
             return RegistrationBuilder
                 .ForDelegate((c, p) =>
                 {
-                    //var currentStoreId = c.Resolve<IStoreContext>().CurrentStore.Id;
-                    // 直销系统不需要多个store
-                    var currentStoreId = 0;
+                    var currentStoreId = c.Resolve<IStoreContext>().CurrentStore.Id;
 
                     //uncomment the code below if you want load settings per store only when you have two stores installed.
                     //var currentStoreId = c.Resolve<IStoreService>().GetAllStores().Count > 1
