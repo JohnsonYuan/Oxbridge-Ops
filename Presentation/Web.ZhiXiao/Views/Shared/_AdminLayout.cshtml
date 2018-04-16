@@ -54,7 +54,7 @@
 
     //page title
     string adminPageTitle = !String.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title + " / " : "";
-    adminPageTitle += T("Admin.PageTitle").Text;
+    //adminPageTitle += T("Admin.PageTitle").Text;
     Html.AppendTitleParts(adminPageTitle);
 
     //has "Manage Maintenance" permission?

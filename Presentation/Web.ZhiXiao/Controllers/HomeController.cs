@@ -18,6 +18,7 @@ namespace Web.ZhiXiao.Controllers
 
         public ActionResult Index()
         {
+            ViewBag.Title = "管理";
             return View();
         }
 

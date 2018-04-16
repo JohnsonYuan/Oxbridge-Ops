@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web.Routing;
 using System.Xml;
 using Nop.Core;
+using Nop.Core.Domain.Customers;
 using Nop.Core.Infrastructure;
 using Nop.Services.Localization;
 using Nop.Services.Security;
@@ -100,15 +101,28 @@ namespace Nop.Web.Framework.Menu
 
             //permission name
             var permissionNames = GetStringValueFromAttribute(xmlNode, "PermissionNames");
+            var rolesNames = GetStringValueFromAttribute(xmlNode, "RoleNames");
+            var excludeRoleNames = GetStringValueFromAttribute(xmlNode, "ExcludeRoleNames");
+            siteMapNode.Visible = true;
             if (!string.IsNullOrEmpty(permissionNames))
             {
                 var permissionService = EngineContext.Current.Resolve<IPermissionService>();
                 siteMapNode.Visible = permissionNames.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                    .Any(permissionName => permissionService.Authorize(permissionName.Trim()));
             }
-            else
+
+            // 继续验证是否在role中
+            var customer = EngineContext.Current.Resolve<IWorkContext>().CurrentCustomer;
+            if (!string.IsNullOrEmpty(rolesNames))
             {
-                siteMapNode.Visible = true;
+                siteMapNode.Visible = rolesNames.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                   .Any(roleName => customer.IsInCustomerRole(roleName.Trim()));
+            }
+
+            if (!string.IsNullOrEmpty(excludeRoleNames))
+            {
+                siteMapNode.Visible = !excludeRoleNames.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                   .Any(roleName => customer.IsInCustomerRole(roleName.Trim()));
             }
 
             // Open URL in new tab
