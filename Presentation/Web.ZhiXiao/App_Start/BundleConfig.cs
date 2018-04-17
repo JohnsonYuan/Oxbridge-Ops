@@ -24,6 +24,8 @@ namespace Web.ZhiXiao.App_Start
 
             bundles.Add(new StyleBundle("~/Content/bootstrap").Include(
                       "~/Content/lib/bootstrap/css/bootstrap.css"));
+
+            BundleTable.EnableOptimizations = false;
         }
     }
 }
