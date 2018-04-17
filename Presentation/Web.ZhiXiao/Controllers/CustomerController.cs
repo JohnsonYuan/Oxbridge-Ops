@@ -196,6 +196,60 @@ namespace Web.ZhiXiao.Controllers
             return View(model);
         }
 
+        //available even when a store is closed
+        //[StoreClosed(true)]
+        //available even when navigation is not allowed
+        //[PublicStoreAllowNavigation(true)]
+        public virtual ActionResult Logout()
+        {
+            //external authentication
+            //ExternalAuthorizerHelper.RemoveParameters();
+
+            if (_workContext.OriginalCustomerIfImpersonated != null)
+            {
+                //activity log
+                _customerActivityService.InsertActivity(_workContext.OriginalCustomerIfImpersonated,
+                    "Impersonation.Finished",
+                    _localizationService.GetResource("ActivityLog.Impersonation.Finished.StoreOwner"),
+                    _workContext.CurrentCustomer.Email, _workContext.CurrentCustomer.Id);
+                _customerActivityService.InsertActivity("Impersonation.Finished",
+                    _localizationService.GetResource("ActivityLog.Impersonation.Finished.Customer"),
+                    _workContext.OriginalCustomerIfImpersonated.Email, _workContext.OriginalCustomerIfImpersonated.Id);
+
+                //logout impersonated customer
+                _genericAttributeService.SaveAttribute<int?>(_workContext.OriginalCustomerIfImpersonated,
+                    SystemCustomerAttributeNames.ImpersonatedCustomerId, null);
+
+                //redirect back to customer details page (admin area)
+                return this.RedirectToAction("Edit", "Customer",
+                    new { id = _workContext.CurrentCustomer.Id, area = "Admin" });
+
+            }
+
+            //activity log
+            _customerActivityService.InsertActivity("PublicStore.Logout", _localizationService.GetResource("ActivityLog.PublicStore.Logout"));
+
+            //standard logout 
+            _authenticationService.SignOut();
+
+            //raise logged out event       
+            //_eventPublisher.Publish(new CustomerLoggedOutEvent(_workContext.CurrentCustomer));
+
+            //EU Cookie
+            if (_storeInformationSettings.DisplayEuCookieLawWarning)
+            {
+                //the cookie law message should not pop up immediately after logout.
+                //otherwise, the user will have to click it again...
+                //and thus next visitor will not click it... so violation for that cookie law..
+                //the only good solution in this case is to store a temporary variable
+                //indicating that the EU cookie popup window should not be displayed on the next page open (after logout redirection to homepage)
+                //but it'll be displayed for further page loads
+                TempData["nop.IgnoreEuCookieLawWarning"] = true;
+            }
+
+            return RedirectToRoute("HomePage");
+        }
+
         #endregion
     }
 }
