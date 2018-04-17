@@ -1441,7 +1441,7 @@ namespace Nop.Services.Installation
             {
                 PageTitleSeparator = ". ",
                 PageTitleSeoAdjustment = PageTitleSeoAdjustment.PagenameAfterStorename,
-                DefaultTitle = "Your store",
+                DefaultTitle = "直销系统",
                 DefaultMetaKeywords = "",
                 DefaultMetaDescription = "",
                 GenerateProductMetaDescription = true,

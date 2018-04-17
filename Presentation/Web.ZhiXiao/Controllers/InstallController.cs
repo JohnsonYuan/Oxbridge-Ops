@@ -9,9 +9,7 @@ using Nop.Web.Models.Install;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Threading;
-using System.Web;
 using System.Web.Mvc;
 
 namespace Web.ZhiXiao.Controllers
@@ -211,20 +209,26 @@ namespace Web.ZhiXiao.Controllers
             //set page timeout to 5 minutes
             this.Server.ScriptTimeout = 300;
 
-            model.DataProvider = "sqlserver";
+
             model.DisableSqlCompact = _config.UseFastInstallationService;
             model.DisableSampleDataOption = _config.DisableSampleDataDuringInstallation;
-            //values
-            if (string.IsNullOrEmpty(model.SqlServerName))
-                ModelState.AddModelError("", "SqlServerName Required");
-            if (string.IsNullOrEmpty(model.SqlDatabaseName))
-                ModelState.AddModelError("", "DatabaseName Required");
 
-            //authentication type - SQL authentication
-            if (string.IsNullOrEmpty(model.SqlServerUsername))
-                ModelState.AddModelError("", "SqlServerUsername Required");
-            if (string.IsNullOrEmpty(model.SqlServerPassword))
-                ModelState.AddModelError("", "SqlServerPassword Required");
+            //SQL Server
+            if (model.DataProvider.Equals("sqlserver", StringComparison.InvariantCultureIgnoreCase))
+            {
+                //values
+                if (string.IsNullOrEmpty(model.SqlServerName))
+                    ModelState.AddModelError("", "SqlServerName Required");
+                if (string.IsNullOrEmpty(model.SqlDatabaseName))
+                    ModelState.AddModelError("", "DatabaseName Required");
+
+                //authentication type - SQL authentication
+                if (string.IsNullOrEmpty(model.SqlServerUsername))
+                    ModelState.AddModelError("", "SqlServerUsername Required");
+                if (string.IsNullOrEmpty(model.SqlServerPassword))
+                    ModelState.AddModelError("", "SqlServerPassword Required");
+
+            }
 
             var webHelper = EngineContext.Current.Resolve<IWebHelper>();
             if (ModelState.IsValid)
@@ -233,20 +237,37 @@ namespace Web.ZhiXiao.Controllers
                 try
                 {
                     string connectionString;
-                    //values
-                    connectionString = CreateConnectionString(model.SqlAuthenticationType == "windowsauthentication",
-                        model.SqlServerName, model.SqlDatabaseName,
-                        model.SqlServerUsername, model.SqlServerPassword);
-
-                    if (model.SqlServerCreateDatabase)
+                    if (model.DataProvider.Equals("sqlserver", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        if (!SqlServerDatabaseExists(connectionString))
+                        //values
+                        connectionString = CreateConnectionString(model.SqlAuthenticationType == "windowsauthentication",
+                            model.SqlServerName, model.SqlDatabaseName,
+                            model.SqlServerUsername, model.SqlServerPassword);
+
+                        if (model.SqlServerCreateDatabase)
                         {
-                            //create database
-                            var collation = model.UseCustomCollation ? model.Collation : "";
-                            var errorCreatingDatabase = CreateDatabase(connectionString, collation);
-                            if (!String.IsNullOrEmpty(errorCreatingDatabase))
-                                throw new Exception(errorCreatingDatabase);
+                            if (!SqlServerDatabaseExists(connectionString))
+                            {
+                                //create database
+                                var collation = model.UseCustomCollation ? model.Collation : "";
+                                var errorCreatingDatabase = CreateDatabase(connectionString, collation);
+                                if (!String.IsNullOrEmpty(errorCreatingDatabase))
+                                    throw new Exception(errorCreatingDatabase);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //SQL CE
+                        string databaseFileName = "Nop.Db.sdf";
+                        string databasePath = @"|DataDirectory|\" + databaseFileName;
+                        connectionString = "Data Source=" + databasePath + ";Persist Security Info=False";
+
+                        //drop database if exists
+                        string databaseFullPath = CommonHelper.MapPath("~/App_Data/") + databaseFileName;
+                        if (System.IO.File.Exists(databaseFullPath))
+                        {
+                            System.IO.File.Delete(databaseFullPath);
                         }
                     }
 

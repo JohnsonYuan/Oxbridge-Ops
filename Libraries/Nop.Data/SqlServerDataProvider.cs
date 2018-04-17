@@ -103,8 +103,8 @@ namespace Nop.Data
             //    customCommands.AddRange(ParseCommands(CommonHelper.MapPath("~/App_Data/Install/SqlServer.Indexes.sql"), false));
             //    customCommands.AddRange(ParseCommands(CommonHelper.MapPath("~/App_Data/Install/SqlServer.StoredProcedures.sql"), false));
 
-            //var initializer = new CreateTablesIfNotExist<NopObjectContext>(null, null);
-            var initializer = new Nop.Data.Initializers.DropCreateDatabaseIfModelChanges<NopObjectContext>(null, null);
+            var initializer = new CreateTablesIfNotExist<NopObjectContext>(null, null);
+            //var initializer = new Nop.Data.Initializers.DropCreateDatabaseIfModelChanges<NopObjectContext>(null, null);
             Database.SetInitializer(initializer);
         }
 
