@@ -11,9 +11,10 @@ namespace Nop.Web.Framework
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            if (EngineContext.Current.Resolve<IWorkContext>().CurrentCustomer == null)
-                return;
             if (!DataSettingsHelper.DatabaseIsInstalled())
+                return;
+
+            if (EngineContext.Current.Resolve<IWorkContext>().CurrentCustomer == null)
                 return;
 
             if (filterContext == null || filterContext.HttpContext == null || filterContext.HttpContext.Request == null)

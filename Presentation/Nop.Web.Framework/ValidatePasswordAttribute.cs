@@ -33,10 +33,10 @@ namespace Nop.Web.Framework
             if (string.IsNullOrEmpty(controllerName) || controllerName.Equals("Customer", StringComparison.InvariantCultureIgnoreCase))
                 return;
 
-            if (EngineContext.Current.Resolve<IWorkContext>().CurrentCustomer == null)
+            if (!DataSettingsHelper.DatabaseIsInstalled())
                 return;
 
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (EngineContext.Current.Resolve<IWorkContext>().CurrentCustomer == null)
                 return;
 
             //get current customer
