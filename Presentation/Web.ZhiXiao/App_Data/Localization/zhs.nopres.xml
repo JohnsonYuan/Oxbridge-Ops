@@ -435,11 +435,17 @@
   <LocaleResource Name="Account.Login.Fields.Password">
     <Value>密码</Value>
   </LocaleResource>
+  <LocaleResource Name="Account.Login.Fields.Password.Required">
+    <Value>请输入密码</Value>
+  </LocaleResource>
   <LocaleResource Name="Account.Login.Fields.RememberMe">
     <Value>记住我？</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Login.Fields.UserName">
     <Value>用户名</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Login.Fields.UserName.Required">
+    <Value>请输入用户名</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Login.ForgotPassword">
     <Value>忘记密码？</Value>
@@ -466,10 +472,10 @@
     <Value>用户名或密码错误，请重试</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Login.WrongCredentials.CustomerNotExist">
-    <Value>没有找到的客户帐户</Value>
+    <Value>用户不存在</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Login.WrongCredentials.Deleted">
-    <Value>删除客户</Value>
+    <Value>删除用户</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Login.WrongCredentials.NotActive">
     <Value>帐户不是活动的</Value>
@@ -17059,5 +17065,42 @@
   </LocaleResource>
   <LocaleResource Name="Admin.System.SeNames.Id">
     <Value>ID</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Admin.Pager.All">
+    <Value>全部</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.Display">
+    <Value>{0} - {1} 共 {2} </Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.Empty">
+    <Value>无数据</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.First">
+    <Value>第一页</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.ItemsPerPage">
+    <Value>每页显示</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.Last">
+    <Value>最后一页</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.MorePages">
+    <Value>更多</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.Next">
+    <Value>下一页</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.Of">
+    <Value>/ {0}</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.Page">
+    <Value>页数</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.Previous">
+    <Value>上一页</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Pager.Refresh">
+    <Value>刷新</Value>
   </LocaleResource>
 </Language>

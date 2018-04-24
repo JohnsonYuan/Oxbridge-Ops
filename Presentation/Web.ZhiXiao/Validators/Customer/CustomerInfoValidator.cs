@@ -5,7 +5,7 @@ using Nop.Core;
 using Nop.Core.Domain.Customers;
 using Nop.Services.Localization;
 using Nop.Web.Framework.Validators;
-using Nop.Web.Models.Customer;
+using Nop.Models.Customers;
 
 namespace Nop.Web.Validators.Customer
 {

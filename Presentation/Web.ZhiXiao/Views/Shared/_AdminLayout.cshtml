@@ -34,7 +34,7 @@
     Html.AppendCssFileParts("~/Content/lib/fontAwesome/css/font-awesome-4.6.3.min.css");
     Html.AppendCssFileParts("~/Content/lib/typeahead/typeahead.css");
     Html.AppendCssFileParts("~/Content/lib/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css");
-    <!-- AdminLTE Skins (choose a skin from the css/skins) -->
+    //AdminLTE Skins(choose a skin from the css/ skins)
     Html.AppendCssFileParts("~/Content/lib/adminLTE/skins/_all-skins.min.css");
 
     //scripts
@@ -97,7 +97,7 @@
                 <div>
                     <h1 class="throbber-header">@T("Common.Wait...")</h1>
                     <p>
-                        <img src="@Url.Content("~/Content/lib/images/throbber-synchronizing.gif")" alt="" />
+                        <img src="@Url.Content("~/Content/images/throbber-synchronizing.gif")" alt="" />
                     </p>
                 </div>
             </div>
@@ -114,7 +114,7 @@
             {
                 @Html.Widget("admin_header_before", area: "Admin")
                 <div class="main-header">
-                    <a href="@Url.Content("~/admin")" class="logo">
+                    <a href="@Url.Content("~/")" class="logo">
                         <!-- mini logo for sidebar mini 50x50 pixels -->
                         <span class="logo-mini"></span>
                         <!-- logo for regular state and mobile devices -->
@@ -232,7 +232,7 @@
                     </div>
                 }
                 <div class="pull-right hidden-xs">
-                    <b>nopCommerce version @NopVersion.CurrentVersion</b>
+                    <b>@(EngineContext.Current.Resolve<Nop.Core.IStoreContext>().CurrentStore.Name)</b>
                 </div>
                 <div class="text-center">
                     @{

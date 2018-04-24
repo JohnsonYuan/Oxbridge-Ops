@@ -15,6 +15,7 @@ using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Seo;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Domain.Vendors;
+using Nop.Core.Domain.ZhiXiao;
 using Nop.Core.Infrastructure;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
@@ -28,6 +29,7 @@ namespace Nop.Services.Installation
     {
         #region Fields
 
+        private readonly IRepository<CustomerTeam> _customerTeamRepository;
         private readonly IRepository<Store> _storeRepository;
         private readonly IRepository<Language> _languageRepository;
         private readonly IRepository<Customer> _customerRepository;
@@ -45,7 +47,9 @@ namespace Nop.Services.Installation
 
         #region Ctor
 
-        public CodeFirstInstallationService(IRepository<Store> storeRepository,
+        public CodeFirstInstallationService(
+            IRepository<CustomerTeam>  customerTeamRepository,
+            IRepository<Store> storeRepository,
             IRepository<Language> languageRepository,
             IRepository<Customer> customerRepository,
             IRepository<CustomerPassword> customerPasswordRepository,
@@ -59,6 +63,7 @@ namespace Nop.Services.Installation
             IGenericAttributeService genericAttributeService,
             IWebHelper webHelper)
         {
+            this._customerTeamRepository = customerTeamRepository;
             this._storeRepository = storeRepository;
             this._languageRepository = languageRepository;
             this._customerRepository = customerRepository;
@@ -143,18 +148,33 @@ namespace Nop.Services.Installation
             localizationService.ImportResourcesFromXml(language, localesXml);
         }
 
+        protected virtual void InstallCustomerTeams()
+        {
+            var teams = new List<CustomerTeam>
+            {
+                new CustomerTeam
+                {
+                    TeamNumber = DateTime.UtcNow.ToString("yyyymmdd"),
+                    UserCount = 0,
+                    CreatedOnUtc = DateTime.UtcNow
+                }
+            };
+
+            _customerTeamRepository.Insert(teams);
+        }
+
         protected virtual void InstallCustomersAndUsers(string defaultUserEmail, string defaultUserPassword)
         {
             var crAdministrators = new CustomerRole
             {
-                Name = "Administrators",
+                Name = "系统管理员",
                 Active = true,
                 IsSystemRole = true,
                 SystemName = SystemCustomerRoleNames.Administrators,
             };
             var crManagers = new CustomerRole
             {
-                Name = "Managers",
+                Name = "管理员",
                 Active = true,
                 IsSystemRole = true,
                 SystemName = SystemCustomerRoleNames.Managers,
@@ -166,16 +186,23 @@ namespace Nop.Services.Installation
                 IsSystemRole = true,
                 SystemName = SystemCustomerRoleNames.ForumModerators,
             };
-            var crRegistered = new CustomerRole
+            var crRegistered_Normal = new CustomerRole
             {
-                Name = "Registered",
+                Name = "普通用户",
                 Active = true,
                 IsSystemRole = true,
-                SystemName = SystemCustomerRoleNames.Registered,
+                SystemName = SystemCustomerRoleNames.Registered_Normal,
+            };
+            var crRegistered_Normal_Advanced = new CustomerRole
+            {
+                Name = "高级用户",
+                Active = true,
+                IsSystemRole = true,
+                SystemName = SystemCustomerRoleNames.Registered_Advanced,
             };
             var crGuests = new CustomerRole
             {
-                Name = "Guests",
+                Name = "匿名用户(未注册用户)",
                 Active = true,
                 IsSystemRole = true,
                 SystemName = SystemCustomerRoleNames.Guests,
@@ -192,7 +219,8 @@ namespace Nop.Services.Installation
                                 {
                                     crAdministrators,
                                     crForumModerators,
-                                    crRegistered,
+                                    crRegistered_Normal,
+                                    crRegistered_Normal_Advanced,
                                     crGuests,
                                     crVendors
                                 };
@@ -206,9 +234,18 @@ namespace Nop.Services.Installation
 
             var storeId = defaultStore.Id;
 
+            //default team
+            var defaultTeam = _customerTeamRepository.Table.FirstOrDefault();
+
+            if (defaultTeam == null)
+                throw new Exception("No default team could be loaded");
+
+            var teamId = defaultTeam.Id;
+
             //admin user
             var adminUser = new Customer
             {
+                CustomerTeamId = teamId,
                 CustomerGuid = Guid.NewGuid(),
                 Email = defaultUserEmail,
                 Username = defaultUserEmail,
@@ -237,7 +274,7 @@ namespace Nop.Services.Installation
             adminUser.CustomerRoles.Add(crAdministrators);
             adminUser.CustomerRoles.Add(crManagers);
             adminUser.CustomerRoles.Add(crForumModerators);
-            adminUser.CustomerRoles.Add(crRegistered);
+            adminUser.CustomerRoles.Add(crRegistered_Normal);
 
             _customerRepository.Insert(adminUser);
             //set default customer name
@@ -253,6 +290,7 @@ namespace Nop.Services.Installation
             var secondUserEmail = "xiaoyuan@yourStore.com";
             var secondUser = new Customer
             {
+                CustomerTeamId = teamId,
                 CustomerGuid = Guid.NewGuid(),
                 Email = secondUserEmail,
                 Username = secondUserEmail,
@@ -280,7 +318,7 @@ namespace Nop.Services.Installation
             secondUser.ShippingAddress = defaultSecondUserAddress;
 
             secondUser.CustomerRoles.Add(crManagers);
-            secondUser.CustomerRoles.Add(crRegistered);
+            secondUser.CustomerRoles.Add(crRegistered_Normal);
 
             _customerRepository.Insert(secondUser);
             //set default customer name
@@ -303,6 +341,7 @@ namespace Nop.Services.Installation
             var thirdUserEmail = "xiaowang@yourStore.com";
             var thirdUser = new Customer
             {
+                CustomerTeamId = teamId,
                 CustomerGuid = Guid.NewGuid(),
                 Email = thirdUserEmail,
                 Username = thirdUserEmail,
@@ -329,7 +368,7 @@ namespace Nop.Services.Installation
             thirdUser.BillingAddress = defaultThirdUserAddress;
             thirdUser.ShippingAddress = defaultThirdUserAddress;
 
-            thirdUser.CustomerRoles.Add(crRegistered);
+            thirdUser.CustomerRoles.Add(crRegistered_Normal);
 
             _customerRepository.Insert(thirdUser);
             //set default customer name
@@ -350,6 +389,7 @@ namespace Nop.Services.Installation
             var fourthUserEmail = "james_pan@nopCommerce.com";
             var fourthUser = new Customer
             {
+                CustomerTeamId = teamId,
                 CustomerGuid = Guid.NewGuid(),
                 Email = fourthUserEmail,
                 Username = fourthUserEmail,
@@ -376,7 +416,7 @@ namespace Nop.Services.Installation
             fourthUser.BillingAddress = defaultFourthUserAddress;
             fourthUser.ShippingAddress = defaultFourthUserAddress;
 
-            fourthUser.CustomerRoles.Add(crRegistered);
+            fourthUser.CustomerRoles.Add(crRegistered_Normal);
 
             _customerRepository.Insert(fourthUser);
             //set default customer name
@@ -397,6 +437,7 @@ namespace Nop.Services.Installation
             var fifthUserEmail = "brenda_lindgren@nopCommerce.com";
             var fifthUser = new Customer
             {
+                CustomerTeamId = teamId,
                 CustomerGuid = Guid.NewGuid(),
                 Email = fifthUserEmail,
                 Username = fifthUserEmail,
@@ -423,7 +464,7 @@ namespace Nop.Services.Installation
             fifthUser.BillingAddress = defaultFifthUserAddress;
             fifthUser.ShippingAddress = defaultFifthUserAddress;
 
-            fifthUser.CustomerRoles.Add(crRegistered);
+            fifthUser.CustomerRoles.Add(crRegistered_Normal);
 
             _customerRepository.Insert(fifthUser);
             //set default customer name
@@ -444,6 +485,7 @@ namespace Nop.Services.Installation
             var sixthUserEmail = "victoria_victoria@nopCommerce.com";
             var sixthUser = new Customer
             {
+                CustomerTeamId = teamId,
                 CustomerGuid = Guid.NewGuid(),
                 Email = sixthUserEmail,
                 Username = sixthUserEmail,
@@ -470,7 +512,7 @@ namespace Nop.Services.Installation
             sixthUser.BillingAddress = defaultSixthUserAddress;
             sixthUser.ShippingAddress = defaultSixthUserAddress;
 
-            sixthUser.CustomerRoles.Add(crRegistered);
+            sixthUser.CustomerRoles.Add(crRegistered_Normal);
 
             _customerRepository.Insert(sixthUser);
             //set default customer name
@@ -1616,7 +1658,7 @@ namespace Nop.Services.Installation
                 TwitterLink = "https://twitter.com/nopCommerce",
                 YoutubeLink = "http://www.youtube.com/user/nopCommerce",
                 GooglePlusLink = "https://plus.google.com/+nopcommerce",
-                HidePoweredByNopCommerce = false
+                HidePoweredByNopCommerce = true
             });
 
             settingService.SaveSetting(new RewardPointsSettings
@@ -1658,6 +1700,7 @@ namespace Nop.Services.Installation
             InstallLanguages();
             InstallSettings(installSampleData);
             InstallLocaleResources();
+            InstallCustomerTeams();
             InstallCustomersAndUsers(defaultUserEmail, defaultUserPassword);
             InstallActivityLogTypes();
 

@@ -34,9 +34,18 @@
       <HintPath>..\..\packages\Autofac.4.4.0\lib\net45\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="MaxMind.Db, Version=2.0.0.0, Culture=neutral, PublicKeyToken=66afa4cc5ae853ac, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MaxMind.Db.2.4.0\lib\net45\MaxMind.Db.dll</HintPath>
+    </Reference>
+    <Reference Include="MaxMind.GeoIP2, Version=3.0.0.0, Culture=neutral, PublicKeyToken=66afa4cc5ae853ac, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MaxMind.GeoIP2.3.0.0\lib\net45\MaxMind.GeoIP2.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -79,16 +88,20 @@
     <Compile Include="Common\GenericAttributeExtensions.cs" />
     <Compile Include="Common\GenericAttributeService.cs" />
     <Compile Include="Common\IGenericAttributeService.cs" />
+    <Compile Include="Common\IMaintenanceService.cs" />
+    <Compile Include="Common\MaintenanceService.cs" />
     <Compile Include="Configuration\ISettingService.cs" />
     <Compile Include="Configuration\SettingExtensions.cs" />
     <Compile Include="Configuration\SettingService.cs" />
     <Compile Include="Customers\ChangePasswordRequest.cs" />
+    <Compile Include="Customers\CustomerAttributeService.cs" />
     <Compile Include="Customers\CustomerRegistrationRequest.cs" />
     <Compile Include="Customers\CustomerRegistrationResult.cs" />
     <Compile Include="Customers\ChangePasswordResult.cs" />
     <Compile Include="Customers\CustomerExtensions.cs" />
     <Compile Include="Customers\CustomerRegistrationService.cs" />
     <Compile Include="Customers\CustomerService.cs" />
+    <Compile Include="Customers\ICustomerAttributeService.cs" />
     <Compile Include="Customers\ICustomerRegistrationService.cs" />
     <Compile Include="Customers\ICustomerService.cs" />
     <Compile Include="Events\EventPublisherExtensions.cs" />
@@ -98,6 +111,7 @@
     <Compile Include="Events\NullEventPublisher.cs" />
     <Compile Include="Events\NullSubscriptionService.cs" />
     <Compile Include="Events\SubscriptionService.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Helpers\BrowscapXmlParser.cs" />
     <Compile Include="Helpers\DateTimeHelper.cs" />
     <Compile Include="Helpers\DateTimeSettings.cs" />
@@ -116,6 +130,8 @@
     <Compile Include="Localization\LocalizationExtensions.cs" />
     <Compile Include="Localization\LocalizationService.cs" />
     <Compile Include="Localization\LocalizedEntityService.cs" />
+    <Compile Include="Directory\GeoLookupService.cs" />
+    <Compile Include="Directory\IGeoLookupService.cs" />
     <Compile Include="News\INewsService.cs" />
     <Compile Include="News\NewsService.cs" />
     <Compile Include="Orders\IRewardPointService.cs" />

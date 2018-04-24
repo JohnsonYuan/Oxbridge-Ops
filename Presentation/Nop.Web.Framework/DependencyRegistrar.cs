@@ -31,6 +31,7 @@ using Nop.Services.Security;
 using Nop.Services.Orders;
 using Nop.Services.Topics;
 using Nop.Services.News;
+using Nop.Services.Directory;
 
 namespace Nop.Web.Framework
 {
@@ -200,6 +201,10 @@ namespace Nop.Web.Framework
                     builder.RegisterType<CodeFirstInstallationService>().As<IInstallationService>().InstancePerLifetimeScope();
                 }
             }
+
+            builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<GeoLookupService>().As<IGeoLookupService>().InstancePerLifetimeScope();
+            builder.RegisterType<MaintenanceService>().As<IMaintenanceService>().InstancePerLifetimeScope();
 
             builder.RegisterType<NullEventPublisher>().As<IEventPublisher>().SingleInstance();
             builder.RegisterType<NullSubscriptionService>().As<ISubscriptionService>().SingleInstance();

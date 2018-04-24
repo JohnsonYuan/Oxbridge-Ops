@@ -30,12 +30,16 @@ namespace Web.ZhiXiao
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
             //disable "X-AspNetMvc-Version" header name
-            //MvcHandler.DisableMvcResponseHeader = true;
+            MvcHandler.DisableMvcResponseHeader = true;
 
             //initialize engine context
             EngineContext.Initialize(false);
 
             bool databaseInstalled = DataSettingsHelper.DatabaseIsInstalled();
+            //remove all view engines
+            ViewEngines.Engines.Clear();
+            //except the themeable razor view engine we use
+            ViewEngines.Engines.Add(new RazorViewEngine());
 
             //Add some functionality on top of the default ModelMetadataProvider
             ModelMetadataProviders.Current = new NopMetadataProvider();

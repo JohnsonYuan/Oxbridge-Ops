@@ -256,7 +256,7 @@ namespace Nop.Services.Customers
             request.Customer.Active = request.IsApproved;
 
             //add to 'Registered' role
-            var registeredRole = _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered);
+            var registeredRole = _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered_Advanced);
             if (registeredRole == null)
                 throw new NopException("'Registered' role could not be loaded");
             request.Customer.CustomerRoles.Add(registeredRole);

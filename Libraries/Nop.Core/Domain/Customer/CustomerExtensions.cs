@@ -104,7 +104,8 @@ namespace Nop.Core.Domain.Customers
         /// <returns>Result</returns>
         public static bool IsRegistered(this Customer customer, bool onlyActiveCustomerRoles = true)
         {
-            return IsInCustomerRole(customer, SystemCustomerRoleNames.Registered, onlyActiveCustomerRoles);
+            return IsInCustomerRole(customer, SystemCustomerRoleNames.Registered_Normal, onlyActiveCustomerRoles) 
+                || IsInCustomerRole(customer, SystemCustomerRoleNames.Registered_Advanced, onlyActiveCustomerRoles);
         }
 
         /// <summary>

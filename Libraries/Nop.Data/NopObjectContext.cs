@@ -18,6 +18,12 @@ namespace Nop.Data
     {
         #region Ctor
 
+        public NopObjectContext()
+            : this("NopCommerce")
+        {
+
+        }
+
         public NopObjectContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {

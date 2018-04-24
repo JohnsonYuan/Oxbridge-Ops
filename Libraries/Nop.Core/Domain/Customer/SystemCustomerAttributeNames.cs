@@ -53,5 +53,18 @@ namespace Nop.Core.Domain.Customers
         public static string TaxDisplayTypeId { get { return "TaxDisplayTypeId"; } }
         public static string UseRewardPointsDuringCheckout { get { return "UseRewardPointsDuringCheckout"; } }
         public static string EuCookieLawAccepted { get { return "EuCookieLaw.Accepted"; } }
+
+        // zhixiao
+        public static string ZhiXiao_Gender { get { return "ZhiXiao.Gender"; } }                // 性别
+        public static string ZhiXiao_IdCardNum { get { return "ZhiXiao.IdCardNum"; } }          // 身份证号
+        public static string ZhiXiao_TeamId { get { return "ZhiXiao.TeamId"; } }                // 当前小组id
+        public static string ZhiXiao_InTeamOrder { get { return "ZhiXiao.InTeamOrder"; } }      // 在小组中排序id(按加入时间)
+        public static string ZhiXiao_InTeamTime { get { return "ZhiXiao.InTeamTime"; } }        // 加入该小组的时间
+        public static string ZhiXiao_Password2 { get { return "ZhiXiao.Password2"; } }          // 二级密码
+        public static string ZhiXiao_Level { get { return "ZhiXiao.Level"; } }                  // 级别id
+        public static string ZhiXiao_ParentId { get { return "ZhiXiao.ParentId"; } }            // 推荐人id
+        public static string ZhiXiao_ChildCount { get { return "ZhiXiao.ChildCount"; } }        // 下线个数
+        public static string ZhiXiao_MoneyNum { get { return "ZhiXiao.MoneyNum"; } }            // 当前金币
+        public static string ZhiXiao_MoneyHistory { get { return "ZhiXiao.MoneyHistory"; } }    // 历史金币(只计算增加)
     }
 }

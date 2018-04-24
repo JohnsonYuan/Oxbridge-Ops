@@ -7,7 +7,7 @@ using Nop.Web.Framework;
 using Nop.Web.Framework.Mvc;
 using Nop.Web.Validators.Customer;
 
-namespace Nop.Web.Models.Customer
+namespace Nop.Models.Customers
 {
     [Validator(typeof(RegisterValidator))]
     public partial class RegisterModel : BaseNopModel

@@ -1,5 +1,5 @@
 ﻿using Nop.Core.Domain.Customers;
-using Nop.Web.Models.Customer;
+using Nop.Models.Customers;
 
 namespace Web.ZhiXiao.Factories
 {

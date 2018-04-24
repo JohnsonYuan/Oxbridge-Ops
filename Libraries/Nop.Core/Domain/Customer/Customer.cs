@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Nop.Core.Domain.Common;
+using Nop.Core.Domain.ZhiXiao;
 
 namespace Nop.Core.Domain.Customers
 {
@@ -24,6 +25,19 @@ namespace Nop.Core.Domain.Customers
         {
             this.CustomerGuid = Guid.NewGuid();
         }
+
+        #region 直销相关
+
+        /// <summary>
+        /// Gets or sets the level id
+        /// </summary>
+        public int CustomerLevelId { get; set; }
+        /// <summary>
+        /// Gets or sets the team id
+        /// </summary>
+        public int? CustomerTeamId { get; set; }
+
+        #endregion
 
         /// <summary>
         /// Gets or sets the customer Guid
@@ -131,7 +145,7 @@ namespace Nop.Core.Domain.Customers
         ///  Gets or sets the store identifier in which customer registered
         /// </summary>
         public int RegisteredInStoreId { get; set; }
-        
+
         #region Navigation properties
 
         /// <summary>
@@ -182,6 +196,11 @@ namespace Nop.Core.Domain.Customers
         public virtual Address ShippingAddress { get; set; }
 
         /// <summary>
+        /// Default customer team
+        /// </summary>
+        public virtual CustomerTeam CustomerTeam { get; set; }
+
+        /// <summary>
         /// Gets or sets customer addresses
         /// </summary>
         public virtual ICollection<Address> Addresses
@@ -189,7 +208,22 @@ namespace Nop.Core.Domain.Customers
             get { return _addresses ?? (_addresses = new List<Address>()); }
             protected set { _addresses = value; }            
         }
-        
+
         #endregion
+
+        /// <summary>
+        /// Gets or sets the customer level
+        /// </summary>
+        public CustomerLevel CustomerLevel
+        {
+            get
+            {
+                return (CustomerLevel)this.CustomerLevelId;
+            }
+            set
+            {
+                this.CustomerLevelId = (int)value;
+            }
+        }
     }
 }

@@ -1338,3 +1338,14 @@ span.grid-report-item.red {
         float: left;
     }
 }
+
+.message-error,
+.field-validation-error,
+.username-not-available-status,
+.password-error {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    color: #e4434b;
+    margin-top: 5px;
+}

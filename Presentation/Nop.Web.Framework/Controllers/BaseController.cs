@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Web.Mvc;
+using System.Web.Routing;
 using Nop.Core;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Infrastructure;
@@ -24,6 +25,27 @@ namespace Nop.Web.Framework.Controllers
     [ValidatePassword]
     public abstract class BaseController : Controller
     {
+        /// <summary>
+        /// Access denied json data for kendo grid
+        /// </summary>
+        /// <returns>Access denied json data</returns>
+        protected JsonResult AccessDeniedKendoGridJson()
+        {
+            var localizationService = EngineContext.Current.Resolve<ILocalizationService>();
+
+            return ErrorForKendoGridJson(localizationService.GetResource("Admin.AccessDenied.Description"));
+        }
+
+        /// <summary>
+        /// Access denied view
+        /// </summary>
+        /// <returns>Access denied view</returns>
+        protected virtual ActionResult AccessDeniedView()
+        {
+            //return new HttpUnauthorizedResult();
+            return RedirectToAction("AccessDenied", "Security", new { pageUrl = this.Request.RawUrl });
+        }
+
         /// <summary>
         /// Render partial view to string
         /// </summary>
@@ -227,6 +249,5 @@ namespace Nop.Web.Framework.Controllers
                 locales.Add(locale);
             }
         }
-
     }
 }

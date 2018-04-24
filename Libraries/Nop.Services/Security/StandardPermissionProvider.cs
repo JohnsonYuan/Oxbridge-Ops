@@ -230,16 +230,32 @@ namespace Nop.Services.Security
                         PublicStoreAllowNavigation
                     }
                 },
-                new DefaultPermissionRecord 
+                new DefaultPermissionRecord
                 {
-                    CustomerRoleSystemName = SystemCustomerRoleNames.Registered,
-                    PermissionRecords = new[] 
+                    CustomerRoleSystemName = SystemCustomerRoleNames.Registered_Normal,
+                    PermissionRecords = new[]
                     {
                         DisplayPrices,
                         EnableShoppingCart,
                         EnableWishlist,
                         PublicStoreAllowNavigation,
 
+                        AccessAdminPanel,
+                        // zhixiao
+                        ZhiXiaoManagerUser
+                    }
+                },
+                new DefaultPermissionRecord
+                {
+                    CustomerRoleSystemName = SystemCustomerRoleNames.Registered_Advanced,
+                    PermissionRecords = new[]
+                    {
+                        DisplayPrices,
+                        EnableShoppingCart,
+                        EnableWishlist,
+                        PublicStoreAllowNavigation,
+
+                        AccessAdminPanel,
                         // zhixiao
                         ZhiXiaoManagerUser
                     }

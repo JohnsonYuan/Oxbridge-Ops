@@ -20,28 +20,28 @@ namespace Web.ZhiXiao.App_Start
             //login
             routes.MapRoute("Login",
                             "login/",
-                            new { controller = "Customer", action = "Login" },
+                            new { controller = "Common", action = "Login" },
                             new[] { "Web.ZhiXiao.Controllers" });
             //register
             routes.MapRoute("Register",
                             "register/",
-                            new { controller = "Customer", action = "Register" },
+                            new { controller = "Common", action = "Register" },
                             new[] { "Web.ZhiXiao.Controllers" });
             //logout
             routes.MapRoute("Logout",
                             "logout/",
-                            new { controller = "Customer", action = "Logout" },
+                            new { controller = "Common", action = "Logout" },
                             new[] { "Web.ZhiXiao.Controllers" });
 
             //passwordrecovery
             routes.MapRoute("PasswordRecovery",
                             "passwordrecovery",
-                            new { controller = "Customer", action = "PasswordRecovery" },
+                            new { controller = "Common", action = "PasswordRecovery" },
                             new[] { "Nop.Web.Controllers" });
             //password recovery confirmation
             routes.MapRoute("PasswordRecoveryConfirm",
                             "passwordrecovery/confirm",
-                            new { controller = "Customer", action = "PasswordRecoveryConfirm" },
+                            new { controller = "Common", action = "PasswordRecoveryConfirm" },
                             new[] { "Nop.Web.Controllers" });
 
 

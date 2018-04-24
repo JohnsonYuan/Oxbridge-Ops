@@ -164,12 +164,14 @@
     <Compile Include="Domain\Seo\WwwRequirement.cs" />
     <Compile Include="Domain\StoreInformationSettings.cs" />
     <Compile Include="Domain\Stores\IStoreMappingSupported.cs" />
-    <Compile Include="Domain\Store\Store.cs" />
+    <Compile Include="Domain\Stores\Store.cs" />
     <Compile Include="Domain\Topics\Topic.cs" />
     <Compile Include="Domain\Topics\TopicTemplate.cs" />
     <Compile Include="Domain\Vendors\Vendor.cs" />
     <Compile Include="Domain\Vendors\VendorNote.cs" />
     <Compile Include="Domain\Vendors\VendorSettings.cs" />
+    <Compile Include="Domain\ZhiXiao\CustomerLevel.cs" />
+    <Compile Include="Domain\ZhiXiao\CustomerTeam.cs" />
     <Compile Include="Events\EntityDeleted.cs" />
     <Compile Include="Events\EntityInserted.cs" />
     <Compile Include="Events\EntityUpdated.cs" />

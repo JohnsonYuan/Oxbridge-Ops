@@ -2,7 +2,7 @@
 using Nop.Core.Domain.Catalog;
 using Nop.Web.Framework.Mvc;
 
-namespace Nop.Web.Models.Customer
+namespace Nop.Models.Customers
 {
     public partial class CustomerAttributeModel : BaseNopEntityModel
     {
