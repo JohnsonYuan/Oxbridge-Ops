@@ -191,7 +191,7 @@ namespace Nop.Services.Installation
                 Name = "∆’Õ®”√ªß",
                 Active = true,
                 IsSystemRole = true,
-                SystemName = SystemCustomerRoleNames.Registered_Normal,
+                SystemName = SystemCustomerRoleNames.Registered,
             };
             var crRegistered_Normal_Advanced = new CustomerRole
             {

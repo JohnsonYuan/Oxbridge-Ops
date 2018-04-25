@@ -9,7 +9,7 @@ namespace Nop.Core.Domain.Customers
 
         public static string ForumModerators { get { return "ForumModerators"; } }
 
-        public static string Registered_Normal { get { return "Registered.Normal"; } }
+        public static string Registered { get { return "Registered.Normal"; } }
         public static string Registered_Advanced { get { return "Registered.Advanced"; } }
 
         public static string Guests { get { return "Guests"; } }

@@ -232,7 +232,7 @@ namespace Nop.Services.Security
                 },
                 new DefaultPermissionRecord
                 {
-                    CustomerRoleSystemName = SystemCustomerRoleNames.Registered_Normal,
+                    CustomerRoleSystemName = SystemCustomerRoleNames.Registered,
                     PermissionRecords = new[]
                     {
                         DisplayPrices,

@@ -126,8 +126,7 @@ namespace Nop.Validators.Customers
                     newCustomerRoles.Add(customerRole);
 
             bool isInRegisteredRole = newCustomerRoles.FirstOrDefault(cr => 
-                cr.SystemName == SystemCustomerRoleNames.Registered_Normal ||
-                cr.SystemName == SystemCustomerRoleNames.Registered_Advanced) != null;
+                cr.SystemName == SystemCustomerRoleNames.Registered) != null;
             return isInRegisteredRole;
         }
     }

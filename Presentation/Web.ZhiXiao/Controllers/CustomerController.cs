@@ -287,7 +287,7 @@ namespace Web.ZhiXiao.Controllers
 
             //customer roles
             var allRoles = _customerService.GetAllCustomerRoles(true);
-            var adminRole = allRoles.FirstOrDefault(c => c.SystemName == SystemCustomerRoleNames.Registered_Normal);
+            var adminRole = allRoles.FirstOrDefault(c => c.SystemName == SystemCustomerRoleNames.Registered);
             //precheck Registered Role as a default role while creating a new customer through admin
             if (customer == null && adminRole != null)
             {
@@ -364,7 +364,7 @@ namespace Web.ZhiXiao.Controllers
 
             //load registered customers by default
             var defaultRoleIds = new List<int> {
-                _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered_Normal).Id,
+                _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered).Id,
                 _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered_Advanced).Id
             };
             var model = new CustomerListModel
