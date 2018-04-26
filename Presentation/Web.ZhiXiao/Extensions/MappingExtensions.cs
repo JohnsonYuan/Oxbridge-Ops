@@ -1,5 +1,7 @@
-﻿using Nop.Admin.Models.Logging;
+﻿using Nop.Admin.Models.Localization;
+using Nop.Admin.Models.Logging;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Logging;
 using Nop.Core.Infrastructure.Mapper;
 using Nop.Models.Customers;
@@ -67,6 +69,25 @@ namespace Nop.Extensions
         public static ActivityLogModel ToModel(this ActivityLog entity)
         {
             return entity.MapTo<ActivityLog, ActivityLogModel>();
+        }
+
+        #endregion
+
+        #region Languages
+
+        public static LanguageModel ToModel(this Language entity)
+        {
+            return entity.MapTo<Language, LanguageModel>();
+        }
+
+        public static Language ToEntity(this LanguageModel model)
+        {
+            return model.MapTo<LanguageModel, Language>();
+        }
+
+        public static Language ToEntity(this LanguageModel model, Language destination)
+        {
+            return model.MapTo(destination);
         }
 
         #endregion

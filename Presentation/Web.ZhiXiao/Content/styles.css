@@ -724,7 +724,7 @@ td.k-state-focused.k-state-selected {
 
 /* CONTENT HEADER */
 .content-header > h1 {
-    margin-bottom: 10px;
+    /*margin-bottom: 10px;*/
 }
 .content-header > h1 > small {
     color: #0076BB;

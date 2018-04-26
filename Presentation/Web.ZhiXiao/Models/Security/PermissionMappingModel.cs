@@ -1,11 +1,8 @@
-﻿using Nop.Models.Customers;
+﻿using System.Collections.Generic;
+using Nop.Models.Customers;
 using Nop.Web.Framework.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
-namespace Web.ZhiXiao.Models.Security
+namespace Nop.Admin.Models.Security
 {
     public partial class PermissionMappingModel : BaseNopModel
     {

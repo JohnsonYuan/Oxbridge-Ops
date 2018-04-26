@@ -1,6 +1,6 @@
 ﻿using Nop.Web.Framework.Mvc;
 
-namespace Web.ZhiXiao.Models.Security
+namespace Nop.Admin.Models.Security
 {
     public partial class PermissionRecordModel : BaseNopModel
     {

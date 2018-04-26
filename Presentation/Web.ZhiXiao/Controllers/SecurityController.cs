@@ -8,11 +8,11 @@ using Nop.Services.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using Web.ZhiXiao.Models.Security;
+using Nop.Admin.Models.Security;
+using Web.ZhiXiao.Controllers;
 
-namespace Web.ZhiXiao.Controllers
+namespace Nop.ZhiXiao.Controllers
 {
     public partial class SecurityController : BaseAdminController
     {
@@ -57,9 +57,21 @@ namespace Web.ZhiXiao.Controllers
             return View();
         }
 
+        public ActionResult testPermission()
+        {
+            var permissionRecords = _permissionService.GetAllPermissionRecords();
+            List<string> names = new List<string>();
+            foreach (var pr in permissionRecords)
+            {
+                var name = pr.GetLocalizedPermissionName(_localizationService, _workContext);
+                names.Add(name);
+            }
+            return Content(_workContext.WorkingLanguage.Name + " "   + names[0]);
+        }
+
         public ActionResult Permissions()
         {
-            if (_permissionService.Authorize(StandardPermissionProvider.ManageAcl))
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageAcl))
                 return AccessDeniedView();
 
             var model = new PermissionMappingModel();

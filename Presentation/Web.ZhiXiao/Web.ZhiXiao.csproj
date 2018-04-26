@@ -905,6 +905,7 @@
     <Compile Include="Controllers\CustomerRoleController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InstallController.cs" />
+    <Compile Include="Controllers\LanguageController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Controllers\OnlineCustomerController.cs" />
     <Compile Include="Controllers\PreferencesController.cs" />
@@ -932,6 +933,9 @@
     <Compile Include="Models\Home\DashboardModel.cs" />
     <Compile Include="Models\Install\InstallModel.cs" />
     <Compile Include="Models\Customer\LoginModel.cs" />
+    <Compile Include="Models\Localization\LanguageModel.cs" />
+    <Compile Include="Models\Localization\LanguageResourceModel.cs" />
+    <Compile Include="Models\Localization\LanguageResourcesListModel.cs" />
     <Compile Include="Models\Logging\ActivityLogModel.cs" />
     <Compile Include="Models\Logging\ActivityLogSearchModel.cs" />
     <Compile Include="Models\Logging\ActivityLogTypeModel.cs" />
@@ -947,6 +951,8 @@
     <Compile Include="Validators\Customer\LoginValidator.cs" />
     <Compile Include="Validators\Customer\RegisterValidator.cs" />
     <Compile Include="Validators\Install\InstallValidator.cs" />
+    <Compile Include="Validators\Localization\LanguageResourceValidator.cs" />
+    <Compile Include="Validators\Localization\LanguageValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
@@ -1057,6 +1063,12 @@
     <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
     <Content Include="Views\Common\SystemInfo.cshtml" />
     <Content Include="Views\Common\Maintenance.cshtml" />
+    <Content Include="Views\Security\AccessDenied.cshtml" />
+    <Content Include="Views\Security\Permissions.cshtml" />
+    <Content Include="Views\Language\List.cshtml" />
+    <Content Include="Views\Language\Create.cshtml" />
+    <Content Include="Views\Language\Edit.cshtml" />
+    <Content Include="Views\Language\_CreateOrUpdate.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -636,7 +636,7 @@ namespace Nop.Services.Customers
                 throw new ArgumentNullException("customerRole");
 
             if (customerRole.IsSystemRole)
-                throw new NopException("System role could not be deleted");
+                throw new NopException(Core.Infrastructure.EngineContext.Current.Resolve< Localization.ILocalizationService>().GetResource("Admin.Customers.CustomerRoles.Fields.Active.CantEditSystem"));
 
             _customerRoleRepository.Delete(customerRole);
 
