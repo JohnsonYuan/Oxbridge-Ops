@@ -890,6 +890,8 @@
     <Content Include="Scripts\kendo\2014.1.318\kendo.window.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\typeahead\typeahead.bundle.min.js" />
+    <Content Include="Views\Log\List.cshtml" />
+    <Content Include="Views\Log\View.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1056,8 +1058,6 @@
     <Content Include="Views\Customer\Reports.cshtml" />
     <Content Include="Views\ActivityLog\ListLogs.cshtml" />
     <Content Include="Views\ActivityLog\ListTypes.cshtml" />
-    <Content Include="Views\Log\List.cshtml" />
-    <Content Include="Views\Log\View.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\DateTimeNullable.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\DateNullable.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
