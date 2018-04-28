@@ -1343,9 +1343,9 @@ span.grid-report-item.red {
 .field-validation-error,
 .username-not-available-status,
 .password-error {
-    display: block;
+    /*display: block;
     text-align: center;
     font-size: 13px;
+    margin-top: 5px;*/
     color: #e4434b;
-    margin-top: 5px;
 }

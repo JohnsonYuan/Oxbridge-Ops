@@ -20,50 +20,84 @@ namespace Nop.Validators.Customers
             CustomerSettings customerSettings,
             IDbContext dbContext)
         {
+            //if (customerSettings.UsernamesEnabled)
+            //{
+            RuleFor(x => x.Username).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Username.Required"));
+            //}
+
+            RuleFor(x => x.Password).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Password.Required"));
+            RuleFor(x => x.Password).Length(customerSettings.PasswordMinLength, 999).WithMessage(string.Format(localizationService.GetResource("Account.Fields.Password.LengthValidation"), customerSettings.PasswordMinLength));
+            RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.ConfirmPassword.Required"));
+            RuleFor(x => x.ConfirmPassword).Equal(x => x.Password).WithMessage(localizationService.GetResource("Account.Fields.Password.EnteredPasswordsDoNotMatch"));
+
+            RuleFor(x => x.Password2).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Password2.Required"))
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+            RuleFor(x => x.Password2).Length(customerSettings.PasswordMinLength, 999).WithMessage(string.Format(localizationService.GetResource("Account.Fields.Password2.LengthValidation"), customerSettings.PasswordMinLength))
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+            RuleFor(x => x.ConfirmPassword2).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.ConfirmPassword2.Required"))
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+            RuleFor(x => x.ConfirmPassword2).Equal(x => x.Password2).WithMessage(localizationService.GetResource("Account.Fields.Password2.EnteredPasswordsDoNotMatch"))
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+
+            RuleFor(x => x.ZhiXiao_IdCardNum).NotEmpty()
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+            RuleFor(x => x.ZhiXiao_YinHang).NotEmpty()
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+            RuleFor(x => x.ZhiXiao_KaiHuHang).NotEmpty()
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+            RuleFor(x => x.ZhiXiao_KaiHuMing).NotEmpty()
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+            RuleFor(x => x.ZhiXiao_BandNum).NotEmpty()
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+
             //ensure that valid email address is entered if Registered role is checked to avoid registered customers with empty email address
-            RuleFor(x => x.Email)
-                .NotEmpty()
-                .EmailAddress()
-                //.WithMessage("Valid Email is required for customer to be in 'Registered' role")
-                .WithMessage(localizationService.GetResource("Admin.Common.WrongEmail"))
-                //only for registered users
-                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+            //RuleFor(x => x.Email)
+            //    .NotEmpty()
+            //    .EmailAddress()
+            //    //.WithMessage("Valid Email is required for customer to be in 'Registered' role")
+            //    .WithMessage(localizationService.GetResource("Admin.Common.WrongEmail"))
+            //    //only for registered users
+            //    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
 
             //form fields
-            if (customerSettings.CountryEnabled && customerSettings.CountryRequired)
-            {
-                RuleFor(x => x.CountryId)
-                    .NotEqual(0)
-                    .WithMessage(localizationService.GetResource("Account.Fields.Country.Required"))
-                    //only for registered users
-                    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
-            }
-            if (customerSettings.CountryEnabled &&
+            //if (customerSettings.CountryEnabled && customerSettings.CountryRequired)
+            //{
+            //    RuleFor(x => x.CountryId)
+            //        .NotEqual(0)
+            //        .WithMessage(localizationService.GetResource("Account.Fields.Country.Required"))
+            //        //only for registered users
+            //        .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+            //}
+            if (/*customerSettings.CountryEnabled &&*/
                 customerSettings.StateProvinceEnabled &&
                 customerSettings.StateProvinceRequired)
             {
-                Custom(x =>
-                {
-                    //does selected country have states?
-                    //var hasStates = stateProvinceService.GetStateProvincesByCountryId(x.CountryId).Any();
-                    //if (hasStates)
-                    //{
-                        //if yes, then ensure that a state is selected
-                        //if (x.StateProvinceId == 0)
-                        //{
-                            //return new ValidationFailure("StateProvinceId", localizationService.GetResource("Account.Fields.StateProvince.Required"));
-                        //}
-                    //}
-                    return null;
-                });
+                RuleFor(x => x.Province).NotEmpty()
+                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.StateProvince.Required"))
+                    //only for registered users
+                    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+            }
+            if (customerSettings.CityRequired && customerSettings.CityEnabled)
+            {
+                RuleFor(x => x.City)
+                    .NotEmpty()
+                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.City.Required"))
+                    //only for registered users
+                    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+
+                
+                RuleFor(x => x.District).NotEmpty()
+                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.District.Required"))
+                    //only for registered users
+                    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
             }
             if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)
             {
-                RuleFor(x => x.Company)
-                    .NotEmpty()
-                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.Company.Required"))
-                    //only for registered users
-                    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+                //RuleFor(x => x.Company)
+                //    .NotEmpty()
+                //    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.Company.Required"))
+                //    //only for registered users
+                //    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
             }
             if (customerSettings.StreetAddressRequired && customerSettings.StreetAddressEnabled)
             {
@@ -75,27 +109,19 @@ namespace Nop.Validators.Customers
             }
             if (customerSettings.StreetAddress2Required && customerSettings.StreetAddress2Enabled)
             {
-                RuleFor(x => x.StreetAddress2)
-                    .NotEmpty()
-                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.StreetAddress2.Required"))
-                    //only for registered users
-                    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+                //RuleFor(x => x.StreetAddress2)
+                //    .NotEmpty()
+                //    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.StreetAddress2.Required"))
+                //    //only for registered users
+                //    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
             }
             if (customerSettings.ZipPostalCodeRequired && customerSettings.ZipPostalCodeEnabled)
             {
-                RuleFor(x => x.ZipPostalCode)
-                    .NotEmpty()
-                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.ZipPostalCode.Required"))
-                    //only for registered users
-                    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
-            }
-            if (customerSettings.CityRequired && customerSettings.CityEnabled)
-            {
-                RuleFor(x => x.City)
-                    .NotEmpty()
-                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.City.Required"))
-                    //only for registered users
-                    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+                //RuleFor(x => x.ZipPostalCode)
+                //    .NotEmpty()
+                //    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.ZipPostalCode.Required"))
+                //    //only for registered users
+                //    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
             }
             if (customerSettings.PhoneRequired && customerSettings.PhoneEnabled)
             {
@@ -104,14 +130,30 @@ namespace Nop.Validators.Customers
                     .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.Phone.Required"))
                     //only for registered users
                     .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+
+                Custom(x =>
+                {
+                    bool isInRegisteredRole = IsRegisteredCustomerRoleChecked(x, customerService)
+                    //does selected country have states?
+                    var hasStates = stateProvinceService.GetStateProvincesByCountryId(x.CountryId).Any();
+                    if (hasStates)
+                    {
+                        //if yes, then ensure that a state is selected
+                        if (x.StateProvinceId == 0)
+                        {
+                            return new ValidationFailure("Phone", localizationService.GetResource("Account.Fields.Phone.FormatWrong"));
+                        }
+                    }
+                    return null;
+                });
             }
             if (customerSettings.FaxRequired && customerSettings.FaxEnabled)
             {
-                RuleFor(x => x.Fax)
-                    .NotEmpty()
-                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.Fax.Required"))
-                    //only for registered users
-                    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+                //RuleFor(x => x.Fax)
+                //    .NotEmpty()
+                //    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.Fax.Required"))
+                //    //only for registered users
+                //    .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
             }
 
             SetDatabaseValidationRules<Customer>(dbContext);

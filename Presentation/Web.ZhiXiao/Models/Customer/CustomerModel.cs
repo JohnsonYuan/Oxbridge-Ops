@@ -7,6 +7,7 @@ using Nop.Validators.Customers;
 using Nop.Core.Domain.Catalog;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Mvc;
+using Nop.Core.Domain.ZhiXiao;
 
 namespace Nop.Models.Customers
 {
@@ -22,20 +23,27 @@ namespace Nop.Models.Customers
             this.SelectedCustomerRoleIds= new List<int>();
             this.AvailableCustomerRoles = new List<SelectListItem>();
 
-            this.AssociatedExternalAuthRecords = new List<AssociatedExternalAuthModel>();
-            this.AvailableCountries = new List<SelectListItem>();
-            this.AvailableStates = new List<SelectListItem>();
-            this.AvailableVendors = new List<SelectListItem>();
+            //this.AssociatedExternalAuthRecords = new List<AssociatedExternalAuthModel>();
+            //this.AvailableCountries = new List<SelectListItem>();
+            //this.AvailableStates = new List<SelectListItem>();
+            //this.AvailableVendors = new List<SelectListItem>();
             this.CustomerAttributes = new List<CustomerAttributeModel>();
             this.AvailableNewsletterSubscriptionStores = new List<StoreModel>();
-            this.RewardPointsAvailableStores = new List<SelectListItem>();
+            //this.RewardPointsAvailableStores = new List<SelectListItem>();
         }
+
+        [Display(Name = "推荐人")]
+        [AllowHtml]
+        public string ParentUsername { get; set; }
        
         public bool UsernamesEnabled { get; set; }
 
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.Username")]
         [AllowHtml]
-        public string Username { get; set; }
+        public string Username { get; set; }\
+
+        [Display(Name = "昵称(系谱图中显示)")]
+        public string NickName { get; set; }
 
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.Email")]
         [AllowHtml]
@@ -47,9 +55,27 @@ namespace Nop.Models.Customers
         [NoTrim]
         public string Password { get; set; }
 
-        [NopResourceDisplayName("Admin.Customers.Customers.Fields.Vendor")]
-        public int VendorId { get; set; }
-        public IList<SelectListItem> AvailableVendors { get; set; }
+        [DataType(DataType.Password)]
+        [NoTrim]
+        [NopResourceDisplayName("Account.Fields.ConfirmPassword")]
+        [AllowHtml]
+        public string ConfirmPassword { get; set; }
+
+        [Display(Name = "二级密码")]
+        [AllowHtml]
+        [DataType(DataType.Password)]
+        [NoTrim]
+        public string Password2 { get; set; }
+
+        [DataType(DataType.Password)]
+        [NoTrim]
+        [Display(Name = "确认二级密码")]
+        [AllowHtml]
+        public string ConfirmPassword2 { get; set; }
+
+        //[NopResourceDisplayName("Admin.Customers.Customers.Fields.Vendor")]
+        //public int VendorId { get; set; }
+        //public IList<SelectListItem> AvailableVendors { get; set; }
 
         //form fields & properties
         public bool GenderEnabled { get; set; }
@@ -80,46 +106,38 @@ namespace Nop.Models.Customers
         [AllowHtml]
         public string StreetAddress { get; set; }
 
-        public bool StreetAddress2Enabled { get; set; }
-        [NopResourceDisplayName("Admin.Customers.Customers.Fields.StreetAddress2")]
-        [AllowHtml]
-        public string StreetAddress2 { get; set; }
+        //public bool ZipPostalCodeEnabled { get; set; }
+        //[NopResourceDisplayName("Admin.Customers.Customers.Fields.ZipPostalCode")]
+        //[AllowHtml]
+        //public string ZipPostalCode { get; set; }
+   
 
-        public bool ZipPostalCodeEnabled { get; set; }
-        [NopResourceDisplayName("Admin.Customers.Customers.Fields.ZipPostalCode")]
-        [AllowHtml]
-        public string ZipPostalCode { get; set; }
+        public bool StateProvinceEnabled { get; set; }
+        [NopResourceDisplayName("Admin.Customers.Customers.Fields.StateProvince")] 
+        public string Province { get; set; }
 
         public bool CityEnabled { get; set; }
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.City")]
         [AllowHtml]
         public string City { get; set; }
-
-        public bool CountryEnabled { get; set; }
-        [NopResourceDisplayName("Admin.Customers.Customers.Fields.Country")]
-        public int CountryId { get; set; }
-        public IList<SelectListItem> AvailableCountries { get; set; }
-
-        public bool StateProvinceEnabled { get; set; }
-        [NopResourceDisplayName("Admin.Customers.Customers.Fields.StateProvince")]
-        public int StateProvinceId { get; set; }
-        public IList<SelectListItem> AvailableStates { get; set; }
+        
+        [NopResourceDisplayName("Admin.Customers.Customers.Fields.District")]
+        public string District { get; set; }
 
         public bool PhoneEnabled { get; set; }
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.Phone")]
         [AllowHtml]
         public string Phone { get; set; }
 
-        public bool FaxEnabled { get; set; }
-        [NopResourceDisplayName("Admin.Customers.Customers.Fields.Fax")]
-        [AllowHtml]
-        public string Fax { get; set; }
+        //public bool FaxEnabled { get; set; }
+        //[NopResourceDisplayName("Admin.Customers.Customers.Fields.Fax")]
+        //[AllowHtml]
+        //public string Fax { get; set; }
 
         public List<CustomerAttributeModel> CustomerAttributes { get; set; }
 
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.RegisteredInStore")]
         public string RegisteredInStore { get; set; }
-
 
 
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.AdminComment")]
@@ -136,8 +154,6 @@ namespace Nop.Models.Customers
         public int AffiliateId { get; set; }
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.Affiliate")]
         public string AffiliateName { get; set; }
-
-
 
 
         //time zone
@@ -200,18 +216,16 @@ namespace Nop.Models.Customers
 
 
         //reward points history
-        public bool DisplayRewardPointsHistory { get; set; }
-        [NopResourceDisplayName("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsValue")]
-        public int AddRewardPointsValue { get; set; }
-        [NopResourceDisplayName("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsMessage")]
-        [AllowHtml]
-        public string AddRewardPointsMessage { get; set; }
-        [NopResourceDisplayName("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsStore")]
-        public int AddRewardPointsStoreId { get; set; }
-        [NopResourceDisplayName("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsStore")]
-        public IList<SelectListItem> RewardPointsAvailableStores { get; set; }
-
-
+        //public bool DisplayRewardPointsHistory { get; set; }
+        //[NopResourceDisplayName("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsValue")]
+        //public int AddRewardPointsValue { get; set; }
+        //[NopResourceDisplayName("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsMessage")]
+        //[AllowHtml]
+        //public string AddRewardPointsMessage { get; set; }
+        //[NopResourceDisplayName("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsStore")]
+        //public int AddRewardPointsStoreId { get; set; }
+        //[NopResourceDisplayName("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsStore")]
+        //public IList<SelectListItem> RewardPointsAvailableStores { get; set; }
 
         //send email model
         public SendEmailModel SendEmail { get; set; }
@@ -222,9 +236,46 @@ namespace Nop.Models.Customers
         //re-send the activation message
         public bool AllowReSendingOfActivationMessage { get; set; }
 
-        [NopResourceDisplayName("Admin.Customers.Customers.AssociatedExternalAuth")]
-        public IList<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; }
+        //[NopResourceDisplayName("Admin.Customers.Customers.AssociatedExternalAuth")]
+        //public IList<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; }
 
+        #region 直销系统需要的字段
+        public string ZhiXiao_ParentId { get; set; }     // 推荐人id
+        public string ZhiXiao_TeamId { get; set; }       // 小组id
+        public string ZhiXiao_InTeamOrder { get; set; }  // 在小组中顺序
+        public string ZhiXiao_InTeamTime { get; set; }   // 进入该小组时间
+        public string ZhiXiao_ChildCount { get; set; }   // 下线个数
+        public int ZhiXiao_LevelId { get; set; }        // 级别
+        public long ZhiXiao_MoneyNum { get; set; }       // 电子币(真是个数)
+        public long ZhiXiao_MoneyHistory { get; set; }   // 历史电子币(只记录增加, 不记录减少)
+
+        [Display(Name = "身份证号")]
+        public string ZhiXiao_IdCardNum { get; set; }       // 身份证号
+        [Display(Name = "开户银行")]
+        public string ZhiXiao_YinHang { get; set; }         // 银行
+        [Display(Name = "开户行名称")]
+        public string ZhiXiao_KaiHuHang { get; set; }       // 开户行
+        [Display(Name = "开户名")]
+        public string ZhiXiao_KaiHuMing { get; set; }       // 开户名
+        [Display(Name = "银行卡号")]
+        public string ZhiXiao_BandNum { get; set; }         // 银行卡号
+
+        public string ZhiXiao_Province { get; set; }        // 省
+        public string ZhiXiao_City { get; set; }            // 市
+        public string ZhiXiao_Dist { get; set; }            // 区
+
+        public CustomerLevel CustomerLevel
+        {
+            get
+            {
+                return (CustomerLevel)this.ZhiXiao_LevelId;
+            }
+            set
+            {
+                this.ZhiXiao_LevelId = (int)value;
+            }
+        }
+        #endregion
 
         #region Nested classes
 

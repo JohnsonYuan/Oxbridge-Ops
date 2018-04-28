@@ -339,11 +339,28 @@
   <LocaleResource Name="Account.Fields.Password.Required">
     <Value>请输入密码</Value>
   </LocaleResource>
+  
+  <LocaleResource Name="Account.Fields.Password2">
+    <Value>二级密码</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.Password2.EnteredPasswordsDoNotMatch">
+    <Value>两次二级密码不匹配，请重新输入</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.Password2.LengthValidation">
+    <Value>二级密码长度至少{0} 个字符</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.Password2.Required">
+    <Value>请输入二级密码</Value>
+  </LocaleResource>
+  
   <LocaleResource Name="Account.Fields.Phone">
-    <Value>电话号码</Value>
+    <Value>手机号码</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Fields.Phone.Required">
-    <Value>请输入电话号码</Value>
+    <Value>请输入手机号码</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.Phone.FormatWrong">
+    <Value>电话号码手机号码</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Fields.Signature">
     <Value>个性签名</Value>
@@ -352,7 +369,13 @@
     <Value>省份</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Fields.StateProvince.Required">
-    <Value>请输入州/省名</Value>
+    <Value>请输入省份</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.City.Required">
+    <Value>请输入市</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.District.Required">
+    <Value>请输入区</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Fields.StreetAddress">
     <Value>街道地址</Value>
@@ -8506,6 +8529,15 @@
   <LocaleResource Name="Admin.Customers.Customers.Fields.Affiliate.Remove">
     <Value>取消营销联盟</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.Fields.District">
+    <Value>区</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.Fields.District.Hint">
+    <Value>区</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.Fields.District.Required">
+    <Value>请输入区/县</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.City">
     <Value>城市</Value>
   </LocaleResource>
@@ -8513,7 +8545,7 @@
     <Value>城市</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.City.Required">
-    <Value>请输入名称</Value>
+    <Value>请输入城市</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.Company">
     <Value>公司</Value>
@@ -8649,6 +8681,9 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.StateProvince.Hint">
     <Value>省份</Value>
+    <LocaleResource Name="Admin.Customers.Customers.Fields.StateProvince.Required">
+      <Value>请输入省份</Value>
+    </LocaleResource>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.StreetAddress">
     <Value>街道地址</Value>

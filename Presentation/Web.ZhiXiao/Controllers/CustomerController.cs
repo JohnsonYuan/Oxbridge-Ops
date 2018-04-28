@@ -18,7 +18,6 @@ using Nop.Services.Security;
 using Nop.Services.Stores;
 using Nop.Web.Framework.Kendoui;
 using Nop.Web.Framework.Mvc;
-using Nop.Models.Customers;
 using Web.ZhiXiao.Factories;
 
 namespace Web.ZhiXiao.Controllers
@@ -185,7 +184,7 @@ namespace Web.ZhiXiao.Controllers
                 {
                     model.Email = customer.Email;
                     model.Username = customer.Username;
-                    model.VendorId = customer.VendorId;
+                    //model.VendorId = customer.VendorId;
                     model.AdminComment = customer.AdminComment;
                     model.IsTaxExempt = customer.IsTaxExempt;
                     model.Active = customer.Active;
@@ -236,9 +235,9 @@ namespace Web.ZhiXiao.Controllers
                     model.StreetAddress = customer.GetAttribute<string>(SystemCustomerAttributeNames.StreetAddress);
                     model.StreetAddress2 = customer.GetAttribute<string>(SystemCustomerAttributeNames.StreetAddress2);
                     model.ZipPostalCode = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZipPostalCode);
+                    model.District = customer.GetAttribute<string>(SystemCustomerAttributeNames.District);
                     model.City = customer.GetAttribute<string>(SystemCustomerAttributeNames.City);
-                    model.CountryId = customer.GetAttribute<int>(SystemCustomerAttributeNames.CountryId);
-                    model.StateProvinceId = customer.GetAttribute<int>(SystemCustomerAttributeNames.StateProvinceId);
+                    model.Province = customer.GetAttribute<string>(SystemCustomerAttributeNames.Province);
                     model.Phone = customer.GetAttribute<string>(SystemCustomerAttributeNames.Phone);
                     model.Fax = customer.GetAttribute<string>(SystemCustomerAttributeNames.Fax);
                 }
@@ -269,7 +268,6 @@ namespace Web.ZhiXiao.Controllers
             model.StreetAddress2Enabled = _customerSettings.StreetAddress2Enabled;
             model.ZipPostalCodeEnabled = _customerSettings.ZipPostalCodeEnabled;
             model.CityEnabled = _customerSettings.CityEnabled;
-            model.CountryEnabled = _customerSettings.CountryEnabled;
             model.StateProvinceEnabled = _customerSettings.StateProvinceEnabled;
             model.PhoneEnabled = _customerSettings.PhoneEnabled;
             model.FaxEnabled = _customerSettings.FaxEnabled;
@@ -304,27 +302,27 @@ namespace Web.ZhiXiao.Controllers
             }
 
             //reward points history
-            if (customer != null)
-            {
-                model.DisplayRewardPointsHistory = true;
-                model.AddRewardPointsValue = 0;
-                model.AddRewardPointsMessage = "Some comment here...";
+            //if (customer != null)
+            //{
+            //    model.DisplayRewardPointsHistory = true;
+            //    model.AddRewardPointsValue = 0;
+            //    model.AddRewardPointsMessage = "Some comment here...";
 
-                //stores
-                foreach (var store in allStores)
-                {
-                    model.RewardPointsAvailableStores.Add(new SelectListItem
-                    {
-                        Text = store.Name,
-                        Value = store.Id.ToString(),
-                        Selected = (store.Id == _storeContext.CurrentStore.Id)
-                    });
-                }
-            }
-            else
-            {
-                model.DisplayRewardPointsHistory = false;
-            }
+            //    //stores
+            //    foreach (var store in allStores)
+            //    {
+            //        model.RewardPointsAvailableStores.Add(new SelectListItem
+            //        {
+            //            Text = store.Name,
+            //            Value = store.Id.ToString(),
+            //            Selected = (store.Id == _storeContext.CurrentStore.Id)
+            //        });
+            //    }
+            //}
+            //else
+            //{
+            //    model.DisplayRewardPointsHistory = false;
+            //}
             //external authentication records
             if (customer != null)
             {
@@ -393,7 +391,7 @@ namespace Web.ZhiXiao.Controllers
 
         [HttpPost]
         public virtual ActionResult CustomerList(DataSourceRequest command, CustomerListModel model,
-            [ModelBinder(typeof(CommaSeparatedModelBinder))]int[] searchCustomerRoleIds)
+        [ModelBinder(typeof(CommaSeparatedModelBinder))]int[] searchCustomerRoleIds)
         {
             //we use own own binder for searchCustomerRoleIds property 
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
