@@ -340,6 +340,9 @@
     <Value>请输入密码</Value>
   </LocaleResource>
   
+  <LocaleResource Name="Account.Fields.ParentUsername">
+    <Value>推荐人</Value>
+  </LocaleResource>
   <LocaleResource Name="Account.Fields.Password2">
     <Value>二级密码</Value>
   </LocaleResource>
@@ -358,9 +361,6 @@
   </LocaleResource>
   <LocaleResource Name="Account.Fields.Phone.Required">
     <Value>请输入手机号码</Value>
-  </LocaleResource>
-  <LocaleResource Name="Account.Fields.Phone.FormatWrong">
-    <Value>电话号码手机号码</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Fields.Signature">
     <Value>个性签名</Value>
@@ -5368,10 +5368,10 @@
     <Value>商城默认时区</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.EnteringEmailTwice">
-    <Value>Force entering email twice</Value>
+    <Value>输入两次邮箱</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.EnteringEmailTwice.Hint">
-    <Value>Force entering email twice during registration</Value>
+    <Value>注册时输入两次邮箱</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.ExternalAuthenticationAutoRegisterEnabled">
     <Value>启用自动注册</Value>
@@ -5454,14 +5454,20 @@
   <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.PasswordRecoveryLinkDaysValid.Hint">
     <Value>请输入恢复密码链接有效天数. 设置为0它将永不作废。</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.PhoneNumberRegex">
+    <Value>手机号码正则</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.PhoneNumberRegex.Hint">
+    <Value>用户增加用户时验证手机号格式是否正确</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.PhoneEnabled">
     <Value>启用电话号码字段</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.PhoneEnabled.Hint">
-    <Value>启用电话号码字段</Value>
+    <Value>启用手机号码字段</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.PhoneRequired">
-    <Value>电话号码字段必填</Value>
+    <Value>手机号码字段必填</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.PhoneRequired.Hint">
     <Value>电话号码字段必填</Value>
@@ -8668,13 +8674,16 @@
     <Value>当前密码</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.Phone">
-    <Value>电话号码</Value>
+    <Value>手机号码</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.Fields.Phone.FormatWrong">
+    <Value>手机号码格式错误</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.Phone.Hint">
-    <Value>电话号码</Value>
+    <Value>手机号码</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.Phone.Required">
-    <Value>请输入电话号码</Value>
+    <Value>请输入手机号码</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.StateProvince">
     <Value>省份</Value>
@@ -8723,6 +8732,15 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.Username.Required">
     <Value>请输入用户名</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.Fields.NickName">
+    <Value>昵称(系谱图中显示)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.Fields.NickName.Hint">
+    <Value>昵称(系谱图中显示)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.Fields.NickName.Required">
+    <Value>请输入昵称(系谱图中显示)</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.VatNumber">
     <Value>增值税号码</Value>
@@ -17137,5 +17155,24 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Pager.Refresh">
     <Value>刷新</Value>
+  </LocaleResource>
+
+
+  <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.UnduplicatedPasswordsNumber">
+    <Value>不可重复密码次数</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.PasswordLifetime">
+    <Value>密码有效期</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.BlockTitle.Account">
+    <Value>账户</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.BlockTitle.Profile">
+    <Value>客户资料</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="Admin.Configuration.Settings.CustomerUser.BlockTitle.TimeZone">
+    <Value>时区</Value>
   </LocaleResource>
 </Language>

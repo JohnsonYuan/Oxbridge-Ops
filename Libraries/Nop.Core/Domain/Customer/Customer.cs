@@ -26,19 +26,6 @@ namespace Nop.Core.Domain.Customers
             this.CustomerGuid = Guid.NewGuid();
         }
 
-        #region 直销相关
-
-        /// <summary>
-        /// Gets or sets the level id
-        /// </summary>
-        public int CustomerLevelId { get; set; }
-        /// <summary>
-        /// Gets or sets the team id
-        /// </summary>
-        public int? CustomerTeamId { get; set; }
-
-        #endregion
-
         /// <summary>
         /// Gets or sets the customer Guid
         /// </summary>
@@ -210,20 +197,5 @@ namespace Nop.Core.Domain.Customers
         }
 
         #endregion
-
-        /// <summary>
-        /// Gets or sets the customer level
-        /// </summary>
-        public CustomerLevel CustomerLevel
-        {
-            get
-            {
-                return (CustomerLevel)this.CustomerLevelId;
-            }
-            set
-            {
-                this.CustomerLevelId = (int)value;
-            }
-        }
     }
 }

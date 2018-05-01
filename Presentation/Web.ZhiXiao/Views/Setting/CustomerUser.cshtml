@@ -456,9 +456,9 @@
             }
 
             if ($('#@Html.FieldIdFor(model => model.CustomerSettings.PhoneEnabled)').is(':checked')) {
-                $('#pnlCustomerPhoneRequired').show();
+                $('#pnlCustomerPhoneRequired, #pnlCustomerPhoneNumberRegex').show();
             } else {
-                $('#pnlCustomerPhoneRequired').hide();
+                $('#pnlCustomerPhoneRequired, #pnlCustomerPhoneNumberRegex').hide();
             }
 
             if ($('#@Html.FieldIdFor(model => model.CustomerSettings.FaxEnabled)').is(':checked')) {
@@ -502,6 +502,32 @@
                     <div class="col-md-9">
                         @Html.NopEditorFor(model => model.CustomerSettings.GenderEnabled)
                         @Html.ValidationMessageFor(model => model.CustomerSettings.GenderEnabled)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.CustomerSettings.TeamNumberMask)
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.CustomerSettings.TeamNumberMask)
+                        @Html.ValidationMessageFor(model => model.CustomerSettings.TeamNumberMask)
+                        <ul class="common-list">
+                            <li>
+                                {ID} : 小组id
+                            </li>
+                            <li>
+                                {YYYY} : 创建年份
+                            </li>
+                            <li>
+                                {YY} : 创建年份后两位
+                            </li>
+                            <li>
+                                {MM} : 创建月份
+                            </li>
+                            <li>
+                                {DD} : 创建日期
+                            </li>
+                        </ul>
                     </div>
                 </div>
                 <div class="form-group">
@@ -673,6 +699,15 @@
                     <div class="col-md-9">
                         @Html.NopEditorFor(model => model.CustomerSettings.PhoneRequired)
                         @Html.ValidationMessageFor(model => model.CustomerSettings.PhoneRequired)
+                    </div>
+                </div>
+                <div class="form-group" id="pnlCustomerPhoneNumberRegex">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.CustomerSettings.PhoneNumberRegex)
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.CustomerSettings.PhoneNumberRegex)
+                        @Html.ValidationMessageFor(model => model.CustomerSettings.PhoneNumberRegex)
                     </div>
                 </div>
                 <div class="form-group">

@@ -22,6 +22,7 @@ using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.Helpers;
 using Nop.Services.Localization;
+using Nop.Services.ZhiXiao;
 
 namespace Nop.Services.Installation
 {
@@ -37,18 +38,19 @@ namespace Nop.Services.Installation
         private readonly IRepository<CustomerRole> _customerRoleRepository;
         private readonly IRepository<UrlRecord> _urlRecordRepository;
         private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
-        private readonly IRepository<ActivityLog> _activityLogRepository;private readonly IRepository<Address> _addressRepository;
+        private readonly IRepository<ActivityLog> _activityLogRepository; private readonly IRepository<Address> _addressRepository;
         private readonly IRepository<Vendor> _vendorRepository;
         private readonly IRepository<SearchTerm> _searchTermRepository;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IWebHelper _webHelper;
+        private readonly ICustomNumberFormatter _customNumberFormatter;
 
         #endregion
 
         #region Ctor
 
         public CodeFirstInstallationService(
-            IRepository<CustomerTeam>  customerTeamRepository,
+            IRepository<CustomerTeam> customerTeamRepository,
             IRepository<Store> storeRepository,
             IRepository<Language> languageRepository,
             IRepository<Customer> customerRepository,
@@ -61,7 +63,8 @@ namespace Nop.Services.Installation
             IRepository<Vendor> vendorRepository,
             IRepository<SearchTerm> searchTermRepository,
             IGenericAttributeService genericAttributeService,
-            IWebHelper webHelper)
+            IWebHelper webHelper,
+            ICustomNumberFormatter customNumberFormatter)
         {
             this._customerTeamRepository = customerTeamRepository;
             this._storeRepository = storeRepository;
@@ -77,6 +80,7 @@ namespace Nop.Services.Installation
             this._searchTermRepository = searchTermRepository;
             this._genericAttributeService = genericAttributeService;
             this._webHelper = webHelper;
+            this._customNumberFormatter = customNumberFormatter;
         }
 
         #endregion
@@ -154,13 +158,20 @@ namespace Nop.Services.Installation
             {
                 new CustomerTeam
                 {
-                    TeamNumber = DateTime.UtcNow.ToString("yyyymmdd"),
+                    CustomNumber = DateTime.UtcNow.ToString("yyyymmdd"),
                     UserCount = 0,
                     CreatedOnUtc = DateTime.UtcNow
                 }
             };
 
             _customerTeamRepository.Insert(teams);
+
+            //generate and set custom team number
+            foreach (var team in teams)
+            {
+                team.CustomNumber = _customNumberFormatter.GenerateTeamNumber(team);
+                _customerTeamRepository.Update(team);
+            }
         }
 
         protected virtual void InstallCustomersAndUsers(string defaultUserEmail, string defaultUserPassword)
@@ -179,13 +190,6 @@ namespace Nop.Services.Installation
                 IsSystemRole = true,
                 SystemName = SystemCustomerRoleNames.Managers,
             };
-            var crForumModerators = new CustomerRole
-            {
-                Name = "Forum Moderators",
-                Active = false,
-                IsSystemRole = true,
-                SystemName = SystemCustomerRoleNames.ForumModerators,
-            };
             var crRegistered_Normal = new CustomerRole
             {
                 Name = "普通用户",
@@ -193,7 +197,7 @@ namespace Nop.Services.Installation
                 IsSystemRole = true,
                 SystemName = SystemCustomerRoleNames.Registered,
             };
-            var crRegistered_Normal_Advanced = new CustomerRole
+            var crRegistered_Advanced = new CustomerRole
             {
                 Name = "高级用户",
                 Active = true,
@@ -207,22 +211,15 @@ namespace Nop.Services.Installation
                 IsSystemRole = true,
                 SystemName = SystemCustomerRoleNames.Guests,
             };
-            var crVendors = new CustomerRole
-            {
-                Name = "Vendors",
-                Active = false,
-                IsSystemRole = true,
-                SystemName = SystemCustomerRoleNames.Vendors,
-            };
 
             var customerRoles = new List<CustomerRole>
                                 {
                                     crAdministrators,
-                                    crForumModerators,
+                                    //crForumModerators,
                                     crRegistered_Normal,
-                                    crRegistered_Normal_Advanced,
-                                    crGuests,
-                                    crVendors
+                                    crRegistered_Advanced,
+                                    //crGuests,
+                                    //crVendors
                                 };
             _customerRoleRepository.Insert(customerRoles);
 
@@ -245,7 +242,6 @@ namespace Nop.Services.Installation
             //admin user
             var adminUser = new Customer
             {
-                CustomerTeamId = teamId,
                 CustomerGuid = Guid.NewGuid(),
                 Email = defaultUserEmail,
                 Username = defaultUserEmail,
@@ -273,13 +269,9 @@ namespace Nop.Services.Installation
 
             adminUser.CustomerRoles.Add(crAdministrators);
             adminUser.CustomerRoles.Add(crManagers);
-            adminUser.CustomerRoles.Add(crForumModerators);
             adminUser.CustomerRoles.Add(crRegistered_Normal);
 
             _customerRepository.Insert(adminUser);
-            //set default customer name
-            _genericAttributeService.SaveAttribute(adminUser, SystemCustomerAttributeNames.FirstName, "John");
-            _genericAttributeService.SaveAttribute(adminUser, SystemCustomerAttributeNames.LastName, "Smith");
 
             //set hashed admin password
             var customerRegistrationService = EngineContext.Current.Resolve<ICustomerRegistrationService>();
@@ -290,7 +282,6 @@ namespace Nop.Services.Installation
             var secondUserEmail = "xiaoyuan@yourStore.com";
             var secondUser = new Customer
             {
-                CustomerTeamId = teamId,
                 CustomerGuid = Guid.NewGuid(),
                 Email = secondUserEmail,
                 Username = secondUserEmail,
@@ -321,9 +312,6 @@ namespace Nop.Services.Installation
             secondUser.CustomerRoles.Add(crRegistered_Normal);
 
             _customerRepository.Insert(secondUser);
-            //set default customer name
-            _genericAttributeService.SaveAttribute(secondUser, SystemCustomerAttributeNames.FirstName, defaultSecondUserAddress.FirstName);
-            _genericAttributeService.SaveAttribute(secondUser, SystemCustomerAttributeNames.LastName, defaultSecondUserAddress.LastName);
 
             //set customer password
             _customerPasswordRepository.Insert(new CustomerPassword
@@ -334,202 +322,6 @@ namespace Nop.Services.Installation
                 PasswordSalt = string.Empty,
                 CreatedOnUtc = DateTime.UtcNow
             });
-
-            #region Registered user
-
-            //third user
-            var thirdUserEmail = "xiaowang@yourStore.com";
-            var thirdUser = new Customer
-            {
-                CustomerTeamId = teamId,
-                CustomerGuid = Guid.NewGuid(),
-                Email = thirdUserEmail,
-                Username = thirdUserEmail,
-                Active = true,
-                CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
-                RegisteredInStoreId = storeId
-            };
-            var defaultThirdUserAddress = new Address
-            {
-                FirstName = "Arthur",
-                LastName = "Holmes",
-                PhoneNumber = "111222333",
-                Email = thirdUserEmail,
-                FaxNumber = "",
-                Company = "Holmes Company",
-                Address1 = "221B Baker Street",
-                Address2 = "",
-                City = "London",
-                ZipPostalCode = "NW1 6XE",
-                CreatedOnUtc = DateTime.UtcNow,
-            };
-            thirdUser.Addresses.Add(defaultThirdUserAddress);
-            thirdUser.BillingAddress = defaultThirdUserAddress;
-            thirdUser.ShippingAddress = defaultThirdUserAddress;
-
-            thirdUser.CustomerRoles.Add(crRegistered_Normal);
-
-            _customerRepository.Insert(thirdUser);
-            //set default customer name
-            _genericAttributeService.SaveAttribute(thirdUser, SystemCustomerAttributeNames.FirstName, defaultThirdUserAddress.FirstName);
-            _genericAttributeService.SaveAttribute(thirdUser, SystemCustomerAttributeNames.LastName, defaultThirdUserAddress.LastName);
-
-            //set customer password
-            _customerPasswordRepository.Insert(new CustomerPassword
-            {
-                Customer = thirdUser,
-                Password = "123456",
-                PasswordFormat = PasswordFormat.Clear,
-                PasswordSalt = string.Empty,
-                CreatedOnUtc = DateTime.UtcNow
-            });
-
-            //fourth user
-            var fourthUserEmail = "james_pan@nopCommerce.com";
-            var fourthUser = new Customer
-            {
-                CustomerTeamId = teamId,
-                CustomerGuid = Guid.NewGuid(),
-                Email = fourthUserEmail,
-                Username = fourthUserEmail,
-                Active = true,
-                CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
-                RegisteredInStoreId = storeId
-            };
-            var defaultFourthUserAddress = new Address
-            {
-                FirstName = "James",
-                LastName = "Pan",
-                PhoneNumber = "369258147",
-                Email = fourthUserEmail,
-                FaxNumber = "",
-                Company = "Pan Company",
-                Address1 = "St Katharine抯 West 16",
-                Address2 = "",
-                City = "St Andrews",
-                ZipPostalCode = "KY16 9AX",
-                CreatedOnUtc = DateTime.UtcNow,
-            };
-            fourthUser.Addresses.Add(defaultFourthUserAddress);
-            fourthUser.BillingAddress = defaultFourthUserAddress;
-            fourthUser.ShippingAddress = defaultFourthUserAddress;
-
-            fourthUser.CustomerRoles.Add(crRegistered_Normal);
-
-            _customerRepository.Insert(fourthUser);
-            //set default customer name
-            _genericAttributeService.SaveAttribute(fourthUser, SystemCustomerAttributeNames.FirstName, defaultFourthUserAddress.FirstName);
-            _genericAttributeService.SaveAttribute(fourthUser, SystemCustomerAttributeNames.LastName, defaultFourthUserAddress.LastName);
-
-            //set customer password
-            _customerPasswordRepository.Insert(new CustomerPassword
-            {
-                Customer = fourthUser,
-                Password = "123456",
-                PasswordFormat = PasswordFormat.Clear,
-                PasswordSalt = string.Empty,
-                CreatedOnUtc = DateTime.UtcNow
-            });
-
-            //fifth user
-            var fifthUserEmail = "brenda_lindgren@nopCommerce.com";
-            var fifthUser = new Customer
-            {
-                CustomerTeamId = teamId,
-                CustomerGuid = Guid.NewGuid(),
-                Email = fifthUserEmail,
-                Username = fifthUserEmail,
-                Active = true,
-                CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
-                RegisteredInStoreId = storeId
-            };
-            var defaultFifthUserAddress = new Address
-            {
-                FirstName = "Brenda",
-                LastName = "Lindgren",
-                PhoneNumber = "14785236",
-                Email = fifthUserEmail,
-                FaxNumber = "",
-                Company = "Brenda Company",
-                Address1 = "1249 Tongass Avenue, Suite B",
-                Address2 = "",
-                City = "Ketchikan",
-                ZipPostalCode = "99901",
-                CreatedOnUtc = DateTime.UtcNow,
-            };
-            fifthUser.Addresses.Add(defaultFifthUserAddress);
-            fifthUser.BillingAddress = defaultFifthUserAddress;
-            fifthUser.ShippingAddress = defaultFifthUserAddress;
-
-            fifthUser.CustomerRoles.Add(crRegistered_Normal);
-
-            _customerRepository.Insert(fifthUser);
-            //set default customer name
-            _genericAttributeService.SaveAttribute(fifthUser, SystemCustomerAttributeNames.FirstName, defaultFifthUserAddress.FirstName);
-            _genericAttributeService.SaveAttribute(fifthUser, SystemCustomerAttributeNames.LastName, defaultFifthUserAddress.LastName);
-
-            //set customer password
-            _customerPasswordRepository.Insert(new CustomerPassword
-            {
-                Customer = fifthUser,
-                Password = "123456",
-                PasswordFormat = PasswordFormat.Clear,
-                PasswordSalt = string.Empty,
-                CreatedOnUtc = DateTime.UtcNow
-            });
-
-            //sixth user
-            var sixthUserEmail = "victoria_victoria@nopCommerce.com";
-            var sixthUser = new Customer
-            {
-                CustomerTeamId = teamId,
-                CustomerGuid = Guid.NewGuid(),
-                Email = sixthUserEmail,
-                Username = sixthUserEmail,
-                Active = true,
-                CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
-                RegisteredInStoreId = storeId
-            };
-            var defaultSixthUserAddress = new Address
-            {
-                FirstName = "Victoria",
-                LastName = "Terces",
-                PhoneNumber = "45612378",
-                Email = sixthUserEmail,
-                FaxNumber = "",
-                Company = "Terces Company",
-                Address1 = "201 1st Avenue South",
-                Address2 = "",
-                City = "Saskatoon",
-                ZipPostalCode = "S7K 1J9",
-                CreatedOnUtc = DateTime.UtcNow,
-            };
-            sixthUser.Addresses.Add(defaultSixthUserAddress);
-            sixthUser.BillingAddress = defaultSixthUserAddress;
-            sixthUser.ShippingAddress = defaultSixthUserAddress;
-
-            sixthUser.CustomerRoles.Add(crRegistered_Normal);
-
-            _customerRepository.Insert(sixthUser);
-            //set default customer name
-            _genericAttributeService.SaveAttribute(sixthUser, SystemCustomerAttributeNames.FirstName, defaultSixthUserAddress.FirstName);
-            _genericAttributeService.SaveAttribute(sixthUser, SystemCustomerAttributeNames.LastName, defaultSixthUserAddress.LastName);
-
-            //set customer password
-            _customerPasswordRepository.Insert(new CustomerPassword
-            {
-                Customer = sixthUser,
-                Password = "123456",
-                PasswordFormat = PasswordFormat.Clear,
-                PasswordSalt = string.Empty,
-                CreatedOnUtc = DateTime.UtcNow
-            });
-
-            #endregion
 
             //search engine (crawler) built-in user
             var searchEngineUser = new Customer
@@ -564,65 +356,145 @@ namespace Nop.Services.Installation
             _customerRepository.Insert(backgroundTaskUser);
         }
 
+        protected virtual void InstallZhiXiaoTestUser()
+        {
+            //default store 
+            var defaultStore = _storeRepository.Table.FirstOrDefault();
+
+            if (defaultStore == null)
+                throw new Exception("No default store could be loaded");
+
+            var storeId = defaultStore.Id;
+
+            //default team
+            var defaultTeam = _customerTeamRepository.Table.FirstOrDefault();
+
+            if (defaultTeam == null)
+                throw new Exception("No default team could be loaded");
+
+            var teamId = defaultTeam.Id;
+
+            var crRegistered_Normal = _customerRoleRepository.Table.Where(x => x.SystemName == SystemCustomerRoleNames.Registered).FirstOrDefault();
+            var crRegistered_Advanced = _customerRoleRepository.Table.Where(x => x.SystemName == SystemCustomerRoleNames.Registered_Advanced).FirstOrDefault();
+
+            var addToTeamTime = DateTime.UtcNow;
+
+            #region Registered user
+            
+            // 组长(*1) 副组长(*2) 组员 (*8)
+            for (int i = 1; i <= 11; i++)
+            {
+                var currentUserName = "user_" + i;
+                var currentUserEmail = currentUserName + "@yourStore.com";
+                int currentLevel = 0;
+                if (i == 1)
+                {
+                    currentLevel = (int)CustomerLevel.ZuZhang;
+                }
+                else if( i <= 3)
+                {
+                    currentLevel = (int)CustomerLevel.FuZuZhang;
+                }
+                else
+                {
+                    currentLevel = (int)CustomerLevel.ZuYuan;
+                }
+
+                var currentUser = new Customer
+                {
+                    CustomerGuid = Guid.NewGuid(),
+                    Email = currentUserEmail,
+                    Username = currentUserName,
+                    Active = true,
+                    CreatedOnUtc = DateTime.UtcNow,
+                    LastActivityDateUtc = DateTime.UtcNow,
+                    RegisteredInStoreId = storeId
+                };
+                var currentUserAddress = new Address
+                {
+                    FirstName = "James",
+                    LastName = "Pan",
+                    PhoneNumber = "369258147",
+                    Email = currentUserEmail,
+                    FaxNumber = "",
+                    Company = "Pan Company",
+                    Address1 = "St Katharine抯 West 16",
+                    Address2 = "",
+                    City = "St Andrews",
+                    ZipPostalCode = "KY16 9AX",
+                    CreatedOnUtc = DateTime.UtcNow,
+                };
+                currentUser.Addresses.Add(currentUserAddress);
+                currentUser.BillingAddress = currentUserAddress;
+                currentUser.ShippingAddress = currentUserAddress;
+
+                currentUser.CustomerRoles.Add(crRegistered_Normal);
+
+                _customerRepository.Insert(currentUser);
+                //set default customer name
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_TeamId, teamId);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, i);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, addToTeamTime.AddMinutes(i + 5));
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_LevelId, currentLevel);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyNum, CommonHelper.GenerateRandomInteger(2000, 50000));
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyHistory, CommonHelper.GenerateRandomInteger(5000, 50000));
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_IdCardNum, CommonHelper.GenerateRandomDigitCode(18));
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_YinHang, "中国银行");
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_KaiHuHang, "太原支行");
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_KaiHuMing, currentUserName);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_BandNum, CommonHelper.GenerateRandomDigitCode(25));
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_Password2, "123456");  // 二级密码
+
+                //set customer password
+                _customerPasswordRepository.Insert(new CustomerPassword
+                {
+                    Customer = currentUser,
+                    Password = "123456",
+                    PasswordFormat = PasswordFormat.Clear,
+                    PasswordSalt = string.Empty,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+            }
+
+            // 设置下线
+            var firstUser = _customerRepository.Table.Where(x => x.Username == "user_1").First();
+            var user_2 = _customerRepository.Table.Where(x => x.Username == "user_2").First();
+            var user_3 = _customerRepository.Table.Where(x => x.Username == "user_3").First();
+
+            var user_8 = _customerRepository.Table.Where(x => x.Username == "user_1").First();
+            var user_9 = _customerRepository.Table.Where(x => x.Username == "user_9").First();
+            var user_10 = _customerRepository.Table.Where(x => x.Username == "user_10").First();
+            var user_11 = _customerRepository.Table.Where(x => x.Username == "user_11").First();
+
+            // 8, 9 用户parentId为第一个用户
+            _genericAttributeService.SaveAttribute(firstUser, SystemCustomerAttributeNames.ZhiXiao_ChildCount, 2);
+            _genericAttributeService.SaveAttribute(user_8, SystemCustomerAttributeNames.ZhiXiao_ParentId, firstUser.Id);
+            _genericAttributeService.SaveAttribute(user_9, SystemCustomerAttributeNames.ZhiXiao_ParentId, firstUser.Id);
+            
+            // 11 用户parentId为第2个用户
+            _genericAttributeService.SaveAttribute(user_2, SystemCustomerAttributeNames.ZhiXiao_ChildCount, 1);
+            _genericAttributeService.SaveAttribute(user_11, SystemCustomerAttributeNames.ZhiXiao_ParentId, user_2.Id);
+
+            // 10 用户parentId为第3个用户
+            _genericAttributeService.SaveAttribute(user_3, SystemCustomerAttributeNames.ZhiXiao_ChildCount, 1);
+            _genericAttributeService.SaveAttribute(user_10, SystemCustomerAttributeNames.ZhiXiao_ParentId, user_3.Id);
+
+            #endregion
+        }
+
         protected virtual void InstallActivityLogTypes()
         {
             var activityLogTypes = new List<ActivityLogType>
             {
+                // 直销
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ReGroupTeam,
+                    Enabled = true,
+                    Name = "小组重新分组"
+                },
+
                 //admin area activities
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewAddressAttribute",
-                    Enabled = true,
-                    Name = "Add a new address attribute"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewAddressAttributeValue",
-                    Enabled = true,
-                    Name = "Add a new address attribute value"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewAffiliate",
-                    Enabled = true,
-                    Name = "Add a new affiliate"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewBlogPost",
-                    Enabled = true,
-                    Name = "Add a new blog post"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewCampaign",
-                    Enabled = true,
-                    Name = "Add a new campaign"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewCategory",
-                    Enabled = true,
-                    Name = "Add a new category"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewCheckoutAttribute",
-                    Enabled = true,
-                    Name = "Add a new checkout attribute"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewCountry",
-                    Enabled = true,
-                    Name = "Add a new country"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewCurrency",
-                    Enabled = true,
-                    Name = "Add a new currency"
-                },
                 new ActivityLogType
                 {
                     SystemKeyword = "AddNewCustomer",
@@ -673,24 +545,6 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "AddNewManufacturer",
-                    Enabled = true,
-                    Name = "Add a new manufacturer"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewMeasureDimension",
-                    Enabled = true,
-                    Name = "Add a new measure dimension"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewMeasureWeight",
-                    Enabled = true,
-                    Name = "Add a new measure weight"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "AddNewNews",
                     Enabled = true,
                     Name = "Add a new news"
@@ -733,30 +587,6 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "AddNewTopic",
-                    Enabled = true,
-                    Name = "Add a new topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewVendor",
-                    Enabled = true,
-                    Name = "Add a new vendor"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewWarehouse",
-                    Enabled = true,
-                    Name = "Add a new warehouse"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewWidget",
-                    Enabled = true,
-                    Name = "Add a new widget"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "DeleteActivityLog",
                     Enabled = true,
                     Name = "Delete activity log"
@@ -775,51 +605,9 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "DeleteAffiliate",
-                    Enabled = true,
-                    Name = "Delete an affiliate"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteBlogPost",
-                    Enabled = true,
-                    Name = "Delete a blog post"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteBlogPostComment",
-                    Enabled = true,
-                    Name = "Delete a blog post comment"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteCampaign",
-                    Enabled = true,
-                    Name = "Delete a campaign"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "DeleteCategory",
                     Enabled = true,
                     Name = "Delete category"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteCheckoutAttribute",
-                    Enabled = true,
-                    Name = "Delete a checkout attribute"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteCountry",
-                    Enabled = true,
-                    Name = "Delete a country"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteCurrency",
-                    Enabled = true,
-                    Name = "Delete a currency"
                 },
                 new ActivityLogType
                 {
@@ -871,24 +659,6 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "DeleteManufacturer",
-                    Enabled = true,
-                    Name = "Delete a manufacturer"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteMeasureDimension",
-                    Enabled = true,
-                    Name = "Delete a measure dimension"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteMeasureWeight",
-                    Enabled = true,
-                    Name = "Delete a measure weight"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "DeleteMessageTemplate",
                     Enabled = true,
                     Name = "Delete a message template"
@@ -904,12 +674,6 @@ namespace Nop.Services.Installation
                     SystemKeyword = "DeleteNewsComment",
                     Enabled = true,
                     Name = "Delete a news comment"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteOrder",
-                    Enabled = true,
-                    Name = "Delete an order"
                 },
                 new ActivityLogType
                 {
@@ -949,12 +713,6 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "DeleteSpecAttribute",
-                    Enabled = true,
-                    Name = "Delete a specification attribute"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "DeleteStateProvince",
                     Enabled = true,
                     Name = "Delete a state or province"
@@ -970,30 +728,6 @@ namespace Nop.Services.Installation
                     SystemKeyword = "DeleteSystemLog",
                     Enabled = true,
                     Name = "Delete system log"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteTopic",
-                    Enabled = true,
-                    Name = "Delete a topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteVendor",
-                    Enabled = true,
-                    Name = "Delete a vendor"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteWarehouse",
-                    Enabled = true,
-                    Name = "Delete a warehouse"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteWidget",
-                    Enabled = true,
-                    Name = "Delete a widget"
                 },
                 new ActivityLogType
                 {
@@ -1015,24 +749,6 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "EditAffiliate",
-                    Enabled = true,
-                    Name = "Edit an affiliate"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditBlogPost",
-                    Enabled = true,
-                    Name = "Edit a blog post"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditCampaign",
-                    Enabled = true,
-                    Name = "Edit a campaign"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "EditCategory",
                     Enabled = true,
                     Name = "Edit category"
@@ -1042,18 +758,6 @@ namespace Nop.Services.Installation
                     SystemKeyword = "EditCheckoutAttribute",
                     Enabled = true,
                     Name = "Edit a checkout attribute"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditCountry",
-                    Enabled = true,
-                    Name = "Edit a country"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditCurrency",
-                    Enabled = true,
-                    Name = "Edit a currency"
                 },
                 new ActivityLogType
                 {
@@ -1081,12 +785,6 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "EditDiscount",
-                    Enabled = true,
-                    Name = "Edit a discount"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "EditEmailAccount",
                     Enabled = true,
                     Name = "Edit an email account"
@@ -1105,30 +803,6 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "EditManufacturer",
-                    Enabled = true,
-                    Name = "Edit a manufacturer"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditMeasureDimension",
-                    Enabled = true,
-                    Name = "Edit a measure dimension"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditMeasureWeight",
-                    Enabled = true,
-                    Name = "Edit a measure weight"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditMessageTemplate",
-                    Enabled = true,
-                    Name = "Edit a message template"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "EditNews",
                     Enabled = true,
                     Name = "Edit a news"
@@ -1138,12 +812,6 @@ namespace Nop.Services.Installation
                     SystemKeyword = "EditOrder",
                     Enabled = true,
                     Name = "Edit an order"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditPlugin",
-                    Enabled = true,
-                    Name = "Edit a plugin"
                 },
                 new ActivityLogType
                 {
@@ -1162,12 +830,6 @@ namespace Nop.Services.Installation
                     SystemKeyword = "EditProductReview",
                     Enabled = true,
                     Name = "Edit a product review"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditPromotionProviders",
-                    Enabled = true,
-                    Name = "Edit promotion providers"
                 },
                 new ActivityLogType
                 {
@@ -1195,39 +857,15 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "EditTask",
-                    Enabled = true,
-                    Name = "Edit a task"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditSpecAttribute",
-                    Enabled = true,
-                    Name = "Edit a specification attribute"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "EditVendor",
                     Enabled = true,
                     Name = "Edit a vendor"
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "EditWarehouse",
-                    Enabled = true,
-                    Name = "Edit a warehouse"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "EditTopic",
                     Enabled = true,
                     Name = "Edit a topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditWidget",
-                    Enabled = true,
-                    Name = "Edit a widget"
                 },
                 new ActivityLogType
                 {
@@ -1249,12 +887,6 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "ImportManufacturers",
-                    Enabled = true,
-                    Name = "Manufacturers were imported"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "ImportProducts",
                     Enabled = true,
                     Name = "Products were imported"
@@ -1265,30 +897,12 @@ namespace Nop.Services.Installation
                     Enabled = true,
                     Name = "States were imported"
                 },
-                new ActivityLogType
-                {
-                    SystemKeyword = "InstallNewPlugin",
-                    Enabled = true,
-                    Name = "Install a new plugin"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "UninstallPlugin",
-                    Enabled = true,
-                    Name = "Uninstall a plugin"
-                },
                 //public store activities
                 new ActivityLogType
                 {
                     SystemKeyword = "PublicStore.ViewCategory",
                     Enabled = false,
                     Name = "Public store. View a category"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.ViewManufacturer",
-                    Enabled = false,
-                    Name = "Public store. View a manufacturer"
                 },
                 new ActivityLogType
                 {
@@ -1304,33 +918,9 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "PublicStore.SendPM",
-                    Enabled = false,
-                    Name = "Public store. Send PM"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.ContactUs",
-                    Enabled = false,
-                    Name = "Public store. Use contact us form"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.AddToCompareList",
-                    Enabled = false,
-                    Name = "Public store. Add to compare list"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "PublicStore.AddToShoppingCart",
                     Enabled = false,
                     Name = "Public store. Add to shopping cart"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.AddToWishlist",
-                    Enabled = false,
-                    Name = "Public store. Add to wishlist"
                 },
                 new ActivityLogType
                 {
@@ -1340,70 +930,10 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "PublicStore.Logout",
-                    Enabled = false,
-                    Name = "Public store. Logout"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.AddProductReview",
-                    Enabled = false,
-                    Name = "Public store. Add product review"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "PublicStore.AddNewsComment",
                     Enabled = false,
                     Name = "Public store. Add news comment"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.AddBlogComment",
-                    Enabled = false,
-                    Name = "Public store. Add blog comment"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.AddForumTopic",
-                    Enabled = false,
-                    Name = "Public store. Add forum topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.EditForumTopic",
-                    Enabled = false,
-                    Name = "Public store. Edit forum topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.DeleteForumTopic",
-                    Enabled = false,
-                    Name = "Public store. Delete forum topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.AddForumPost",
-                    Enabled = false,
-                    Name = "Public store. Add forum post"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.EditForumPost",
-                    Enabled = false,
-                    Name = "Public store. Edit forum post"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.DeleteForumPost",
-                    Enabled = false,
-                    Name = "Public store. Delete forum post"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "UploadNewPlugin",
-                    Enabled = true,
-                    Name = "Upload a plugin"
-                },
+                }
             };
             _activityLogTypeRepository.Insert(activityLogTypes);
         }
@@ -1626,7 +1156,11 @@ namespace Nop.Services.Installation
                 SuffixDeletedCustomers = false,
                 EnteringEmailTwice = false,
                 RequireRegistrationForDownloadableProducts = false,
-                DeleteGuestTaskOlderThanMinutes = 1440
+                DeleteGuestTaskOlderThanMinutes = 1440,
+                // phone number regex
+                PhoneNumberRegex = "^1[34578]\\d{9}$",
+                // Team number mask
+                TeamNumberMask = "{YY}{MM}{#:000000}"
             });
 
             settingService.SaveSetting(new AddressSettings

@@ -102,6 +102,18 @@ namespace Nop.Services.Customers
         /// <param name="username">Username</param>
         /// <returns>Customer</returns>
         Customer GetCustomerByUsername(string username);
+        /// <summary>
+        /// Get customer by nickname
+        /// </summary>
+        /// <param name="nickName">NickName</param>
+        /// <returns>Customer</returns>
+        Customer GetCustomerByNickName(string nickName);
+        /// <summary>
+        /// Get customer by phone number
+        /// </summary>
+        /// <param name="phoneNumber">PhoneNumber</param>
+        /// <returns>Customer</returns>
+        Customer GetCustomerByPhoneNumber(string phoneNumber);
 
         /// <summary>
         /// Insert a guest customer

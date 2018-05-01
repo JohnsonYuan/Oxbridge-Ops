@@ -32,6 +32,7 @@ using Nop.Services.Orders;
 using Nop.Services.Topics;
 using Nop.Services.News;
 using Nop.Services.Directory;
+using Nop.Services.ZhiXiao;
 
 namespace Nop.Web.Framework
 {
@@ -202,6 +203,8 @@ namespace Nop.Web.Framework
                 }
             }
 
+            builder.RegisterType<CustomerTeamService>().As<ICustomerTeamService>().InstancePerLifetimeScope();
+            builder.RegisterType<CustomNumberFormatter>().As<ICustomNumberFormatter>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             builder.RegisterType<GeoLookupService>().As<IGeoLookupService>().InstancePerLifetimeScope();
             builder.RegisterType<MaintenanceService>().As<IMaintenanceService>().InstancePerLifetimeScope();

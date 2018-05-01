@@ -72,7 +72,7 @@ namespace Nop.Validators.Customers
                 customerSettings.StateProvinceEnabled &&
                 customerSettings.StateProvinceRequired)
             {
-                RuleFor(x => x.Province).NotEmpty()
+                RuleFor(x => x.StateProvince).NotEmpty()
                     .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.StateProvince.Required"))
                     //only for registered users
                     .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
@@ -133,13 +133,14 @@ namespace Nop.Validators.Customers
 
                 Custom(x =>
                 {
-                    bool isInRegisteredRole = IsRegisteredCustomerRoleChecked(x, customerService)
-                    //does selected country have states?
-                    var hasStates = stateProvinceService.GetStateProvincesByCountryId(x.CountryId).Any();
-                    if (hasStates)
+                    bool isInRegisteredRole = IsRegisteredCustomerRoleChecked(x, customerService);
+                    if (isInRegisteredRole)
                     {
+                        bool match = true;
+                        if (!string.IsNullOrEmpty(customerSettings.PhoneNumberRegex))
+                            match = System.Text.RegularExpressions.Regex.IsMatch(x.Phone, customerSettings.PhoneNumberRegex);
                         //if yes, then ensure that a state is selected
-                        if (x.StateProvinceId == 0)
+                        if (!match)
                         {
                             return new ValidationFailure("Phone", localizationService.GetResource("Account.Fields.Phone.FormatWrong"));
                         }
@@ -168,7 +169,8 @@ namespace Nop.Validators.Customers
                     newCustomerRoles.Add(customerRole);
 
             bool isInRegisteredRole = newCustomerRoles.FirstOrDefault(cr => 
-                cr.SystemName == SystemCustomerRoleNames.Registered) != null;
+                cr.SystemName == SystemCustomerRoleNames.Registered ||
+                cr.SystemName == SystemCustomerRoleNames.Registered_Advanced ) != null;
             return isInRegisteredRole;
         }
     }

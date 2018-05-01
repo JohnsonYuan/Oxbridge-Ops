@@ -43,5 +43,19 @@ namespace Nop.Services.Customers
         /// <param name="customer">Customer</param>
         /// <param name="newUsername">New Username</param>
         void SetUsername(Customer customer, string newUsername);
+        
+        /// <summary>
+        /// Sets a customer nickname
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="newNickName">New nickname</param>
+        void SetNickName(Customer customer, string newNickName);
+
+        /// <summary>
+        /// Sets a customer phone number
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="newPhoneNumber">new PhoneNumber</param>
+        void SetPhoneNumber(Customer customer, string newPhoneNumber);
     }
 }

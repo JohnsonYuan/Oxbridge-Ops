@@ -15,7 +15,7 @@ namespace Nop.Core.Domain.Customers
         public static string District { get { return "District"; } }
         public static string City { get { return "City"; } }
         // public static string Country { get { return "CountryId"; } }
-        public static string Province { get { return "StateProvinceId"; } }
+        public static string StateProvince { get { return "StateProvince"; } }
         public static string Phone { get { return "Phone"; } }
         public static string Fax { get { return "Fax"; } }
         public static string VatNumber { get { return "VatNumber"; } }
@@ -56,7 +56,7 @@ namespace Nop.Core.Domain.Customers
         public static string EuCookieLawAccepted { get { return "EuCookieLaw.Accepted"; } }
 
         // zhixiao
-        //public static string ZhiXiao_Gender { get { return "ZhiXiao.Gender"; } }              // 性别
+        public static string ZhiXiao_NickName { get { return "ZhiXiao.NickName"; } }              // 性别
         public static string ZhiXiao_IdCardNum { get { return "ZhiXiao.IdCardNum"; } }          // 身份证号
         public static string ZhiXiao_YinHang { get { return "ZhiXiao.YinHang"; } }              // 银行
         public static string ZhiXiao_KaiHuHang { get { return "ZhiXiao.KaiHuHang"; } }          // 开户行
@@ -68,7 +68,7 @@ namespace Nop.Core.Domain.Customers
         public static string ZhiXiao_InTeamOrder { get { return "ZhiXiao.InTeamOrder"; } }      // 在小组中排序id(按加入时间)
         public static string ZhiXiao_InTeamTime { get { return "ZhiXiao.InTeamTime"; } }        // 加入该小组的时间
         public static string ZhiXiao_Password2 { get { return "ZhiXiao.Password2"; } }          // 二级密码
-        public static string ZhiXiao_Level { get { return "ZhiXiao.Level"; } }                  // 级别id
+        public static string ZhiXiao_LevelId { get { return "ZhiXiao.LevelId"; } }              // 级别id
         public static string ZhiXiao_ParentId { get { return "ZhiXiao.ParentId"; } }            // 推荐人id
         public static string ZhiXiao_ChildCount { get { return "ZhiXiao.ChildCount"; } }        // 下线个数
         public static string ZhiXiao_MoneyNum { get { return "ZhiXiao.MoneyNum"; } }            // 当前金币

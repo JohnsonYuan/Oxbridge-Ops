@@ -88,7 +88,7 @@ namespace Web.ZhiXiao.Controllers
             //    pageSize: 1).TotalCount;
 
             model.NumberOfCustomers = _customerService.GetAllCustomers(
-                customerRoleIds: new[] { _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered_Advanced).Id },
+                customerRoleIds: new[] { _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered).Id },
                 pageIndex: 0,
                 pageSize: 1).TotalCount;
 

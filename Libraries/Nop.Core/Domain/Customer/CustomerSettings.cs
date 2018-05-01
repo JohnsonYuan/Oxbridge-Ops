@@ -245,7 +245,11 @@ namespace Nop.Core.Domain.Customers
         /// <summary>
         /// Gets or sets a value indicating whether 'Phone number' is required
         /// </summary>
-        public bool PhoneRequired { get; set; }
+        public bool PhoneRequired { get; set; }  
+        /// <summary>
+        /// Gets or sets phone number regex
+        /// </summary>
+        public string PhoneNumberRegex { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether 'Fax number' is enabled
@@ -261,6 +265,12 @@ namespace Nop.Core.Domain.Customers
         /// </summary>
         public bool AcceptPrivacyPolicyEnabled { get; set; }
 
+
+        /// <summary>
+        /// Gets or sets team number mask
+        /// {DD} {ID} {MM} {YY} {YYYY}
+        /// </summary>
+        public string TeamNumberMask { get; set; }
         #endregion
     }
 }

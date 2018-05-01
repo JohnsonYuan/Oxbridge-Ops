@@ -16,6 +16,37 @@ namespace Nop.Services.Customers
     public static class CustomerExtensions
     {
         /// <summary>
+        ///  Get nickname
+        ///  {nickName}
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <returns>nickname</returns>
+        public static string GetNickName(this Customer customer)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            var nickName = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_NickName);
+
+            return nickName;
+        }
+
+        /// <summary>
+        ///  Get user name and email
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <returns>{nickName} - {userName}</returns>
+        public static string GetNickNameAndUserName(this Customer customer)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            var nickName = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_NickName);
+
+            return string.Format("{0} - {1}", nickName, customer.Username);
+        }
+
+        /// <summary>
         /// Get full name
         /// </summary>
         /// <param name="customer">Customer</param>

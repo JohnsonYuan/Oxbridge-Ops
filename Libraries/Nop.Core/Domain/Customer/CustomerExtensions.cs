@@ -106,6 +106,17 @@ namespace Nop.Core.Domain.Customers
         {
             return IsInCustomerRole(customer, SystemCustomerRoleNames.Registered, onlyActiveCustomerRoles);
         }
+        
+        /// <summary>
+        /// Gets a value indicating whether customer is advanced registered user
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="onlyActiveCustomerRoles">A value indicating whether we should look only in active customer roles</param>
+        /// <returns>Result</returns>
+        public static bool IsRegistered_Advanced(this Customer customer, bool onlyActiveCustomerRoles = true)
+        {
+            return IsInCustomerRole(customer, SystemCustomerRoleNames.Registered_Advanced, onlyActiveCustomerRoles);
+        }
 
         /// <summary>
         /// Gets a value indicating whether customer is guest

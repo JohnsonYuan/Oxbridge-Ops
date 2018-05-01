@@ -8,7 +8,7 @@ namespace Nop.Data.Mapping.Customers
         {
             this.ToTable("CustomerTeam");
             this.HasKey(t => t.Id);
-            this.Property(t => t.TeamNumber).HasMaxLength(100);
+            this.Property(t => t.CustomNumber).HasMaxLength(100);
         }
     }
 }

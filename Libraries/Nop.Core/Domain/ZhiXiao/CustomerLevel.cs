@@ -1,4 +1,8 @@
-﻿namespace Nop.Core.Domain.ZhiXiao
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+
+namespace Nop.Core.Domain.ZhiXiao
 {
 
     // 一共10个等级
@@ -7,16 +11,28 @@
     // 出盘　　：
     public enum CustomerLevel
     {
+        [Description("组员")]
         ZuYuan,
+        [Description("副组长")]
         FuZuZhang,
+        [Description("组长")]
         ZuZhang,
+        [Description("董事级别")]
         DongShi0,
+        [Description("一星董事")]
         DongShi1,
+        [Description("二星董事")]
         DongShi2,
+        [Description("三星董事")]
         DongShi3,
+        [Description("四星董事")]
         DongShi4,
+        [Description("五星董事")]
         DongShi5,
+        [Description("出盘")]
         ChuPan
+
+
     }
 
     //This is a extension class of enum

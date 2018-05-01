@@ -4,13 +4,9 @@ using System.Linq;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Data;
-using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Security;
-using Nop.Core.Domain.Stores;
 using Nop.Core.Domain.Topics;
-using Nop.Services.Customers;
 using Nop.Services.Events;
-using Nop.Services.Stores;
 
 namespace Nop.Services.Topics
 {

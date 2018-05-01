@@ -156,6 +156,8 @@ namespace Nop.Admin.Models.Settings
             public bool PhoneEnabled { get; set; }
             [NopResourceDisplayName("Admin.Configuration.Settings.CustomerUser.PhoneRequired")]
             public bool PhoneRequired { get; set; }
+            [NopResourceDisplayName("Admin.Configuration.Settings.CustomerUser.PhoneNumberRegex")]
+            public string PhoneNumberRegex { get; set; }
 
             [NopResourceDisplayName("Admin.Configuration.Settings.CustomerUser.FaxEnabled")]
             public bool FaxEnabled { get; set; }
@@ -164,6 +166,9 @@ namespace Nop.Admin.Models.Settings
 
             [NopResourceDisplayName("Admin.Configuration.Settings.CustomerUser.AcceptPrivacyPolicyEnabled")]
             public bool AcceptPrivacyPolicyEnabled { get; set; }
+
+            [Display(Name = "小组编号格式")]
+            public string TeamNumberMask { get; set; }
         }
 
         public partial class AddressSettingsModel : BaseNopModel

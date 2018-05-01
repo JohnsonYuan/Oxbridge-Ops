@@ -433,6 +433,57 @@ namespace Nop.Services.Customers
             _customerService.UpdateCustomer(customer);
         }
 
+                
+        /// <summary>
+        /// Sets a customer nickname
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="newNickName">New nickname</param>
+        public virtual void SetNickName(Customer customer, string newNickName)
+        {
+            if (customer == null)
+                throw new ArgumentNullException(nameof(customer));
+
+            if (!_customerSettings.PhoneEnabled)
+                throw new NopException("Phone number are disabled");
+
+            newNickName = newNickName.Trim();
+
+            if (newNickName.Length > 100)
+                throw new NopException("昵称长度超长");
+
+            var user2 = _customerService.GetCustomerByNickName(newNickName);
+            if (user2 != null && customer.Id != user2.Id)
+                throw new NopException("昵称已经使用");
+
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_NickName, newNickName);
+        }
+
+        /// <summary>
+        /// Sets a customer phone number
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="newPhoneNumber">new PhoneNumber</param>
+        public virtual void SetPhoneNumber(Customer customer, string newPhoneNumber)
+        {
+            if (customer == null)
+                throw new ArgumentNullException(nameof(customer));
+
+            if (!_customerSettings.PhoneEnabled)
+                throw new NopException("Phone number are disabled");
+
+            newPhoneNumber = newPhoneNumber.Trim();
+
+            if (newPhoneNumber.Length > 100)
+                throw new NopException("手机号长度超长");
+
+            var user2 = _customerService.GetCustomerByPhoneNumber(newPhoneNumber);
+            if (user2 != null && customer.Id != user2.Id)
+                throw new NopException("手机号已经使用");
+
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Phone, newPhoneNumber);
+        }
+
         #endregion
     }
 }

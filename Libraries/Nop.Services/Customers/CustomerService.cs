@@ -71,7 +71,7 @@ namespace Nop.Services.Customers
             IGenericAttributeService genericAttributeService,
             IDataProvider dataProvider,
             IDbContext dbContext,
-            IEventPublisher eventPublisher, 
+            IEventPublisher eventPublisher,
             CustomerSettings customerSettings,
             CommonSettings commonSettings)
         {
@@ -171,7 +171,7 @@ namespace Nop.Services.Customers
                 string dateOfBirthStr = monthOfBirth.ToString("00", CultureInfo.InvariantCulture) + "-" + dayOfBirth.ToString("00", CultureInfo.InvariantCulture);
                 //EndsWith is not supported by SQL Server Compact
                 //so let's use the following workaround http://social.msdn.microsoft.com/Forums/is/sqlce/thread/0f810be1-2132-4c59-b9ae-8f7013c0cc00
-                
+
                 //we also cannot use Length function in SQL Server Compact (not supported in this context)
                 //z.Attribute.Value.Length - dateOfBirthStr.Length = 5
                 //dateOfBirthStr.Length = 5
@@ -188,7 +188,7 @@ namespace Nop.Services.Customers
                 string dateOfBirthStr = dayOfBirth.ToString("00", CultureInfo.InvariantCulture);
                 //EndsWith is not supported by SQL Server Compact
                 //so let's use the following workaround http://social.msdn.microsoft.com/Forums/is/sqlce/thread/0f810be1-2132-4c59-b9ae-8f7013c0cc00
-                
+
                 //we also cannot use Length function in SQL Server Compact (not supported in this context)
                 //z.Attribute.Value.Length - dateOfBirthStr.Length = 8
                 //dateOfBirthStr.Length = 2
@@ -244,7 +244,7 @@ namespace Nop.Services.Customers
             //search by IpAddress
             if (!String.IsNullOrWhiteSpace(ipAddress) && CommonHelper.IsValidIpAddress(ipAddress))
             {
-                    query = query.Where(w => w.LastIpAddress == ipAddress);
+                query = query.Where(w => w.LastIpAddress == ipAddress);
             }
 
             query = query.OrderByDescending(c => c.CreatedOnUtc);
@@ -269,7 +269,7 @@ namespace Nop.Services.Customers
             query = query.Where(c => !c.Deleted);
             if (customerRoleIds != null && customerRoleIds.Length > 0)
                 query = query.Where(c => c.CustomerRoles.Select(cr => cr.Id).Intersect(customerRoleIds).Any());
-            
+
             query = query.OrderByDescending(c => c.LastActivityDateUtc);
             var customers = new PagedList<Customer>(query, pageIndex, pageSize);
             return customers;
@@ -312,7 +312,7 @@ namespace Nop.Services.Customers
         {
             if (customerId == 0)
                 return null;
-            
+
             return _customerRepository.GetById(customerId);
         }
 
@@ -340,7 +340,7 @@ namespace Nop.Services.Customers
             }
             return sortedCustomers;
         }
-        
+
         /// <summary>
         /// Gets a customer by GUID
         /// </summary>
@@ -412,7 +412,52 @@ namespace Nop.Services.Customers
             var customer = query.FirstOrDefault();
             return customer;
         }
-        
+
+        /// <summary>
+        /// Get customer by nickname
+        /// </summary>
+        /// <param name="nickName">NickName</param>
+        /// <returns>Customer</returns>
+        public virtual Customer GetCustomerByNickName(string nickName)
+        {
+            if (string.IsNullOrWhiteSpace(nickName))
+                return null;
+
+            var query = _customerRepository.Table;
+
+            query = query
+                    .Join(_gaRepository.Table, x => x.Id, y => y.EntityId, (x, y) => new { Customer = x, Attribute = y })
+                    .Where((z => z.Attribute.KeyGroup == "Customer" &&
+                        z.Attribute.Key == SystemCustomerAttributeNames.ZhiXiao_NickName &&
+                        z.Attribute.Value == nickName))
+                    .Select(z => z.Customer);
+
+            var customer = query.FirstOrDefault();
+            return customer;
+        }
+        /// <summary>
+        /// Get customer by phone number
+        /// </summary>
+        /// <param name="phoneNumber">PhoneNumber</param>
+        /// <returns>Customer</returns>
+        public virtual Customer GetCustomerByPhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                return null;
+
+            var query = _customerRepository.Table;
+
+            query = query
+                    .Join(_gaRepository.Table, x => x.Id, y => y.EntityId, (x, y) => new { Customer = x, Attribute = y })
+                    .Where((z => z.Attribute.KeyGroup == "Customer" &&
+                        z.Attribute.Key == SystemCustomerAttributeNames.Phone &&
+                        z.Attribute.Value == phoneNumber))
+                    .Select(z => z.Customer);
+
+            var customer = query.FirstOrDefault();
+            return customer;
+        }
+
         /// <summary>
         /// Insert a guest customer
         /// </summary>
@@ -437,7 +482,7 @@ namespace Nop.Services.Customers
 
             return customer;
         }
-        
+
         /// <summary>
         /// Insert a customer
         /// </summary>
@@ -452,7 +497,7 @@ namespace Nop.Services.Customers
             //event notification
             _eventPublisher.EntityInserted(customer);
         }
-        
+
         /// <summary>
         /// Updates the customer
         /// </summary>
@@ -592,8 +637,8 @@ namespace Nop.Services.Customers
                 query = from c in query
                         group c by c.Id
                             into cGroup
-                            orderby cGroup.Key
-                            select cGroup.FirstOrDefault();
+                        orderby cGroup.Key
+                        select cGroup.FirstOrDefault();
                 query = query.OrderBy(c => c.Id);
                 var customers = query.ToList();
 
@@ -623,7 +668,7 @@ namespace Nop.Services.Customers
         }
 
         #endregion
-        
+
         #region Customer roles
 
         /// <summary>
@@ -636,7 +681,7 @@ namespace Nop.Services.Customers
                 throw new ArgumentNullException("customerRole");
 
             if (customerRole.IsSystemRole)
-                throw new NopException(Core.Infrastructure.EngineContext.Current.Resolve< Localization.ILocalizationService>().GetResource("Admin.Customers.CustomerRoles.Fields.Active.CantEditSystem"));
+                throw new NopException(Core.Infrastructure.EngineContext.Current.Resolve<Localization.ILocalizationService>().GetResource("Admin.Customers.CustomerRoles.Fields.Active.CantEditSystem"));
 
             _customerRoleRepository.Delete(customerRole);
 
@@ -699,7 +744,7 @@ namespace Nop.Services.Customers
                 return customerRoles;
             });
         }
-        
+
         /// <summary>
         /// Inserts a customer role
         /// </summary>
@@ -745,7 +790,7 @@ namespace Nop.Services.Customers
         /// <param name="passwordFormat">Password format; pass null to load all records</param>
         /// <param name="passwordsToReturn">Number of returning passwords; pass null to load all records</param>
         /// <returns>List of customer passwords</returns>
-        public virtual IList<CustomerPassword> GetCustomerPasswords(int? customerId = null, 
+        public virtual IList<CustomerPassword> GetCustomerPasswords(int? customerId = null,
             PasswordFormat? passwordFormat = null, int? passwordsToReturn = null)
         {
             var query = _customerPasswordRepository.Table;

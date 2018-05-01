@@ -23,7 +23,7 @@ namespace Nop.Core.Domain.ZhiXiao
         /// Gets or sets the customer team number
         /// available placehodler: {ID} {YYYY} {YY} {MM} {DD}
         /// </summary>
-        public string TeamNumber { get; set; }
+        public string CustomNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the customer Guid

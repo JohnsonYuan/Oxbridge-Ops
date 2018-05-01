@@ -186,7 +186,7 @@
                                         @Html.NopLabelFor(model => model.SearchCustomerRoleIds)
                                     </div>
                                     <div class="col-md-8">
-                                        @Html.EditorFor(model => model.SearchCustomerRoleIds, new { SelectList = Model.AvailableCustomerRoles }))
+                                        @Html.EditorFor(model => model.SearchCustomerRoleIds, new { SelectList = Model.AvailableCustomerRoles })
                                         <script>
                                             $(document).ready(function() {
                                                 var rolesIdsInput = $('#@Html.FieldIdFor(model => model.SearchCustomerRoleIds)').data("kendoMultiSelect");
