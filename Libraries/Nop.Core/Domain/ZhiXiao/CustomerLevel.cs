@@ -31,8 +31,6 @@ namespace Nop.Core.Domain.ZhiXiao
         DongShi5,
         [Description("出盘")]
         ChuPan
-
-
     }
 
     //This is a extension class of enum

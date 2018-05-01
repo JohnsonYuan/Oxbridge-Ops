@@ -270,6 +270,7 @@ namespace Nop.Services.Installation
             adminUser.CustomerRoles.Add(crAdministrators);
             adminUser.CustomerRoles.Add(crManagers);
             adminUser.CustomerRoles.Add(crRegistered_Normal);
+            adminUser.CustomerRoles.Add(crRegistered_Advanced);
 
             _customerRepository.Insert(adminUser);
 
@@ -489,9 +490,27 @@ namespace Nop.Services.Installation
                 // 直销
                 new ActivityLogType
                 {
-                    SystemKeyword = SystemZhiXiaoLogTypes.ReGroupTeam,
+                    SystemKeyword = SystemZhiXiaoLogTypes.AddNewUser,
                     Enabled = true,
-                    Name = "小组重新分组"
+                    Name = "小组新增用户"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
+                    Enabled = true,
+                    Name = "重新分组"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
+                    Enabled = true,
+                    Name = "分组增加奖金"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
+                    Enabled = true,
+                    Name = "分组提升级别"
                 },
 
                 //admin area activities
@@ -1236,6 +1255,7 @@ namespace Nop.Services.Installation
             InstallLocaleResources();
             InstallCustomerTeams();
             InstallCustomersAndUsers(defaultUserEmail, defaultUserPassword);
+            InstallZhiXiaoTestUser();
             InstallActivityLogTypes();
 
             if (installSampleData)

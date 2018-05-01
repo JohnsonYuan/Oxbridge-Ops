@@ -20,10 +20,13 @@
                 <i class="fa fa-floppy-o"></i>
                 @T("Admin.Common.Save")
             </button>
-            <button type="submit" name="save-continue" class="btn bg-blue">
-                <i class="fa fa-floppy-o"></i>
-                @T("Admin.Common.SaveContinue")
-            </button>
+            @if(Model.CanManageCustomers)
+            {
+                <button type="submit" name="save-continue" class="btn bg-blue">
+                    <i class="fa fa-floppy-o"></i>
+                    @T("Admin.Common.SaveContinue")
+                </button>
+            }
         </div>
     </div>
     @Html.Partial("_CreateOrUpdate", Model)

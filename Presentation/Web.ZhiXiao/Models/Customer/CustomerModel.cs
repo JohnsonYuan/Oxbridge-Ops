@@ -145,9 +145,6 @@ namespace Nop.Models.Customers
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.IsTaxExempt")]
         public bool IsTaxExempt { get; set; }
 
-        [NopResourceDisplayName("Admin.Customers.Customers.Fields.Active")]
-        public bool Active { get; set; }
-
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.Affiliate")]
         public int AffiliateId { get; set; }
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.Affiliate")]
@@ -196,7 +193,6 @@ namespace Nop.Models.Customers
         public string CustomerRoleNames { get; set; }
         public List<SelectListItem> AvailableCustomerRoles { get; set; }
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.CustomerRoles")]
-        [UIHint("MultiSelect")]
         public IList<int> SelectedCustomerRoleIds { get; set; }
 
 
@@ -232,8 +228,17 @@ namespace Nop.Models.Customers
         //[NopResourceDisplayName("Admin.Customers.Customers.AssociatedExternalAuth")]
         //public IList<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; }
 
+        /// <summary>
+        /// 当前用户是否有MangeCustomers权限, 如果有才可以设置其他选项
+        /// </summary>
+        public bool CanManageCustomers { get; set; }
+        
+        [NopResourceDisplayName("Admin.Customers.Customers.Fields.Active")]
+        public bool Active { get; set; }
+
+
         #region 直销系统需要的字段
-            
+
         [Display(Name = "推荐人")]
         [AllowHtml]
         [UIHint("MultiSelect")]

@@ -65,22 +65,27 @@
         <div class="panel-group">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <div class="form-group">
-                        <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.ZhiXiao_ParentId)
+                    @if (Model.CanManageCustomers)
+                    {
+                        // 有管理权限才能指定推荐人
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.ZhiXiao_ParentId)
+                            </div>
+                            <div class="col-md-9">
+                                @if (inEditMode && Model.ParentUser != null)
+                                {
+                                    @Html.NopDisplay(Model.ParentUser.GetNickNameAndUserName())
+                                }
+                                else
+                                {
+                                    @Html.NopDropDownListFor(model => model.ZhiXiao_ParentId, Model.AvailableParents)
+                                    @Html.ValidationMessageFor(model => model.ZhiXiao_ParentId)
+                                }
+                            </div>
                         </div>
-                        <div class="col-md-9">
-                            @if (inEditMode && Model.ParentUser != null)
-                            {
-                                @Html.NopDisplay(Model.ParentUser.GetNickNameAndUserName())
-                            }
-                            else
-                            {
-                                @Html.NopDropDownListFor(model => model.ZhiXiao_ParentId, Model.AvailableParents)
-                                @Html.ValidationMessageFor(model => model.ZhiXiao_ParentId)
-                            }
-                        </div>
-                    </div>
+                    }
+                    
                     <div class="form-group">
                         <div class="col-md-3">
                             @Html.NopLabelFor(model => model.Username)
@@ -165,39 +170,57 @@
                         </div>
                     }
                     @*role*@
-                    <div class="form-group">
-                        <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.SelectedCustomerRoleIds)
-                        </div>
-                        <div class="col-md-9">
-                            <div class="input-group input-group-required">
-                                @Html.EditorFor(model => model.SelectedCustomerRoleIds, new { SelectList = Model.AvailableCustomerRoles })
-                                <div class="input-group-btn">
-                                    @Html.RequiredHint()
-                                </div>
+                    @if (Model.CanManageCustomers)
+                    {
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.SelectedCustomerRoleIds)
                             </div>
-                            <script>
-                        $(document).ready(function() {
-                            var customerRolesIdsInput = $('#@Html.FieldIdFor(model => model.SelectedCustomerRoleIds)').data("kendoMultiSelect");
-                            customerRolesIdsInput.setOptions({
-                                customerRolesIdsInput: false
-                            });
+                            <div class="col-md-9">
+                                <div class="input-group input-group-required">
+                                    @Html.EditorFor(model => model.SelectedCustomerRoleIds, new { SelectList = Model.AvailableCustomerRoles })
+                                    <div class="input-group-btn">
+                                        @Html.RequiredHint()
+                                    </div>
+                                </div>
+                                <script>
+                                    $(document).ready(function() {
+                                        var customerRolesIdsInput = $('#@Html.FieldIdFor(model => model.SelectedCustomerRoleIds)').data("kendoMultiSelect");
+                                        customerRolesIdsInput.setOptions({
+                                            customerRolesIdsInput: false
+                                        });
 
-                            @if (Model.AvailableCustomerRoles.Count == 0)
-                            {
-                                <text>
-                                    customerRolesIdsInput.setOptions({
-                                        enable: false,
-                                        placeholder: '@T("Admin.Customers.Customers.Fields.CustomerRoles.NoRoles")'
+                                        @if (Model.AvailableCustomerRoles.Count == 0)
+                                        {
+                                            <text>
+                                                customerRolesIdsInput.setOptions({
+                                                    enable: false,
+                                                    placeholder: '@T("Admin.Customers.Customers.Fields.CustomerRoles.NoRoles")'
+                                                });
+                                                customerRolesIdsInput._placeholder();
+                                                customerRolesIdsInput._enable();
+                                            </text>
+                                        }
                                     });
-                                    customerRolesIdsInput._placeholder();
-                                    customerRolesIdsInput._enable();
-                                </text>
-                            }
-                        });
-                            </script>
+                                </script>
+                            </div>
                         </div>
-                    </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.SelectedCustomerRoleIds)
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    @Html.NopDropDownListFor(model => model.SelectedCustomerRoleIds, Model.AvailableCustomerRoles)
+                                </div>
+                                @Html.ValidationMessageFor(model => model.ConfirmPassword2)
+                            </div>
+                        </div>
+                    }
+
                     @if (Model.GenderEnabled)
                     {
                         <div class="form-group">
@@ -376,15 +399,18 @@
                             </div>
                         </div>
                     }
-                    <div class="form-group">
-                        <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.Active)
+                    @if(Model.CanManageCustomers)
+                    {
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.Active)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.Active)
+                                @Html.ValidationMessageFor(model => model.Active)
+                            </div>
                         </div>
-                        <div class="col-md-9">
-                            @Html.NopEditorFor(model => model.Active)
-                            @Html.ValidationMessageFor(model => model.Active)
-                        </div>
-                    </div>
+                    }
                     @if (Model.Id > 0)
                     {
                         <div class="form-group">

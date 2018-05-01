@@ -43,12 +43,8 @@ namespace Nop.Services.ZhiXiao
         int GetNewUserSortId(CustomerTeam team);
 
         /// <summary>
-        /// 
+        /// 1. 给组长， 副组长分钱, 2. 如果人数满足, 重新分组
         /// </summary>
-        /// <param name="team"></param>
-        /// <param name="newCustomer"></param>
-        void UpdateParentMoney(CustomerTeam team, Customer newCustomer);
-
-        void ReGroupTeamIfNeeded(CustomerTeam team);
+        void AddNewUserToTeam(CustomerTeam team, Customer newCustomer);
     }
 }
