@@ -174,6 +174,20 @@ namespace Nop.Services.Customers
         IList<CustomerRole> GetAllCustomerRoles(bool showHidden = false);
 
         /// <summary>
+        /// Get all customer ZhiXiao roles .
+        /// </summary>
+        /// <param name="showHidden">A value indicating whether to show hidden records</param>
+        /// <returns>Customer roles</returns>
+        IList<CustomerRole> GetRoles_ZhiXiao(bool showHidden = false);
+
+        /// <summary>
+        /// Get all customer roles except ZhiXiao.
+        /// </summary>
+        /// <param name="showHidden">A value indicating whether to show hidden records</param>
+        /// <returns>Customer roles</returns>
+        IList<CustomerRole> GetRolesExcept_ZhiXiao(bool showHidden = false);
+
+        /// <summary>
         /// Inserts a customer role
         /// </summary>
         /// <param name="customerRole">Customer role</param>

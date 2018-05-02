@@ -1,9 +1,8 @@
-﻿using System;
-using Nop.Core.Configuration;
+﻿using Nop.Core.Configuration;
 
 namespace Nop.Core.Domain.ZhiXiao
 {
-    public class ZhiXiaoSettings : ISettings
+    public partial class ZhiXiaoSettings : ISettings
     {
         /// <summary>
         /// 注册普通用户需要钱

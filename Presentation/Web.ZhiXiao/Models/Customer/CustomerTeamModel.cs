@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using Nop.Core.Domain.Customers;
+using Nop.Web.Framework;
+using Nop.Web.Framework.Mvc;
 
-namespace Nop.Core.Domain.ZhiXiao
+namespace Nop.Models.Customers
 {
-    /// <summary>
-    /// Represents a customer
-    /// </summary>
-    public partial class CustomerTeam : BaseEntity
+    public class CustomerTeamModel : BaseNopEntityModel
     {
         private ICollection<Customer> _customers;
 
         /// <summary>
         /// Ctor
         /// </summary>
-        public CustomerTeam()
+        public CustomerTeamModel()
         {
-            this.TeamGuid = Guid.NewGuid();
         }
 
         /// <summary>
@@ -35,10 +33,8 @@ namespace Nop.Core.Domain.ZhiXiao
         /// </summary>
         public int UserCount { get; set; }
 
-        /// <summary>
-        /// Gets or sets the date and time of entity creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
+        [NopResourceDisplayName("Admin.System.Log.Fields.CreatedOn")]
+        public DateTime CreatedOn { get; set; }
 
         /// <summary>
         /// Gets or sets customer addresses
@@ -46,7 +42,7 @@ namespace Nop.Core.Domain.ZhiXiao
         public virtual ICollection<Customer> Customers
         {
             get { return _customers ?? (_customers = new List<Customer>()); }
-            set { _customers = value; }
+            protected set { _customers = value; }
         }
     }
 }

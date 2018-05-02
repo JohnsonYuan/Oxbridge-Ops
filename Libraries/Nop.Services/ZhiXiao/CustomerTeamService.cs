@@ -202,6 +202,30 @@ namespace Nop.Services.ZhiXiao
         }
 
         /// <summary>
+        /// Gets all customer team items
+        /// </summary>
+        /// <param name="teamNumber">Team number</param>
+        /// <param name="createdOnFrom">Log item creation from; null to load all activities</param>
+        /// <param name="createdOnTo">Log item creation to; null to load all activities</param>
+        /// <returns>Customer team items items</returns>
+        public virtual IPagedList<CustomerTeam> GetAllCustomerTeams(string teamNumber, DateTime? createdOnFrom = null,
+            DateTime? createdOnTo = null, int pageIndex = 0, int pageSize = int.MaxValue)
+        {
+            var query = _customerTeamRepository.Table;
+            if(!String.IsNullOrEmpty(teamNumber))
+                query = query.Where(al => al.CustomNumber.Contains(teamNumber));
+            if (createdOnFrom.HasValue)
+                query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
+            if (createdOnTo.HasValue)
+                query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
+
+            query = query.OrderByDescending(al => al.CreatedOnUtc);
+
+            var customerTeams = new PagedList<CustomerTeam>(query, pageIndex, pageSize);
+            return customerTeams;
+        }
+
+        /// <summary>
         /// Gets an customer team item
         /// </summary>
         /// <param name="customerTeamId">Customer team identifier</param>
@@ -312,9 +336,10 @@ namespace Nop.Services.ZhiXiao
                 addMoney);
 
             // 组长进入董事级别, 删除teamId 属性
-            _genericAttributeService.SaveAttribute<string>(zuZhang,
-                SystemCustomerAttributeNames.ZhiXiao_TeamId,
-                null);
+            //_genericAttributeService.SaveAttribute<string>(zuZhang,
+            //    SystemCustomerAttributeNames.ZhiXiao_TeamId,
+            //    null);
+            zuZhang.CustomerTeam = null;
 
             // 组长进入董事级别
             _genericAttributeService.SaveAttribute(zuZhang,
@@ -347,8 +372,8 @@ namespace Nop.Services.ZhiXiao
 
             _customerTeamRepository.Insert(newTeam);
 
-            var oldTeamid = oldTeam.Id;
-            var newTeamId = newTeam.Id;
+            //var oldTeamid = oldTeam.Id;
+            //var newTeamId = newTeam.Id;
 
             // 按照下线个数(desc), 时间(asc) 排序, 来决定加入哪个小组
             var sortedUsers = oldTeam.Customers
@@ -363,7 +388,7 @@ namespace Nop.Services.ZhiXiao
             {
                 // 一共14个人, 按照拍好的顺序, 更新team
                 // 偶数分到原来的team, 奇数分到新生成的team
-                int currentUserTeamId = ((i % 2) == 0) ? oldTeam.Id : newTeam.Id;
+                var currentUserTeam = ((i % 2) == 0) ? oldTeam : newTeam;
 
                 // 2个组长(前两个), 4个副组长(第3-6个), 其余均为组员
                 // old team: 0(组长), 2(副组长), 4(副组长), 6, 8, 10, 12
@@ -383,8 +408,9 @@ namespace Nop.Services.ZhiXiao
                 }
 
                 var currentUser = sortedUsers[i];
-
-                var currentUserOldTeam = currentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_TeamId);
+                
+                //var currentUserOldTeam = currentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_TeamId);
+                
                 var currentUserOldLevel = currentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId);
                 _customerActivityService.InsertActivity(zuZhang,
                         SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
@@ -396,7 +422,8 @@ namespace Nop.Services.ZhiXiao
 
                 int sortId = i / 2;
                 // 更新teamid, class, inTeamTime
-                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_TeamId, currentUserTeamId);
+                currentUser.CustomerTeam = currentUserTeam;
+                //_genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_TeamId, currentUserTeamId);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_LevelId, (int)currentUserLevel);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, (int)sortId);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, DateTime.UtcNow);

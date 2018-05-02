@@ -64,7 +64,7 @@ namespace Nop.Core.Domain.Customers
         public static string ZhiXiao_BandNum { get { return "ZhiXiao.BandNum"; } }              // 银行卡号
 
 
-        public static string ZhiXiao_TeamId { get { return "ZhiXiao.TeamId"; } }                // 当前小组id
+        //public static string ZhiXiao_TeamId { get { return "ZhiXiao.TeamId"; } }                // 当前小组id
         public static string ZhiXiao_InTeamOrder { get { return "ZhiXiao.InTeamOrder"; } }      // 在小组中排序id(按加入时间)
         public static string ZhiXiao_InTeamTime { get { return "ZhiXiao.InTeamTime"; } }        // 加入该小组的时间
         public static string ZhiXiao_Password2 { get { return "ZhiXiao.Password2"; } }          // 二级密码

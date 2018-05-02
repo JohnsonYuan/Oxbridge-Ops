@@ -281,7 +281,27 @@ namespace Nop.Services.Logging
             var activityLog = new PagedList<ActivityLog>(query, pageIndex, pageSize);
             return activityLog;
         }
-        
+
+        /// <summary>
+        /// Gets all activity log items by types.
+        /// </summary>
+        public virtual IPagedList<ActivityLog> GetAllActivitiesByTypes(string[] activityLogTypeNames,
+            int pageIndex = 0, int pageSize = int.MaxValue)
+        {
+            var query = _activityLogRepository.Table;
+
+            // filter by log type
+            if (activityLogTypeNames != null)
+                query = query.Join(_activityLogTypeRepository.Table, x => x.ActivityLogTypeId, y => y.Id, (x, y) => new { Log = x, LogType = y })
+                    .Where(z => activityLogTypeNames.Contains(z.LogType.Name))
+                    .Select(z => z.Log);
+
+            query = query.OrderByDescending(al => al.CreatedOnUtc);
+
+            var activityLog = new PagedList<ActivityLog>(query, pageIndex, pageSize);
+            return activityLog;
+        }
+
         /// <summary>
         /// Gets an activity log item
         /// </summary>

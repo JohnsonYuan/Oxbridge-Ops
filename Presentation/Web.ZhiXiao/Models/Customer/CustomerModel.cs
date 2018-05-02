@@ -193,6 +193,7 @@ namespace Nop.Models.Customers
         public string CustomerRoleNames { get; set; }
         public List<SelectListItem> AvailableCustomerRoles { get; set; }
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.CustomerRoles")]
+        [UIHint("MultiSelect")]
         public IList<int> SelectedCustomerRoleIds { get; set; }
 
 
@@ -228,11 +229,6 @@ namespace Nop.Models.Customers
         //[NopResourceDisplayName("Admin.Customers.Customers.AssociatedExternalAuth")]
         //public IList<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; }
 
-        /// <summary>
-        /// 当前用户是否有MangeCustomers权限, 如果有才可以设置其他选项
-        /// </summary>
-        public bool CanManageCustomers { get; set; }
-        
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.Active")]
         public bool Active { get; set; }
 
@@ -245,15 +241,18 @@ namespace Nop.Models.Customers
         public int ZhiXiao_ParentId { get; set; }       // 推荐人id
         public Customer ParentUser { get; set; }
         public List<SelectListItem> AvailableParents { get; set; }
-
-        public string ZhiXiao_TeamId { get; set; }       // 小组id
+        
+        [Display(Name = "小组")]
+        public int ZhiXiao_TeamId { get; set; }       // 小组id
         public CustomerTeam CustomerTeam { get; set; }
 
         public string ZhiXiao_InTeamOrder { get; set; }  // 在小组中顺序
         public string ZhiXiao_InTeamTime { get; set; }   // 进入该小组时间
         public string ZhiXiao_ChildCount { get; set; }   // 下线个数
         public int ZhiXiao_LevelId { get; set; }        // 级别
+        [Display(Name = "电子币")]
         public long ZhiXiao_MoneyNum { get; set; }       // 电子币(真是个数)
+        [Display(Name = "历史电子币")]
         public long ZhiXiao_MoneyHistory { get; set; }   // 历史电子币(只记录增加, 不记录减少)
 
         [Display(Name = "身份证号")]
@@ -266,7 +265,7 @@ namespace Nop.Models.Customers
         public string ZhiXiao_KaiHuMing { get; set; }       // 开户名
         [Display(Name = "银行卡号")]
         public string ZhiXiao_BandNum { get; set; }         // 银行卡号   
-
+        [Display(Name = "级别")]
         public CustomerLevel CustomerLevel
         {
             get

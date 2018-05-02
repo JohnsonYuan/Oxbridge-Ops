@@ -33,6 +33,20 @@ namespace Nop.Services.Customers
         /// Key for caching
         /// </summary>
         /// <remarks>
+        /// {0} : show hidden records?
+        /// </remarks>
+        private const string CUSTOMERROLES_ZHIXIAO_KEY = "Nop.customerrole.zhixiao-{0}";
+                /// <summary>
+        /// Key for caching
+        /// </summary>
+        /// <remarks>
+        /// {0} : show hidden records?
+        /// </remarks>
+        private const string CUSTOMERROLES_EXCEPT_ZHIXIAO_KEY = "Nop.customerrole.except.zhixiao-{0}";
+        /// <summary>
+        /// Key for caching
+        /// </summary>
+        /// <remarks>
         /// {0} : system name
         /// </remarks>
         private const string CUSTOMERROLES_BY_SYSTEMNAME_KEY = "Nop.customerrole.systemname-{0}";
@@ -742,6 +756,46 @@ namespace Nop.Services.Customers
                             select cr;
                 var customerRoles = query.ToList();
                 return customerRoles;
+            });
+        }
+
+        /// <summary>
+        /// Get all customer roles except ZhiXiao users(Registered, Registered_Advanced).
+        /// </summary>
+        /// <param name="showHidden">A value indicating whether to show hidden records</param>
+        /// <returns>Customer roles</returns>
+        public virtual IList<CustomerRole> GetRoles_ZhiXiao(bool showHidden = false)
+        {
+            string key = string.Format(CUSTOMERROLES_ZHIXIAO_KEY, showHidden);
+            return _cacheManager.Get(key, () =>
+            {
+                var query = from cr in _customerRoleRepository.Table
+                            orderby cr.Name
+                            where showHidden || cr.Active
+                            select cr;
+
+                query = query.Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered
+                || cr.SystemName == SystemCustomerRoleNames.Registered_Advanced);
+
+                var customerRoles = query.ToList();
+                return customerRoles;
+            });
+        }
+
+        /// <summary>
+        /// Get all roles except zhixiao roles.
+        /// </summary>
+        /// <param name="showHidden"></param>
+        /// <returns></returns>
+        public virtual IList<CustomerRole> GetRolesExcept_ZhiXiao(bool showHidden =false)
+        {
+            string key = string.Format(CUSTOMERROLES_ZHIXIAO_KEY, showHidden);
+            return _cacheManager.Get(key, () =>
+            {
+                var allRoles = GetAllCustomerRoles(showHidden);
+                var zhiXiaoRoles = GetRoles_ZhiXiao(showHidden);
+
+                return allRoles.Except(zhiXiaoRoles).ToList();
             });
         }
 

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Nop.Core;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.ZhiXiao;
 
@@ -29,6 +31,12 @@ namespace Nop.Services.ZhiXiao
         /// </summary>
         /// <returns>Customer team items</returns>
         IList<CustomerTeam> GetAllCustomerTeams();
+
+        /// <summary>
+        /// Gets all customer team items
+        /// </summary>
+        IPagedList<CustomerTeam> GetAllCustomerTeams(string teamNumber, DateTime? createdOnFrom = null,
+            DateTime? createdOnTo = null, int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>
         /// Gets an customer team item

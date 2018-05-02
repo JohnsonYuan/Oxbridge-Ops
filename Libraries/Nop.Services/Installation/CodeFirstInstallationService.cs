@@ -5,13 +5,11 @@ using System.Linq;
 using Nop.Core;
 using Nop.Core.Data;
 using Nop.Core.Domain;
-using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.News;
-using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Seo;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Domain.Vendors;
@@ -20,7 +18,6 @@ using Nop.Core.Infrastructure;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Customers;
-using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.ZhiXiao;
 
@@ -43,7 +40,6 @@ namespace Nop.Services.Installation
         private readonly IRepository<SearchTerm> _searchTermRepository;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IWebHelper _webHelper;
-        private readonly ICustomNumberFormatter _customNumberFormatter;
 
         #endregion
 
@@ -63,8 +59,7 @@ namespace Nop.Services.Installation
             IRepository<Vendor> vendorRepository,
             IRepository<SearchTerm> searchTermRepository,
             IGenericAttributeService genericAttributeService,
-            IWebHelper webHelper,
-            ICustomNumberFormatter customNumberFormatter)
+            IWebHelper webHelper)
         {
             this._customerTeamRepository = customerTeamRepository;
             this._storeRepository = storeRepository;
@@ -80,7 +75,6 @@ namespace Nop.Services.Installation
             this._searchTermRepository = searchTermRepository;
             this._genericAttributeService = genericAttributeService;
             this._webHelper = webHelper;
-            this._customNumberFormatter = customNumberFormatter;
         }
 
         #endregion
@@ -166,10 +160,12 @@ namespace Nop.Services.Installation
 
             _customerTeamRepository.Insert(teams);
 
+            var customNumberFormatter = EngineContext.Current.Resolve<ICustomNumberFormatter>();
+
             //generate and set custom team number
             foreach (var team in teams)
             {
-                team.CustomNumber = _customNumberFormatter.GenerateTeamNumber(team);
+                team.CustomNumber = customNumberFormatter.GenerateTeamNumber(team);
                 _customerTeamRepository.Update(team);
             }
         }
@@ -432,8 +428,12 @@ namespace Nop.Services.Installation
                 currentUser.CustomerRoles.Add(crRegistered_Normal);
 
                 _customerRepository.Insert(currentUser);
+
+                // 更新用户team
+                currentUser.CustomerTeam = defaultTeam;
+
                 //set default customer name
-                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_TeamId, teamId);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_NickName, "测试用户" + i);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, i);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, addToTeamTime.AddMinutes(i + 5));
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_LevelId, currentLevel);
@@ -457,12 +457,15 @@ namespace Nop.Services.Installation
                 });
             }
 
+            defaultTeam.UserCount = 11;
+            _customerTeamRepository.Update(defaultTeam);
+
             // 设置下线
             var firstUser = _customerRepository.Table.Where(x => x.Username == "user_1").First();
             var user_2 = _customerRepository.Table.Where(x => x.Username == "user_2").First();
             var user_3 = _customerRepository.Table.Where(x => x.Username == "user_3").First();
 
-            var user_8 = _customerRepository.Table.Where(x => x.Username == "user_1").First();
+            var user_8 = _customerRepository.Table.Where(x => x.Username == "user_8").First();
             var user_9 = _customerRepository.Table.Where(x => x.Username == "user_9").First();
             var user_10 = _customerRepository.Table.Where(x => x.Username == "user_10").First();
             var user_11 = _customerRepository.Table.Where(x => x.Username == "user_11").First();
@@ -1151,19 +1154,19 @@ namespace Nop.Services.Installation
                 DownloadableProductsValidateUser = false,
                 CustomerNameFormat = CustomerNameFormat.ShowFirstName,
                 GenderEnabled = true,
-                DateOfBirthEnabled = true,
+                DateOfBirthEnabled = false,
                 DateOfBirthRequired = false,
                 DateOfBirthMinimumAge = null,
                 CompanyEnabled = true,
-                StreetAddressEnabled = false,
+                StreetAddressEnabled = true,
                 StreetAddress2Enabled = false,
                 ZipPostalCodeEnabled = false,
-                CityEnabled = false,
+                CityEnabled = true,
                 CountryEnabled = false,
                 CountryRequired = false,
-                StateProvinceEnabled = false,
+                StateProvinceEnabled = true,
                 StateProvinceRequired = false,
-                PhoneEnabled = false,
+                PhoneEnabled = true,
                 FaxEnabled = false,
                 AcceptPrivacyPolicyEnabled = false,
                 NewsletterEnabled = true,
@@ -1179,7 +1182,7 @@ namespace Nop.Services.Installation
                 // phone number regex
                 PhoneNumberRegex = "^1[34578]\\d{9}$",
                 // Team number mask
-                TeamNumberMask = "{YY}{MM}{#:000000}"
+                TeamNumberMask = "{YY}{MM}{#:0000}"
             });
 
             settingService.SaveSetting(new AddressSettings
@@ -1239,6 +1242,86 @@ namespace Nop.Services.Installation
                 ShowHeaderRssUrl = false,
                 NewsCommentsMustBeApproved = false,
                 ShowNewsCommentsPerStore = false
+            });
+
+            // 直销相关配置
+            settingService.SaveSetting(new ZhiXiaoSettings
+            {
+                Register_Money_NormalUser = 10000,
+                /// <summary>
+                /// 注册高级用户需要钱
+                /// </summary>
+                Register_Money_AdvancedUser = 26800,
+                /// <summary>
+                /// 最多下线个数
+                /// </summary>
+                MaxChildCount = 2,
+
+                /// <summary>
+                /// 小组中组长个数为1
+                /// </summary>
+                Team_ZuZhangCount = 1,
+                /// <summary>
+                /// 小组中副组长个数为2
+                /// </summary>
+                Team_FuZuZhangCount = 2,
+
+                /// <summary>
+                /// 小组初始人数为7人
+                /// </summary>
+                TeamInitUserCount = 7,
+                /// <summary>
+                /// 小组满足重新分组人数 (TeamInitUserCount * 2 + 1)
+                /// </summary>
+                TeamReGroupUserCount = 15,
+
+                /// <summary>
+                /// 新增用户时组长分的钱
+                /// </summary>
+                NewUserMoney_ZuZhang_Normal = 3000, 
+                NewUserMoney_ZuZhang_Advanced = 3000,
+
+                /// <summary>
+                /// 新增用户时副组长分的钱
+                /// </summary>
+                NewUserMoney_FuZuZhang_Normal = 800, 
+                NewUserMoney_FuZuZhang_Advanced = 1000,
+
+                /// <summary>
+                /// 五星董事出盘, 奖励27万(五星董事升级！奖金30万， 扣除3万的税)
+                /// </summary>
+                ReGroupMoney_DongShi5_ChuPan_Normal = 250000,
+                /// <summary>
+                /// 五星董事出盘, 奖励27万(五星董事升级！奖金30万， 扣除3万的税)
+                /// </summary>
+                ReGroupMoney_DongShi5_ChuPan_Advanced = 270000,
+                /// <summary>
+                /// 组长升级, 董事级别的推荐人根据级别拿提成的基数 84000 + 8000 + 1600 * 4 = 98400
+                /// </summary>
+                ReGroupMoney_DongShiBase_Normal = 98400,
+                ReGroupMoney_DongShiBase_Advanced = 98400,
+                ReGroupMoney_Rate_DongShi1 = 0.02,
+                ReGroupMoney_Rate_DongShi2 = 0.04,
+                ReGroupMoney_Rate_DongShi3 = 0.06,
+                ReGroupMoney_Rate_DongShi4 = 0.08,
+                ReGroupMoney_Rate_DongShi5 = 0.02,
+                /// <summary>
+                /// 重新分组时组长分的钱
+                /// </summary>
+                ReGroupMoney_ZuZhang_Normal = 40000, 
+                ReGroupMoney_ZuZhang_Advanced = 50000,
+                /// <summary>
+                /// 重新分组时前x个组员分钱
+                /// </summary>
+                ReGroupMoney_ZuYuan_Count = 4,
+                /// <summary>
+                /// 重新分组时组员钱数(一般用户)
+                /// </summary>
+                ReGroupMoney_ZuYuan_Normal = 1200,
+                /// <summary>
+                /// 重新分组时组员钱数(高级用户)
+                /// </summary>
+                ReGroupMoney_ZuYuan_Advanced = 1600
             });
         }
 

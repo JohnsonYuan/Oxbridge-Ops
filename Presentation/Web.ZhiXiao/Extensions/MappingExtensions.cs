@@ -8,12 +8,8 @@ using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.News;
 using Nop.Core.Domain.Stores;
-using Nop.Core.Infrastructure.Mapper;
+using Nop.Core.Domain.ZhiXiao;
 using Nop.Models.Customers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Nop.Extensions
 {
@@ -43,6 +39,26 @@ namespace Nop.Extensions
         }
 
         public static CustomerRole ToEntity(this CustomerRoleModel model, CustomerRole destination)
+        {
+            return model.MapTo(destination);
+        }
+
+        #endregion
+
+        #region Customer team
+
+        //customer roles
+        public static CustomerTeamModel ToModel(this CustomerTeam entity)
+        {
+            return entity.MapTo<CustomerTeam, CustomerTeamModel>();
+        }
+
+        public static CustomerTeam ToEntity(this CustomerTeamModel model)
+        {
+            return model.MapTo<CustomerTeamModel, CustomerTeam>();
+        }
+
+        public static CustomerTeam ToEntity(this CustomerTeamModel model, CustomerTeam destination)
         {
             return model.MapTo(destination);
         }

@@ -1,17 +1,18 @@
 ﻿using System;
 using AutoMapper;
+using Nop.Admin.Models.Localization;
 using Nop.Admin.Models.Logging;
+using Nop.Admin.Models.News;
+using Nop.Admin.Models.Settings;
+using Nop.Admin.Models.Stores;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Logging;
+using Nop.Core.Domain.News;
+using Nop.Core.Domain.Stores;
+using Nop.Core.Domain.ZhiXiao;
 using Nop.Core.Infrastructure.Mapper;
 using Nop.Models.Customers;
-using Nop.Core.Domain.Localization;
-using Nop.Admin.Models.Localization;
-using Nop.Core.Domain.Stores;
-using Nop.Admin.Models.Stores;
-using Nop.Core.Domain.News;
-using Nop.Admin.Models.Settings;
-using Nop.Admin.Models.News;
 
 namespace Nop.Admin.Infrastructure.Mapper
 {
@@ -32,8 +33,16 @@ namespace Nop.Admin.Infrastructure.Mapper
             cfg.CreateMap<CustomerRole, CustomerRoleModel>()
                     .ForMember(dest => dest.PurchasedWithProductName, mo => mo.Ignore())
                     .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
-                cfg.CreateMap<CustomerRoleModel, CustomerRole>()
-                    .ForMember(dest => dest.PermissionRecords, mo => mo.Ignore());
+            cfg.CreateMap<CustomerRoleModel, CustomerRole>()
+                .ForMember(dest => dest.PermissionRecords, mo => mo.Ignore());
+
+                //customer teams
+                cfg.CreateMap<CustomerTeam, CustomerTeamModel>()
+                    .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
+                    .ForMember(dest => dest.Customers, mo => mo.Ignore());
+            cfg.CreateMap<CustomerTeamModel, CustomerTeam>()
+                .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
+                .ForMember(dest => dest.Customers, mo => mo.Ignore());
 
             //logs
             cfg.CreateMap<Log, LogModel>()

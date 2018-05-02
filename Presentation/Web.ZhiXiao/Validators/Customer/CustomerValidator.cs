@@ -25,11 +25,21 @@ namespace Nop.Validators.Customers
             RuleFor(x => x.Username).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Username.Required"));
             //}
 
-            RuleFor(x => x.Password).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Password.Required"));
-            RuleFor(x => x.Password).Length(customerSettings.PasswordMinLength, 999).WithMessage(string.Format(localizationService.GetResource("Account.Fields.Password.LengthValidation"), customerSettings.PasswordMinLength));
-            RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.ConfirmPassword.Required"));
-            RuleFor(x => x.ConfirmPassword).Equal(x => x.Password).WithMessage(localizationService.GetResource("Account.Fields.Password.EnteredPasswordsDoNotMatch"));
+            // 当编辑用户时不需要输入密码
+            RuleFor(x => x.Password).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Password.Required"))
+                .When(x => x.Id == 0);
+            RuleFor(x => x.Password).Length(customerSettings.PasswordMinLength, 999).WithMessage(string.Format(localizationService.GetResource("Account.Fields.Password.LengthValidation"), customerSettings.PasswordMinLength))
+                .When(x => x.Id == 0);
 
+            #region 直销系统用户注册需要的字段
+            
+            // 密码确认
+            RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.ConfirmPassword.Required"))
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+            RuleFor(x => x.ConfirmPassword).Equal(x => x.Password).WithMessage(localizationService.GetResource("Account.Fields.Password.EnteredPasswordsDoNotMatch"))
+                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+            
+            // 二级密码
             RuleFor(x => x.Password2).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Password2.Required"))
                 .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
             RuleFor(x => x.Password2).Length(customerSettings.PasswordMinLength, 999).WithMessage(string.Format(localizationService.GetResource("Account.Fields.Password2.LengthValidation"), customerSettings.PasswordMinLength))
@@ -49,6 +59,8 @@ namespace Nop.Validators.Customers
                 .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
             RuleFor(x => x.ZhiXiao_BandNum).NotEmpty()
                 .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+
+            #endregion
 
             //ensure that valid email address is entered if Registered role is checked to avoid registered customers with empty email address
             //RuleFor(x => x.Email)
@@ -85,7 +97,6 @@ namespace Nop.Validators.Customers
                     //only for registered users
                     .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
 
-                
                 RuleFor(x => x.District).NotEmpty()
                     .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.District.Required"))
                     //only for registered users
@@ -160,6 +171,12 @@ namespace Nop.Validators.Customers
             SetDatabaseValidationRules<Customer>(dbContext);
         }
 
+        /// <summary>
+        /// 用户类型是普通或者高级是需要输入直销系统相关信息
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="customerService"></param>
+        /// <returns></returns>
         private bool IsRegisteredCustomerRoleChecked(CustomerModel model, ICustomerService customerService)
         {
             var allCustomerRoles = customerService.GetAllCustomerRoles(true);
@@ -167,6 +184,14 @@ namespace Nop.Validators.Customers
             foreach (var customerRole in allCustomerRoles)
                 if (model.SelectedCustomerRoleIds.Contains(customerRole.Id))
                     newCustomerRoles.Add(customerRole);
+
+            bool isManager = newCustomerRoles.FirstOrDefault(cr => 
+                cr.SystemName == SystemCustomerRoleNames.Administrators ||
+                cr.SystemName == SystemCustomerRoleNames.Managers ) != null;
+
+            // 管理员不需要验证这些信息
+            if (isManager)
+                return false;
 
             bool isInRegisteredRole = newCustomerRoles.FirstOrDefault(cr => 
                 cr.SystemName == SystemCustomerRoleNames.Registered ||

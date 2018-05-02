@@ -134,7 +134,7 @@
                                 @if (currentCustomer.IsRegistered())
                                 {
                                     <li class="account-info">
-                                        @currentCustomer.GetFullName()
+                                        @currentCustomer.GetDisplayName()
                                     </li>
                                     <li>
                                         <a href="@Url.Action("Logout", "Customer", new {area = ""}, null)">

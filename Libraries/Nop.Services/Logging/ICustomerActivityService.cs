@@ -81,7 +81,13 @@ namespace Nop.Services.Logging
         IPagedList<ActivityLog> GetAllActivities(DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null, int? customerId = null, int activityLogTypeId = 0,
             int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null);
-        
+
+        /// <summary>
+        /// Gets all activity log items by types.
+        /// </summary>
+        IPagedList<ActivityLog> GetAllActivitiesByTypes(string[] activityLogTypeNames,
+            int pageIndex = 0, int pageSize = int.MaxValue);
+
         /// <summary>
         /// Gets an activity log item
         /// </summary>

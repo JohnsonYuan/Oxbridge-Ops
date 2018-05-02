@@ -16,6 +16,19 @@ namespace Nop.Services.Customers
     public static class CustomerExtensions
     {
         /// <summary>
+        /// Get nickname, if empty, return username
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <returns>nickname or username</returns>
+        public static string GetDisplayName(this Customer customer)
+        {
+            var displayName = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_NickName);
+            if (String.IsNullOrWhiteSpace(displayName))
+                displayName = customer.Username;
+            return displayName;
+        }
+
+        /// <summary>
         ///  Get nickname
         ///  {nickName}
         /// </summary>
@@ -69,6 +82,7 @@ namespace Nop.Services.Customers
                 if (!String.IsNullOrWhiteSpace(lastName))
                     fullName = lastName;
             }
+
             return fullName;
         }
         /// <summary>

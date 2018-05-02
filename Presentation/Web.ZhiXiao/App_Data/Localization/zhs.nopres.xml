@@ -346,6 +346,12 @@
   <LocaleResource Name="Account.Fields.Password2">
     <Value>二级密码</Value>
   </LocaleResource>
+  <LocaleResource Name="Account.Fields.Password2.Required">
+    <Value>二级密码</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.ConfirmPassword2">
+    <Value>确认二级密码</Value>
+  </LocaleResource>
   <LocaleResource Name="Account.Fields.Password2.EnteredPasswordsDoNotMatch">
     <Value>两次二级密码不匹配，请重新输入</Value>
   </LocaleResource>
@@ -354,6 +360,9 @@
   </LocaleResource>
   <LocaleResource Name="Account.Fields.Password2.Required">
     <Value>请输入二级密码</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.ConfirmPassword2.Required">
+    <Value>请再次输入二级密码</Value>
   </LocaleResource>
   
   <LocaleResource Name="Account.Fields.Phone">
@@ -8405,6 +8414,9 @@
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers">
     <Value>客户管理</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.CustomerTeams">
+    <Value>小组管理</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.ActivityLog">
     <Value>活动记录</Value>

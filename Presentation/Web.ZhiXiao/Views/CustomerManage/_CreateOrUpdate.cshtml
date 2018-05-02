@@ -1,15 +1,6 @@
-﻿@using Nop.Services.Customers
-@using Nop.Services.Stores
+﻿@using Nop.Core;
+
 @model CustomerModel
-
-@functions {
-    private bool inEditMode;
-}
-
-@{
-    inEditMode = Model.Id > 0;
-}
-
 
 @Html.ValidationSummary(false)
 @Html.HiddenFor(model => model.Id)
@@ -26,6 +17,7 @@
                 @Html.RenderBootstrapTabHeader("tab-info", @T("Admin.Customers.Customers.Info"), true)
                 @if (Model.Id > 0)
                 {
+                    @Html.RenderBootstrapTabHeader("tab-moneylog", new Nop.Web.Framework.Localization.LocalizedString("资金清单"))
                     @Html.RenderBootstrapTabHeader("tab-activitylog", @T("Admin.Customers.Customers.ActivityLog"))
                 }
             </ul>
@@ -33,7 +25,19 @@
                 @Html.RenderBootstrapTabContent("tab-info", @TabInfo(), true)
                 @if (Model.Id > 0)
                 {
-                    @Html.RenderBootstrapTabContent("tab-activitylog", @TabActivityLog())
+                    @Html.RenderBootstrapTabContent(
+                        "tab-moneylog",
+                        @TabLog("moneylog-grid",
+                                Url.Action("ListMoneyLog", "CustomerManage", new { customerId = Model.Id })
+                                )
+                    )
+
+                    @Html.RenderBootstrapTabContent(
+                        "tab-activitylog", 
+                        @TabLog("activitylog-grid", 
+                                Url.Action("ListActivityLog", "CustomerManage", new { customerId = Model.Id })
+                                )
+                    )
                 }
             </div>
         </div>
@@ -44,7 +48,7 @@
 <input type="hidden" id="selected-tab-name" name="selected-tab-name" value="@(Html.GetSelectedTabName())">
 
 @helper TabInfo()
-    {
+{
         if (Model.StateProvinceEnabled)
         {
             // TODO: add js here
@@ -64,42 +68,14 @@
         }
         <div class="panel-group">
             <div class="panel panel-default">
-                <div class="panel-body">
-                    @if (Model.CanManageCustomers)
-                    {
-                        // 有管理权限才能指定推荐人
-                        <div class="form-group">
-                            <div class="col-md-3">
-                                @Html.NopLabelFor(model => model.ZhiXiao_ParentId)
-                            </div>
-                            <div class="col-md-9">
-                                @if (inEditMode && Model.ParentUser != null)
-                                {
-                                    @Html.NopDisplay(Model.ParentUser.GetNickNameAndUserName())
-                                }
-                                else
-                                {
-                                    @Html.NopDropDownListFor(model => model.ZhiXiao_ParentId, Model.AvailableParents)
-                                    @Html.ValidationMessageFor(model => model.ZhiXiao_ParentId)
-                                }
-                            </div>
-                        </div>
-                    }
-                    
+                <div class="panel-body">                   
                     <div class="form-group">
                         <div class="col-md-3">
                             @Html.NopLabelFor(model => model.Username)
                         </div>
                         <div class="col-md-9">
-                            @if (inEditMode)
-                            {
-                                @Html.NopDisplay(Model.Username)
-                            }
-                            else
-                            {
                                 @Html.NopEditorFor(model => model.Username)
                                 @Html.ValidationMessageFor(model => model.Username)
-                            }
                         </div>
                     </div>
                     <div class="form-group">
@@ -122,56 +98,28 @@
                             </div>
                         </div>*@
                     @*password, password2*@
-                    @if (!inEditMode)
-                    {
-                        <div class="form-group">
+                    <div class="form-group">
                             <div class="col-md-3">
                                 @Html.NopLabelFor(model => model.Password)
                             </div>
                             <div class="col-md-9">
                                 <div class="input-group">
                                     @Html.NopEditorFor(model => model.Password)
+                                    <div class="input-group-btn">
+                                    @if (Model.Id > 0)
+                                    {
+                                        <button type="submit" name="changepassword" class="btn btn-info">
+                                            @T("Admin.Customers.Customers.Fields.Password.Change")
+                                        </button>
+                                    }
+                                    </div>
                                 </div>
                                 @Html.ValidationMessageFor(model => model.Password)
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div class="col-md-3">
-                                @Html.NopLabelFor(model => model.ConfirmPassword)
-                            </div>
-                            <div class="col-md-9">
-                                <div class="input-group">
-                                    @Html.NopEditorFor(model => model.ConfirmPassword)
-                                </div>
-                                @Html.ValidationMessageFor(model => model.ConfirmPassword)
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-3">
-                                @Html.NopLabelFor(model => model.Password2)
-                            </div>
-                            <div class="col-md-9">
-                                <div class="input-group">
-                                    @Html.NopEditorFor(model => model.Password2)
-                                </div>
-                                @Html.ValidationMessageFor(model => model.Password2)
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-3">
-                                @Html.NopLabelFor(model => model.ConfirmPassword2)
-                            </div>
-                            <div class="col-md-9">
-                                <div class="input-group">
-                                    @Html.NopEditorFor(model => model.ConfirmPassword2)
-                                </div>
-                                @Html.ValidationMessageFor(model => model.ConfirmPassword2)
-                            </div>
-                        </div>
-                    }
                     @*role*@
-                    @if (Model.CanManageCustomers)
-                    {
+                    @if (Model.Id > 0)
+                    { 
                         <div class="form-group">
                             <div class="col-md-3">
                                 @Html.NopLabelFor(model => model.SelectedCustomerRoleIds)
@@ -205,22 +153,45 @@
                                 </script>
                             </div>
                         </div>
-                    }
-                    else
-                    {
+
                         <div class="form-group">
                             <div class="col-md-3">
-                                @Html.NopLabelFor(model => model.SelectedCustomerRoleIds)
+                                @Html.NopLabelFor(model => model.CustomerLevel)
                             </div>
                             <div class="col-md-9">
-                                <div class="input-group">
-                                    @Html.NopDropDownListFor(model => model.SelectedCustomerRoleIds, Model.AvailableCustomerRoles)
-                                </div>
-                                @Html.ValidationMessageFor(model => model.ConfirmPassword2)
+                                @Html.NopDisplay(Model.CustomerLevel.GetDescription())
                             </div>
                         </div>
-                    }
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.ZhiXiao_MoneyNum)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopDisplay(Model.ZhiXiao_MoneyNum.ToString())
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.ZhiXiao_MoneyHistory)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopDisplay(Model.ZhiXiao_MoneyHistory.ToString())
+                            </div>
+                        </div>
 
+                        //team info
+                        if (Model.CustomerTeam != null)
+                        {
+                            <div class="form-group">
+                                <div class="col-md-3">
+                                    @Html.NopLabelFor(model => model.ZhiXiao_TeamId)
+                                </div>
+                                <div class="col-md-9">
+                                    @Html.NopDisplay(Model.CustomerTeam.CustomNumber)
+                                </div>
+                            </div>
+                        }
+                    }
                     @if (Model.GenderEnabled)
                     {
                         <div class="form-group">
@@ -249,51 +220,54 @@
                             </div>
                         </div>
                     }
-                    <div class="form-group">
-                        <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.ZhiXiao_IdCardNum)
+                    @if (Model.Id > 0)
+                    {
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.ZhiXiao_IdCardNum)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.ZhiXiao_IdCardNum)
+                                @Html.ValidationMessageFor(model => model.ZhiXiao_IdCardNum)
+                            </div>
                         </div>
-                        <div class="col-md-9">
-                            @Html.NopEditorFor(model => model.ZhiXiao_IdCardNum)
-                            @Html.ValidationMessageFor(model => model.ZhiXiao_IdCardNum)
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.ZhiXiao_YinHang)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.ZhiXiao_YinHang)
+                                @Html.ValidationMessageFor(model => model.ZhiXiao_YinHang)
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.ZhiXiao_YinHang)
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.ZhiXiao_KaiHuHang)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.ZhiXiao_KaiHuHang)
+                                @Html.ValidationMessageFor(model => model.ZhiXiao_KaiHuHang)
+                            </div>
                         </div>
-                        <div class="col-md-9">
-                            @Html.NopEditorFor(model => model.ZhiXiao_YinHang)
-                            @Html.ValidationMessageFor(model => model.ZhiXiao_YinHang)
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.ZhiXiao_KaiHuMing)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.ZhiXiao_KaiHuMing)
+                                @Html.ValidationMessageFor(model => model.ZhiXiao_KaiHuMing)
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.ZhiXiao_KaiHuHang)
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.ZhiXiao_BandNum)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.ZhiXiao_BandNum)
+                                @Html.ValidationMessageFor(model => model.ZhiXiao_BandNum)
+                            </div>
                         </div>
-                        <div class="col-md-9">
-                            @Html.NopEditorFor(model => model.ZhiXiao_KaiHuHang)
-                            @Html.ValidationMessageFor(model => model.ZhiXiao_KaiHuHang)
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.ZhiXiao_KaiHuMing)
-                        </div>
-                        <div class="col-md-9">
-                            @Html.NopEditorFor(model => model.ZhiXiao_KaiHuMing)
-                            @Html.ValidationMessageFor(model => model.ZhiXiao_KaiHuMing)
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.ZhiXiao_BandNum)
-                        </div>
-                        <div class="col-md-9">
-                            @Html.NopEditorFor(model => model.ZhiXiao_BandNum)
-                            @Html.ValidationMessageFor(model => model.ZhiXiao_BandNum)
-                        </div>
-                    </div>
+                    }
 
                     @if (Model.DateOfBirthEnabled)
                     {
@@ -399,18 +373,15 @@
                             </div>
                         </div>
                     }
-                    @if(Model.CanManageCustomers)
-                    {
-                        <div class="form-group">
-                            <div class="col-md-3">
-                                @Html.NopLabelFor(model => model.Active)
-                            </div>
-                            <div class="col-md-9">
-                                @Html.NopEditorFor(model => model.Active)
-                                @Html.ValidationMessageFor(model => model.Active)
-                            </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            @Html.NopLabelFor(model => model.Active)
                         </div>
-                    }
+                        <div class="col-md-9">
+                            @Html.NopEditorFor(model => model.Active)
+                            @Html.ValidationMessageFor(model => model.Active)
+                        </div>
+                    </div>
                     @if (Model.Id > 0)
                     {
                         <div class="form-group">
@@ -460,23 +431,23 @@
         </div>
 }
 
-@helper TabActivityLog()
-    {
-        var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
-        var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+@helper TabLog(string elementId, string requestUrl)
+{
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
 
-        <div class="panel-group">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div id="activitylog-grid"></div>
-                    <script>
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="@elementId"></div>
+                <script>
                         $(document).ready(function () {
-                            $("#activitylog-grid").kendoGrid({
+                            $("#@elementId").kendoGrid({
                                 dataSource: {
                                     type: "json",
                                     transport: {
                                         read: {
-                                            url: "@Html.Raw(Url.Action("ListActivityLog", "Customer", new { customerId = Model.Id }))",
+                                            url: "@Html.Raw(requestUrl)",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
@@ -528,8 +499,8 @@
                                 ]
                             });
                         });
-                    </script>
-                </div>
+                </script>
             </div>
         </div>
+    </div>
 }

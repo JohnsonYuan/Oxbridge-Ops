@@ -21,9 +21,9 @@ namespace Web.ZhiXiao.Controllers
 {
     public partial class CustomerRoleController : BaseAdminController
 	{
-		#region Fields
-
-		private readonly ICustomerService _customerService;
+        #region Fields
+        
+        private readonly ICustomerService _customerService;
         private readonly ILocalizationService _localizationService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IPermissionService _permissionService;
