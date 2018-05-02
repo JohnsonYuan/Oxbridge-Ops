@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
+using Nop.Admin.Helpers;
 using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Customers;
@@ -54,6 +55,7 @@ namespace Web.ZhiXiao.Controllers
         private readonly StoreInformationSettings _storeInformationSettings;
 
         private readonly IPermissionService _permissionService;
+        private readonly IRegisterZhiXiaoUserHelper _registerZhiXiaoUserHelper;
 
         #endregion
 
@@ -98,7 +100,8 @@ namespace Web.ZhiXiao.Controllers
             //CaptchaSettings captchaSettings,
             ZhiXiaoSettings zhiXiaoSettings,
             StoreInformationSettings storeInformationSettings,
-            IPermissionService permissionService)
+            IPermissionService permissionService,
+            IRegisterZhiXiaoUserHelper registerZhiXiaoUserHelper)
         {
             //this._addressModelFactory = addressModelFactory;
             this._customerModelFactory = customerModelFactory;
@@ -141,6 +144,7 @@ namespace Web.ZhiXiao.Controllers
             this._storeInformationSettings = storeInformationSettings;
 
             this._permissionService = permissionService;
+            this._registerZhiXiaoUserHelper = registerZhiXiaoUserHelper;
         }
 
         #endregion
@@ -391,6 +395,74 @@ namespace Web.ZhiXiao.Controllers
             var customers = _customerService.GetAllCustomers(customerRoleIds: new[] { _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Administrators).Id });
 
             return customers.Any(c => c.Active && c.Id != customer.Id);
+        }
+
+        #endregion
+
+        #region Register zhixiao user
+
+        [ParameterBasedOnQueryString("advanced", "registerAdvanceUser")]
+        public virtual ActionResult RegisterZhiXiaoUser(bool registerAdvanceUser)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedView();
+
+            var model = new CustomerModel();
+            PrepareCustomerModel(model, null, true);
+            //default value
+            model.Active = true;
+
+            if (registerAdvanceUser)
+            {
+                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
+            }
+            else
+            {
+                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
+            }
+            return View(model);
+        }
+
+        
+        [HttpPost, ParameterBasedOnQueryString("advanced", "registerAdvanceUser")]
+        [FormValueRequired("save", "save-continue")]
+        [ValidateInput(false)]
+        public virtual ActionResult RegisterZhiXiaoUser(CustomerModel model, bool registerAdvanceUser)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.AccessAdminPanel))
+                return AccessDeniedView();
+
+            var validateResult = _registerZhiXiaoUserHelper.ValidateCustomerModel(model, registerAdvanceUser, true);
+            foreach (var error in validateResult.Errors)
+            {
+                ModelState.AddModelError("", error);
+            }
+
+            if (ModelState.IsValid)
+            {
+                var errors = _registerZhiXiaoUserHelper.RegisterNewUser(model, validateResult);
+
+                foreach (var error in errors)
+                {
+                    ErrorNotification(error);
+                }
+
+                SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
+                return RedirectToAction("List");
+            }
+
+            //If we got this far, something failed, redisplay form
+            PrepareCustomerModel(model, null, true);
+
+            if (registerAdvanceUser)
+            {
+                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
+            }
+            else
+            {
+                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
+            }
+            return View(model);
         }
 
         #endregion

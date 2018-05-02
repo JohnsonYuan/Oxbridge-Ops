@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Nop.Admin.Helpers;
 using Nop.Core.Configuration;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
@@ -18,6 +19,9 @@ namespace Web.ZhiXiao.Infrastructure
         /// <param name="config">Config</param>
         public virtual void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
+            builder.RegisterType<RegisterZhiXiaoUserHelper>().As<IRegisterZhiXiaoUserHelper>()
+                .InstancePerDependency();
+
             builder.RegisterType<CustomerModelFactory>().As<ICustomerModelFactory>()
                 .InstancePerLifetimeScope();
         }

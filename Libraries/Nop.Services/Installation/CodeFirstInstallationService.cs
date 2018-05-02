@@ -977,7 +977,7 @@ namespace Nop.Services.Installation
             });
             _activityLogRepository.Insert(new ActivityLog()
             {
-                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals("EditDiscount")),
+                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals("DeleteLanguage")),
                 Comment = "Edited a discount ('Sample discount with coupon code')",
                 CreatedOnUtc = DateTime.UtcNow,
                 Customer = defaultCustomer,
@@ -985,7 +985,7 @@ namespace Nop.Services.Installation
             });
             _activityLogRepository.Insert(new ActivityLog()
             {
-                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals("EditSpecAttribute")),
+                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals("AddNewCustomer")),
                 Comment = "Edited a specification attribute ('CPU Type')",
                 CreatedOnUtc = DateTime.UtcNow,
                 Customer = defaultCustomer,
@@ -993,7 +993,7 @@ namespace Nop.Services.Installation
             });
             _activityLogRepository.Insert(new ActivityLog()
             {
-                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals("AddNewProductAttribute")),
+                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals("AddNewCustomerAttributeValue")),
                 Comment = "Added a new product attribute ('Some attribute')",
                 CreatedOnUtc = DateTime.UtcNow,
                 Customer = defaultCustomer,
@@ -1001,8 +1001,50 @@ namespace Nop.Services.Installation
             });
             _activityLogRepository.Insert(new ActivityLog()
             {
-                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals("DeleteGiftCard")),
+                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals("AddNewCustomerRole")),
                 Comment = "Deleted a gift card ('bdbbc0ef-be57')",
+                CreatedOnUtc = DateTime.UtcNow,
+                Customer = defaultCustomer,
+                IpAddress = "127.0.0.1"
+            });
+        }
+
+        protected virtual void InstallZhiXiaoActivityLog(string defaultUserEmail)
+        {
+            //default customer/user
+            var defaultCustomer = _customerRepository.Table.FirstOrDefault(x => x.Email == defaultUserEmail);
+            if (defaultCustomer == null)
+                throw new Exception("Cannot load default customer");
+
+            
+            _activityLogRepository.Insert(new ActivityLog()
+            {
+                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals(SystemZhiXiaoLogTypes.AddNewUser)),
+                Comment = "小组新增用户",
+                CreatedOnUtc = DateTime.UtcNow,
+                Customer = defaultCustomer,
+                IpAddress = "127.0.0.1"
+            });
+            _activityLogRepository.Insert(new ActivityLog()
+            {
+                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals(SystemZhiXiaoLogTypes.ReGroupTeam_ReSort)),
+                Comment = "重新分组",
+                CreatedOnUtc = DateTime.UtcNow,
+                Customer = defaultCustomer,
+                IpAddress = "127.0.0.1"
+            });
+            _activityLogRepository.Insert(new ActivityLog()
+            {
+                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals(SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney)),
+                Comment = "分组增加奖金",
+                CreatedOnUtc = DateTime.UtcNow,
+                Customer = defaultCustomer,
+                IpAddress = "127.0.0.1"
+            });
+            _activityLogRepository.Insert(new ActivityLog()
+            {
+                ActivityLogType = _activityLogTypeRepository.Table.First(alt => alt.SystemKeyword.Equals(SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel)),
+                Comment = "分组提升级别",
                 CreatedOnUtc = DateTime.UtcNow,
                 Customer = defaultCustomer,
                 IpAddress = "127.0.0.1"
@@ -1345,6 +1387,8 @@ namespace Nop.Services.Installation
             {
                 // no data
                 InstallActivityLog(defaultUserEmail);
+
+                InstallZhiXiaoActivityLog("user_1@yourStore.com");
             }
         }
 

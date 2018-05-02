@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
+using Nop.Admin.Helpers;
 using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Customers;
@@ -52,6 +53,7 @@ namespace Web.ZhiXiao.Controllers
         private readonly StoreInformationSettings _storeInformationSettings;
 
         private readonly IPermissionService _permissionService;
+        private readonly IRegisterZhiXiaoUserHelper _registerZhiXiaoUserHelper;
 
         #endregion
 
@@ -96,7 +98,8 @@ namespace Web.ZhiXiao.Controllers
             //CaptchaSettings captchaSettings,
             ZhiXiaoSettings zhiXiaoSettings,
             StoreInformationSettings storeInformationSettings,
-            IPermissionService permissionService)
+            IPermissionService permissionService,
+            IRegisterZhiXiaoUserHelper registerZhiXiaoUserHelper)
         {
             //this._addressModelFactory = addressModelFactory;
             this._customerModelFactory = customerModelFactory;
@@ -139,6 +142,8 @@ namespace Web.ZhiXiao.Controllers
             this._storeInformationSettings = storeInformationSettings;
 
             this._permissionService = permissionService;
+
+            this._registerZhiXiaoUserHelper = registerZhiXiaoUserHelper;
         }
 
         #endregion
@@ -234,229 +239,22 @@ namespace Web.ZhiXiao.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.AccessAdminPanel))
                 return AccessDeniedView();
 
-            if (!String.IsNullOrWhiteSpace(model.Email))
+            var validateResult = _registerZhiXiaoUserHelper.ValidateCustomerModel(model, registerAdvanceUser, false);
+            foreach (var error in validateResult.Errors)
             {
-                var cust2 = _customerService.GetCustomerByEmail(model.Email);
-                if (cust2 != null)
-                    ModelState.AddModelError("", "Email is already registered");
+                ModelState.AddModelError("", error);
             }
-
-            if (!String.IsNullOrWhiteSpace(model.Username) & _customerSettings.UsernamesEnabled)
-            {
-                var cust2 = _customerService.GetCustomerByUsername(model.Username);
-                if (cust2 != null)
-                    ModelState.AddModelError("", "用户名已经使用");
-            }
-
-            {
-                var cust2 = _customerService.GetCustomerByNickName(model.NickName);
-                if (cust2 != null)
-                    ModelState.AddModelError("", "昵称已经使用");
-            }
-
-            if (!String.IsNullOrWhiteSpace(model.Phone) && _customerSettings.PhoneEnabled)
-            {
-                var cust2 = _customerService.GetCustomerByPhoneNumber(model.Username);
-                if (cust2 != null)
-                    ModelState.AddModelError("", "手机号已经使用");
-            }
-
-            // 检查推荐人
-            // 如果是管理员注册用户, 需要填写推荐人
-            // 如果饰普通用户注册用户, 推荐人就是该用户
-            bool isManager = _permissionService.Authorize(StandardPermissionProvider.ManageCustomers);
-
-            Customer parentUser;
-            if (isManager)
-            {
-                parentUser = _customerService.GetCustomerById(model.ZhiXiao_ParentId);
-                if (parentUser == null)
-                    ModelState.AddModelError("", "推荐人不存在, 请重新输入!");
-            }
-            else
-            {
-                parentUser = _workContext.CurrentCustomer;
-            }
-
-            // 推荐人下线个数不能超过_zhiXiaoSettings.MaxChildCount
-            int parentChildCount = parentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount);
-            if (parentChildCount >= _zhiXiaoSettings.MaxChildCount)
-                ModelState.AddModelError("", string.Format("该推荐人已达到{0}个下线， 不能添加!", _zhiXiaoSettings.MaxChildCount));
-
-            // 添加用户所需钱
-            int requiredMoney = _zhiXiaoSettings.Register_Money_NormalUser;
-            if (registerAdvanceUser)
-            {
-                requiredMoney = _zhiXiaoSettings.Register_Money_AdvancedUser;
-            }
-
-            var currentUserMoney = parentUser.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyNum);
-
-            if (!isManager)
-            {
-                if (currentUserMoney < requiredMoney)
-                {
-                    ModelState.AddModelError("", "电子币不足" + requiredMoney + ", 不能注册会员, 请充值!");
-                }
-            }
-            
-            //custom customer attributes
-            //var customerAttributesXml = ParseCustomCustomerAttributes(form);
-            //if (newCustomerRoles.Any() && newCustomerRoles.FirstOrDefault(c => c.SystemName == SystemCustomerRoleNames.Registered) != null)
-            //{
-            //    var customerAttributeWarnings = _customerAttributeParser.GetAttributeWarnings(customerAttributesXml);
-            //    foreach (var error in customerAttributeWarnings)
-            //    {
-            //        ModelState.AddModelError("", error);
-            //    }
-            //}
 
             if (ModelState.IsValid)
             {
-                // 1. 新增用户
-                var customer = new Customer
-                {
-                    CustomerGuid = Guid.NewGuid(),
-                    // 邮箱默认后缀为@yourStore.com
-                    Email = CommonHelper.IsValidEmail(model.Email) ? model.Email : string.Format("{0}@yourStore.com", model.Username),
-                    Username = model.Username,
-                    //VendorId = model.VendorId,
-                    AdminComment = model.AdminComment,
-                    IsTaxExempt = model.IsTaxExempt,
-                    Active = model.Active,
-                    CreatedOnUtc = DateTime.UtcNow,
-                    LastActivityDateUtc = DateTime.UtcNow,
-                    RegisteredInStoreId = _storeContext.CurrentStore.Id
-                };
+                var errors = _registerZhiXiaoUserHelper.RegisterNewUser(model, validateResult);
 
-                _customerService.InsertCustomer(customer);
-
-                if (!isManager)
+                foreach (var error in errors)
                 {
-                    // 扣钱
-                    if (currentUserMoney < requiredMoney)
-                        throw new Exception("所需电子币不足");
-                    _genericAttributeService.SaveAttribute(parentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyNum, currentUserMoney - requiredMoney);
-                    _customerActivityService.InsertActivity(parentUser, SystemZhiXiaoLogTypes.AddNewUser,
-                        "注册会员{0}, 电子币-{1}",
-                        customer.GetNickName(),
-                        requiredMoney);
+                    ErrorNotification(error);
                 }
-
-                var zhiXiaoRoles = _customerService.GetAllCustomerRoles(true)
-                                     .Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered
-                                     || cr.SystemName == SystemCustomerRoleNames.Registered_Advanced);
-
-                var newCustomerRoles = new List<CustomerRole>();
-
-                // user roles
-                newCustomerRoles.Add(zhiXiaoRoles.Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered).First());
-                if (registerAdvanceUser)
-                    newCustomerRoles.Add(zhiXiaoRoles.Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered_Advanced).First());
-
-                //form fields
-                if (_dateTimeSettings.AllowCustomersToSetTimeZone)
-                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.TimeZoneId, model.TimeZoneId);
-                if (_customerSettings.GenderEnabled)
-                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Gender, model.Gender);
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.FirstName, model.FirstName);
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.LastName, model.LastName);
-                if (_customerSettings.DateOfBirthEnabled)
-                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.DateOfBirth, model.DateOfBirth);
-                if (_customerSettings.CompanyEnabled)
-                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Company, model.Company);
-                if (_customerSettings.StreetAddressEnabled)
-                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StreetAddress, model.StreetAddress);
-                //if (_customerSettings.StreetAddress2Enabled)
-                //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StreetAddress2, model.StreetAddress2);
-                //if (_customerSettings.ZipPostalCodeEnabled)
-                //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZipPostalCode, model.ZipPostalCode);
-                if (_customerSettings.CityEnabled)
-                {
-                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.City, model.City);
-                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.District, model.District);
-                }
-                //if (_customerSettings.CountryEnabled)
-                //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.CountryId, model.CountryId);
-                if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
-                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StateProvince, model.StateProvince);
-                if (_customerSettings.PhoneEnabled)
-                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Phone, model.Phone);
-                //if (_customerSettings.FaxEnabled)
-                //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Fax, model.Fax);
-
-                //custom customer attributes
-                //_genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.CustomCustomerAttributes, customerAttributesXml);
-
-                // 直销用户个人信息
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_NickName, model.NickName);
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_Password2, model.Password2);          // 二级密码
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_IdCardNum, model.ZhiXiao_IdCardNum);
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_YinHang, model.ZhiXiao_YinHang);      // 银行
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuHang, model.ZhiXiao_KaiHuHang);  // 开户行
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuMing, model.ZhiXiao_KaiHuMing);  // 开户名
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_BandNum, model.ZhiXiao_BandNum);      // 银行卡号
-
-                //password
-                if (!String.IsNullOrWhiteSpace(model.Password))
-                {
-                    var changePassRequest = new ChangePasswordRequest(model.Email, false, _customerSettings.DefaultPasswordFormat, model.Password);
-                    var changePassResult = _customerRegistrationService.ChangePassword(changePassRequest);
-                    if (!changePassResult.Success)
-                    {
-                        foreach (var changePassError in changePassResult.Errors)
-                            ErrorNotification(changePassError);
-                    }
-                }
-
-                //customer roles
-                foreach (var customerRole in newCustomerRoles)
-                {
-                    //ensure that the current customer cannot add to "Administrators" system role if he's not an admin himself
-                    if (customerRole.SystemName == SystemCustomerRoleNames.Administrators &&
-                        !_workContext.CurrentCustomer.IsAdmin())
-                        continue;
-
-                    customer.CustomerRoles.Add(customerRole);
-                }
-                _customerService.UpdateCustomer(customer);
-
-                // 直销用户分组信息
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_ParentId, parentUser.Id);
-
-                // var teamId = parentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_TeamId);
-                var parentTeam = parentUser.CustomerTeam;
-
-                customer.CustomerTeam = parentTeam;
-                // _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_TeamId, teamId);
-
-                var sortId = _customerTeamService.GetNewUserSortId(parentTeam);
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, sortId);
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, DateTime.UtcNow);
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_LevelId, (int)CustomerLevel.ZuYuan);
-
-                // 2. Update Parent Info
-                _genericAttributeService.SaveAttribute(parentUser, SystemCustomerAttributeNames.ZhiXiao_ChildCount, parentChildCount + 1);
-
-                // 3. 更新小组人数
-                parentTeam.UserCount += 1;
-                _customerTeamService.UpdateCustomerTeam(parentTeam);
-
-                // 1. 给组长， 副组长分钱, 2. 如果人数满足, 重新分组
-                _customerTeamService.AddNewUserToTeam(parentTeam, customer);
-
-                //activity log
-                _customerActivityService.InsertActivity("AddNewCustomer", _localizationService.GetResource("ActivityLog.AddNewCustomer"), customer.Id);
 
                 SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
-
-                //if (continueEditing)
-                //{
-                //    //selected tab
-                //    SaveSelectedTabName();
-
-                //    return RedirectToAction("Edit", new { id = customer.Id });
-                //}
                 return RedirectToAction("List");
             }
 

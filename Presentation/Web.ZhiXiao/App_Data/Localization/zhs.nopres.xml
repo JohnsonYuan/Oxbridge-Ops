@@ -2367,10 +2367,10 @@
     <Value>额外的运费。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.Fields.AdminComment">
-    <Value>管理员备注</Value>
+    <Value>备注</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.Fields.AdminComment.Hint">
-    <Value>管理员备注，仅内部使用</Value>
+    <Value>备注信息</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.Fields.AllowAddingOnlyExistingAttributeCombinations">
     <Value>只允许现有的属性组合</Value>

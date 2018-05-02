@@ -271,18 +271,18 @@
                                         @if (Model.UsernamesEnabled)
                                         {
                                             <text>{
-                                            field: "Username",
-                                            title: "@T("Admin.Customers.Customers.Fields.Username")",
-                                            width: 180
-                                        },</text>
+                                                field: "Username",
+                                                title: "@T("Admin.Customers.Customers.Fields.Username")",
+                                                width: 200
+                                            },</text>
                                         }{
                                             field: "NickName",
                                             title: "昵称",
-                                            width: 200
+                                            width: 180
                                         }, {
                                             field: "CustomerRoleNames",
                                             title: "@T("Admin.Customers.Customers.Fields.CustomerRoles")",
-                                            width: 300
+                                            width: 250
                                         },
                                         @if (Model.PhoneEnabled)
                                         {
@@ -308,16 +308,15 @@
                                             headerAttributes: { style: "text-align:center" },
                                             attributes: { style: "text-align:center" },
                                             template: '# if(Active) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
-                                        }, {
-                                            field: "CreatedOn",
-                                            title: "@T("Admin.Customers.Customers.Fields.CreatedOn")",
-                                            width: 200,
-                                            type: "date",
-                                            format: "{0:G}"
+                                        },
+                                        {
+                                            field: "ZhiXiao_MoneyNum",
+                                            title: "电子币",
+                                            width: 100
                                         }, {
                                             field: "LastActivityDate",
                                             title: "@T("Admin.Customers.Customers.Fields.LastActivityDate")",
-                                            width: 200,
+                                            width: 180,
                                             type: "date",
                                             format: "{0:G}"
                                         }, {

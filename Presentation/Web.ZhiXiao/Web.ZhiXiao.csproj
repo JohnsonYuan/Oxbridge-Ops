@@ -1328,6 +1328,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\RegisterZhiXiaoUserHelper.cs" />
     <Compile Include="Helpers\TinyMceHelper.cs" />
     <Compile Include="Infrastructure\DependencyRegistrar.cs" />
     <Compile Include="Infrastructure\Mapper\AdminMapperConfiguration.cs" />
@@ -1510,10 +1511,11 @@
     <Content Include="Views\Customer\_Create.cshtml" />
     <Content Include="Views\CustomerManage\Create.cshtml" />
     <Content Include="Views\CustomerManage\_CreateOrUpdate.cshtml" />
-    <Content Include="Views\CustomerManage\_RegisterZhiXiaoUser.cshtml" />
+    <Content Include="Views\CustomerManage\_RegisterZhiXiaoUserPartial.cshtml" />
     <Content Include="Views\CustomerManage\Register.cshtml" />
     <Content Include="Views\CustomerManage\Edit.cshtml" />
     <Content Include="Views\CustomerTeam\List.cshtml" />
+    <Content Include="Views\CustomerManage\RegisterZhiXiaoUser.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

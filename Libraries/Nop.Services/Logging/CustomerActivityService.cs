@@ -285,15 +285,15 @@ namespace Nop.Services.Logging
         /// <summary>
         /// Gets all activity log items by types.
         /// </summary>
-        public virtual IPagedList<ActivityLog> GetAllActivitiesByTypes(string[] activityLogTypeNames,
+        public virtual IPagedList<ActivityLog> GetAllActivitiesByTypes(string[] logTypeSystemNames,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = _activityLogRepository.Table;
 
             // filter by log type
-            if (activityLogTypeNames != null)
+            if (logTypeSystemNames != null)
                 query = query.Join(_activityLogTypeRepository.Table, x => x.ActivityLogTypeId, y => y.Id, (x, y) => new { Log = x, LogType = y })
-                    .Where(z => activityLogTypeNames.Contains(z.LogType.Name))
+                    .Where(z => logTypeSystemNames.Contains(z.LogType.SystemKeyword))
                     .Select(z => z.Log);
 
             query = query.OrderByDescending(al => al.CreatedOnUtc);
