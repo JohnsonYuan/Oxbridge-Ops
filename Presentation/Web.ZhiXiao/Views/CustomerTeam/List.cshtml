@@ -7,7 +7,7 @@
     // page title
     ViewBag.Title = T("Admin.Customers.Customers").Text;
     //active menu item (system name)
-    Html.SetActiveMenuItemSystemName("Customers Team");
+    Html.SetActiveMenuItemSystemName("Customer teams");
 }
 
 @using (Html.BeginForm())
@@ -164,6 +164,7 @@
                                             headerAttributes: { style: "text-align:center" },
                                             attributes: { style: "text-align:center" },
                                             template: '<a class="btn btn-default" href="Edit/#=Id#"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</a>'
+                                            + '<a class="btn btn-default" href="View/#=Id#"><i class="fa fa-map"></i>系谱图</a>'
                                         }
                                     ]
                                 });

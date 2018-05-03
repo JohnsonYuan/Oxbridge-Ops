@@ -6,9 +6,19 @@ using Nop.Core.Domain.ZhiXiao;
 
 namespace Nop.Services.ZhiXiao
 {
-    public interface ICustomerTeamService
+    public interface IZhiXiaoService
     {
         /// <summary>
+        /// 更新用户电子币并记录
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <param name="deltaMoney"></param>
+        /// <param name="logType"></param>
+        /// <param name="logComment"></param>
+        /// <param name="logCommentParams"></param>
+        void UpdateMoneyForUserAndLog(Customer customer, long deltaMoney, string logType, string logComment, params object[] logCommentParams);
+        
+            /// <summary>
         /// Inserts an activity log type item
         /// </summary>
         /// <param name="activityLogType">Activity log type item</param>

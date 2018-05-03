@@ -203,7 +203,7 @@ namespace Nop.Web.Framework
                 }
             }
 
-            builder.RegisterType<CustomerTeamService>().As<ICustomerTeamService>().InstancePerLifetimeScope();
+            builder.RegisterType<ZhiXiaoService>().As<IZhiXiaoService>().InstancePerLifetimeScope();
             builder.RegisterType<CustomNumberFormatter>().As<ICustomNumberFormatter>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             builder.RegisterType<GeoLookupService>().As<IGeoLookupService>().InstancePerLifetimeScope();

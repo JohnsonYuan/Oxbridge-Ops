@@ -1334,6 +1334,7 @@
     <Compile Include="Infrastructure\Mapper\AdminMapperConfiguration.cs" />
     <Compile Include="Models\Common\MaintenanceModel.cs" />
     <Compile Include="Models\Common\SystemInfoModel.cs" />
+    <Compile Include="Models\CustomerTeam\TeamDiagramModel.cs" />
     <Compile Include="Models\Customer\ChangePasswordModel.cs" />
     <Compile Include="Models\Customer\CustomerAttributeModel.cs" />
     <Compile Include="Models\Customer\CustomerInfoModel.cs" />
@@ -1380,6 +1381,7 @@
     <Compile Include="Validators\Install\InstallValidator.cs" />
     <Compile Include="Validators\Localization\LanguageResourceValidator.cs" />
     <Compile Include="Validators\Localization\LanguageValidator.cs" />
+    <Compile Include="Validators\Log\WithdrawLogValidator.cs" />
     <Compile Include="Validators\News\NewsItemValidator.cs" />
     <Compile Include="Validators\Settings\SettingValidator.cs" />
     <Compile Include="Validators\Stores\StoreValidator.cs" />
@@ -1516,6 +1518,8 @@
     <Content Include="Views\CustomerManage\Edit.cshtml" />
     <Content Include="Views\CustomerTeam\List.cshtml" />
     <Content Include="Views\CustomerManage\RegisterZhiXiaoUser.cshtml" />
+    <Content Include="Views\CustomerTeam\View.cshtml" />
+    <Content Include="Views\CustomerManage\Recharge.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

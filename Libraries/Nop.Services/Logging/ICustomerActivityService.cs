@@ -86,6 +86,7 @@ namespace Nop.Services.Logging
         /// Gets all activity log items by types.
         /// </summary>
         IPagedList<ActivityLog> GetAllActivitiesByTypes(string[] logTypeSystemNames,
+            int? customerId = null,
             int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>

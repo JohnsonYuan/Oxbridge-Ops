@@ -356,6 +356,25 @@ namespace Nop.Services.Customers
         }
 
         /// <summary>
+        /// Get customers children.
+        /// </summary>
+        /// <param name="customerIds">Customer parent id</param>
+        /// <returns>Customers</returns>
+        public virtual IList<Customer> GetCustomerChildren(int parentId)
+        {
+            if (parentId == 0)
+                return new List<Customer>();
+
+            var query = _customerRepository.Table
+                        .Join(_gaRepository.Table, x => x.Id, y => y.EntityId, (x, y) => new { Customer = x, Attribute = y })
+                        .Where((z => z.Attribute.KeyGroup == "Customer" &&
+                            z.Attribute.Key == SystemCustomerAttributeNames.ZhiXiao_ParentId &&
+                            z.Attribute.Value == parentId.ToString()))
+                        .Select(z => z.Customer);
+            return query.ToList();
+        }
+
+        /// <summary>
         /// Gets a customer by GUID
         /// </summary>
         /// <param name="customerGuid">Customer GUID</param>

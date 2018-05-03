@@ -13,6 +13,7 @@ using Nop.Core.Domain.Stores;
 using Nop.Core.Domain.ZhiXiao;
 using Nop.Core.Infrastructure.Mapper;
 using Nop.Models.Customers;
+using Nop.Services.Customers;
 
 namespace Nop.Admin.Infrastructure.Mapper
 {
@@ -29,33 +30,40 @@ namespace Nop.Admin.Infrastructure.Mapper
         {
             Action<IMapperConfigurationExpression> action = cfg =>
             {
-            //customer roles
-            cfg.CreateMap<CustomerRole, CustomerRoleModel>()
-                    .ForMember(dest => dest.PurchasedWithProductName, mo => mo.Ignore())
-                    .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
-            cfg.CreateMap<CustomerRoleModel, CustomerRole>()
-                .ForMember(dest => dest.PermissionRecords, mo => mo.Ignore());
+                //customer roles
+                cfg.CreateMap<CustomerRole, CustomerRoleModel>()
+                        .ForMember(dest => dest.PurchasedWithProductName, mo => mo.Ignore())
+                        .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
+                cfg.CreateMap<CustomerRoleModel, CustomerRole>()
+                    .ForMember(dest => dest.PermissionRecords, mo => mo.Ignore());
+                
+                //customer diagarm
+                cfg.CreateMap<Customer, CustomerDiagramModel>()
+                    .ForMember(dest => dest.Child, mo => mo.Ignore())
+                    .ForMember(dest => dest.NickName, mo => mo.MapFrom(src => src.GetNickName()))
+                    .ForMember(dest => dest.InTeamOrder, mo => mo.MapFrom(src => src.GetInTeamOrder()))
+                    .ForMember(dest => dest.LevelDesription, mo => mo.MapFrom(src => src.GetLevelDescription()));
 
                 //customer teams
                 cfg.CreateMap<CustomerTeam, CustomerTeamModel>()
                     .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
                     .ForMember(dest => dest.Customers, mo => mo.Ignore());
-            cfg.CreateMap<CustomerTeamModel, CustomerTeam>()
-                .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
-                .ForMember(dest => dest.Customers, mo => mo.Ignore());
+                cfg.CreateMap<CustomerTeamModel, CustomerTeam>()
+                    .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
+                    .ForMember(dest => dest.Customers, mo => mo.Ignore());
 
-            //logs
-            cfg.CreateMap<Log, LogModel>()
-                    .ForMember(dest => dest.CustomerEmail, mo => mo.Ignore())
-                    .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
-                    .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
+                //logs
+                cfg.CreateMap<Log, LogModel>()
+                        .ForMember(dest => dest.CustomerEmail, mo => mo.Ignore())
+                        .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
+                        .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
                 cfg.CreateMap<LogModel, Log>()
                     .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
                     .ForMember(dest => dest.LogLevelId, mo => mo.Ignore())
                     .ForMember(dest => dest.Customer, mo => mo.Ignore());
-            //ActivityLogType
-            cfg.CreateMap<ActivityLogTypeModel, ActivityLogType>()
-                    .ForMember(dest => dest.SystemKeyword, mo => mo.Ignore());
+                //ActivityLogType
+                cfg.CreateMap<ActivityLogTypeModel, ActivityLogType>()
+                        .ForMember(dest => dest.SystemKeyword, mo => mo.Ignore());
                 cfg.CreateMap<ActivityLogType, ActivityLogTypeModel>()
                     .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
                 cfg.CreateMap<ActivityLog, ActivityLogModel>()
@@ -63,14 +71,14 @@ namespace Nop.Admin.Infrastructure.Mapper
                     .ForMember(dest => dest.CustomerEmail, mo => mo.MapFrom(src => src.Customer.Email))
                     .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
                     .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
-            //language
-            cfg.CreateMap<Language, LanguageModel>()
-                    .ForMember(dest => dest.AvailableStores, mo => mo.Ignore())
-                    .ForMember(dest => dest.AvailableCurrencies, mo => mo.Ignore())
-                    .ForMember(dest => dest.SelectedStoreIds, mo => mo.Ignore())
-                    .ForMember(dest => dest.FlagFileNames, mo => mo.Ignore())
-                    .ForMember(dest => dest.Search, mo => mo.Ignore())
-                    .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
+                //language
+                cfg.CreateMap<Language, LanguageModel>()
+                        .ForMember(dest => dest.AvailableStores, mo => mo.Ignore())
+                        .ForMember(dest => dest.AvailableCurrencies, mo => mo.Ignore())
+                        .ForMember(dest => dest.SelectedStoreIds, mo => mo.Ignore())
+                        .ForMember(dest => dest.FlagFileNames, mo => mo.Ignore())
+                        .ForMember(dest => dest.Search, mo => mo.Ignore())
+                        .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
                 cfg.CreateMap<LanguageModel, Language>()
                     .ForMember(dest => dest.LocaleStringResources, mo => mo.Ignore())
                     .ForMember(dest => dest.LimitedToStores, mo => mo.Ignore());
@@ -80,7 +88,7 @@ namespace Nop.Admin.Infrastructure.Mapper
                     .ForMember(dest => dest.Locales, mo => mo.Ignore())
                     .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
                 cfg.CreateMap<StoreModel, Store>();
-                
+
                 //Settings
                 cfg.CreateMap<NewsSettings, NewsSettingsModel>()
                     .ForMember(dest => dest.ActiveStoreScopeConfiguration, mo => mo.Ignore())
@@ -95,7 +103,7 @@ namespace Nop.Admin.Infrastructure.Mapper
                     .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
                 cfg.CreateMap<NewsSettingsModel, NewsSettings>();
 
-                
+
                 cfg.CreateMap<CustomerSettings, CustomerUserSettingsModel.CustomerSettingsModel>()
                     .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
                 cfg.CreateMap<CustomerUserSettingsModel.CustomerSettingsModel, CustomerSettings>()
@@ -108,7 +116,7 @@ namespace Nop.Admin.Infrastructure.Mapper
 
                 //news
                 cfg.CreateMap<NewsItem, NewsItemModel>()
-                   // .ForMember(dest => dest.SeName, mo => mo.MapFrom(src => src.GetSeName(src.LanguageId, true, false)))
+                    // .ForMember(dest => dest.SeName, mo => mo.MapFrom(src => src.GetSeName(src.LanguageId, true, false)))
                     .ForMember(dest => dest.ApprovedComments, mo => mo.Ignore())
                     .ForMember(dest => dest.NotApprovedComments, mo => mo.Ignore())
                     .ForMember(dest => dest.StartDate, mo => mo.Ignore())

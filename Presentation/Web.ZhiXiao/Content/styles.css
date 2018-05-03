@@ -1349,3 +1349,51 @@ span.grid-report-item.red {
     margin-top: 5px;*/
     color: #e4434b;
 }
+
+ul.diagarm {
+    overflow: hidden;
+}
+li {
+}
+.diagarm {
+    margin: 0;
+    padding: 0;
+}
+.diagarm li {
+float: left;
+list-style: none;
+/*font: 12px Tahoma, Arial;*/
+margin-right: 10px;
+overflow: hidden;
+}
+.diagarm li a {
+    display: block;
+    background: #324143;
+    padding: 5px 12px;
+    text-decoration: none;
+    border-right: 1px solid white;
+    color: #EAFFED;
+    white-space: nowrap;
+    text-align: center;
+}
+.diagarm li a:hover {
+    background: #24313C;
+}
+.diagarm li ul {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    border-top: 1px solid white;
+}
+.diagarm li ul li {
+    float: none;
+    display: inline;
+}
+.diagarm li ul li a {
+    background: #A9C251;
+    color: #24313C;
+    text-align: center;
+}
+.diagarm li ul li a:hover {
+    background: #8EA344;
+}

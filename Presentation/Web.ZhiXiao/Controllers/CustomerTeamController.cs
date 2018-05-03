@@ -1,26 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.ZhiXiao;
-using Nop.Data;
 using Nop.Extensions;
 //using Nop.Admin.Helpers;
 using Nop.Models.Customers;
+using Nop.Services.Common;
 //using Nop.Services.Catalog;
 using Nop.Services.Customers;
 using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Security;
-using Nop.Services.Stores;
 using Nop.Services.ZhiXiao;
 //using Nop.Services.Vendors;
-using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Kendoui;
 
 namespace Web.ZhiXiao.Controllers
@@ -28,7 +25,7 @@ namespace Web.ZhiXiao.Controllers
     public partial class CustomerTeamController : BaseAdminController
     {
         #region Fields
-        private readonly ICustomerTeamService _customerTeamService;
+        private readonly IZhiXiaoService _customerTeamService;
         private readonly ICustomerService _customerService;
         private readonly ILocalizationService _localizationService;
         private readonly ICustomerActivityService _customerActivityService;
@@ -36,19 +33,21 @@ namespace Web.ZhiXiao.Controllers
         private readonly IWorkContext _workContext;
         private readonly ICacheManager _cacheManager;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly ZhiXiaoSettings _zhiXiaoSettings;
         #endregion
 
         #region Constructors
 
         public CustomerTeamController(
-            ICustomerTeamService customerTeamService,
+            IZhiXiaoService customerTeamService,
             ICustomerService customerService,
             ILocalizationService localizationService,
             ICustomerActivityService customerActivityService,
             IPermissionService permissionService,
             IWorkContext workContext,
             ICacheManager cacheManager,
-            IDateTimeHelper dateTimeHelper)
+            IDateTimeHelper dateTimeHelper,
+            ZhiXiaoSettings zhiXiaoSettings)
         {
             this._customerTeamService = customerTeamService;
             this._customerService = customerService;
@@ -58,6 +57,7 @@ namespace Web.ZhiXiao.Controllers
             this._workContext = workContext;
             this._cacheManager = cacheManager;
             this._dateTimeHelper = dateTimeHelper;
+            this._zhiXiaoSettings = zhiXiaoSettings;
         }
 
         #endregion
@@ -109,25 +109,50 @@ namespace Web.ZhiXiao.Controllers
 
             return Json(gridModel);
         }
+        
         #endregion
 
         #region Team test
-        public ActionResult TeamInfo(int id = 1)
+
+        public ActionResult View(int id)
         {
-            //List<object> result = new List<object>();
-            //for (int i = 1; i <= 1; i++)
-            //{
-            //    var customer = _customerService.GetCustomerByUsername("user_" + i);
-
-            //    result.Add(new { TeamInfo = customer.CustomerTeam.Customers });
-            //}
-
-            //return Json(result, JsonRequestBehavior.AllowGet);
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedView();
 
             var team = _customerTeamService.GetCustomerTeamById(id);
+            if (team == null)
+                //No customer role found with the specified id
+                return RedirectToAction("List");
 
-            return Json(team, JsonRequestBehavior.AllowGet);
+            // 默认为7
+            var teamUnitCount = _zhiXiaoSettings.TeamInitUserCount;
+
+            List<CustomerDiagramModel> diagarmModel = new List<CustomerDiagramModel>();
+            foreach (var customer in team.Customers)
+            {
+                var model = customer.ToModel();
+
+                var childs = _customerService.GetCustomerChildren(customer.Id);
+
+                foreach (var child in childs)
+                {
+                    model.Child.Add(child.ToModel());
+                }
+
+                diagarmModel.Add(model);
+            }
+
+            var group1Users = diagarmModel.Where(x => x.InTeamOrder < teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
+            var group2Users = diagarmModel.Where(x => x.InTeamOrder >= teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
+
+            return View(new TeamDiagramModel
+            {
+                TopHalfUsers = group1Users,
+                LastHalfUsers = group2Users,
+                Team = team
+            });
         }
+
         #endregion
     }
 }

@@ -45,6 +45,16 @@ namespace Nop.Extensions
 
         #endregion
 
+        #region Customer diagarm
+        
+        //customer diagarm
+        public static CustomerDiagramModel ToModel(this Customer entity)
+        {
+            return entity.MapTo<Customer, CustomerDiagramModel>();
+        }
+
+        #endregion
+
         #region Customer team
 
         //customer roles

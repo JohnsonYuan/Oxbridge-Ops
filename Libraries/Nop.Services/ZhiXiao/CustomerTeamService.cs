@@ -13,7 +13,7 @@ using Nop.Services.Logging;
 
 namespace Nop.Services.ZhiXiao
 {
-    public partial class CustomerTeamService : ICustomerTeamService
+    public partial class ZhiXiaoService : IZhiXiaoService
     {
         #region Constants
 
@@ -52,7 +52,7 @@ namespace Nop.Services.ZhiXiao
 
         #region Ctor
 
-        public CustomerTeamService(ICacheManager cacheManager,
+        public ZhiXiaoService(ICacheManager cacheManager,
             IRepository<GenericAttribute> gaRepository,
             IRepository<Customer> customerRepository,
             IRepository<CustomerTeam> customerTeamRepository,
@@ -107,7 +107,12 @@ namespace Nop.Services.ZhiXiao
 
             return customers;
         }
+        #endregion
 
+        #endregion
+
+        #region Methods
+        
         /// <summary>
         /// 更新用户钱, 并且加入log
         /// </summary>
@@ -115,7 +120,7 @@ namespace Nop.Services.ZhiXiao
         /// <param name="deltaMoney"></param>
         /// <param name="logComment"></param>
         /// <param name="logCommentParams"></param>
-        private void UpdateMoneyForUserAndLog(Customer customer, long deltaMoney, string logType, string logComment, params object[] logCommentParams)
+        public void UpdateMoneyForUserAndLog(Customer customer, long deltaMoney, string logType, string logComment, params object[] logCommentParams)
         {
             var money = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyNum);
             var moneyHistory = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyHistory);
@@ -139,11 +144,6 @@ namespace Nop.Services.ZhiXiao
                 logCommentParams);
         }
 
-        #endregion
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         /// Inserts an activity log type item

@@ -6,6 +6,7 @@ using System.Xml;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.ZhiXiao;
 using Nop.Core.Infrastructure;
 using Nop.Services.Common;
 using Nop.Services.Customers.Cache;
@@ -26,6 +27,38 @@ namespace Nop.Services.Customers
             if (String.IsNullOrWhiteSpace(displayName))
                 displayName = customer.Username;
             return displayName;
+        }
+
+        /// <summary>
+        ///  Get nickname
+        ///  {nickName}
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <returns>nickname</returns>
+        public static string GetLevelDescription(this Customer customer)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            var level = customer.GetAttribute<CustomerLevel>(SystemCustomerAttributeNames.ZhiXiao_LevelId);
+
+            return level.GetDescription();
+        }
+
+        /// <summary>
+        ///  Get InTeamOrder
+        ///  {nickName}
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <returns>nickname</returns>
+        public static int GetInTeamOrder(this Customer customer)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            var inTeamOrder = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_InTeamOrder);
+
+            return inTeamOrder;
         }
 
         /// <summary>
@@ -57,6 +90,22 @@ namespace Nop.Services.Customers
             var nickName = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_NickName);
 
             return string.Format("{0} - {1}", nickName, customer.Username);
+        }
+
+        /// <summary>
+        ///  Get cuurrent user's money
+        ///  {nickName}
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <returns>nickname</returns>
+        public static long GetMoneyNum(this Customer customer)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            var moneyNum = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyNum);
+
+            return moneyNum;
         }
 
         /// <summary>

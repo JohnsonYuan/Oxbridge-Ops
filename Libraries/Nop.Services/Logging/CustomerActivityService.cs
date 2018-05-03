@@ -37,6 +37,7 @@ namespace Nop.Services.Logging
         private readonly ICacheManager _cacheManager;
         private readonly IRepository<ActivityLog> _activityLogRepository;
         private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
+        private readonly IRepository<WithdrawLog> _withdrawLogRepository;
         private readonly IWorkContext _workContext;
         private readonly IDbContext _dbContext;
         private readonly IDataProvider _dataProvider;
@@ -60,6 +61,7 @@ namespace Nop.Services.Logging
         public CustomerActivityService(ICacheManager cacheManager,
             IRepository<ActivityLog> activityLogRepository,
             IRepository<ActivityLogType> activityLogTypeRepository,
+            IRepository<WithdrawLog> withdrawLogRepository,
             IWorkContext workContext,
             IDbContext dbContext, IDataProvider dataProvider,
             CommonSettings commonSettings,
@@ -68,6 +70,7 @@ namespace Nop.Services.Logging
             this._cacheManager = cacheManager;
             this._activityLogRepository = activityLogRepository;
             this._activityLogTypeRepository = activityLogTypeRepository;
+            this._withdrawLogRepository = withdrawLogRepository;
             this._workContext = workContext;
             this._dbContext = dbContext;
             this._dataProvider = dataProvider;
@@ -286,6 +289,7 @@ namespace Nop.Services.Logging
         /// Gets all activity log items by types.
         /// </summary>
         public virtual IPagedList<ActivityLog> GetAllActivitiesByTypes(string[] logTypeSystemNames,
+            int? customerId = null,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = _activityLogRepository.Table;
@@ -295,6 +299,8 @@ namespace Nop.Services.Logging
                 query = query.Join(_activityLogTypeRepository.Table, x => x.ActivityLogTypeId, y => y.Id, (x, y) => new { Log = x, LogType = y })
                     .Where(z => logTypeSystemNames.Contains(z.LogType.SystemKeyword))
                     .Select(z => z.Log);
+            if (customerId.HasValue)
+                query = query.Where(al => customerId.Value == al.CustomerId);
 
             query = query.OrderByDescending(al => al.CreatedOnUtc);
 
@@ -337,7 +343,135 @@ namespace Nop.Services.Logging
                     _activityLogRepository.Delete(activityLogItem);
             }
         }
+
+        #region Withdraw log
+    
+        /// <summary>
+        /// Inserts an withdraw log item
+        /// </summary>
+        /// <param name="amount">The withdraw amount</param>
+        /// <param name="comment">The activity comment</param>
+        /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
+        /// <returns>Activity log item</returns>
+        public virtual WithdrawLog InsertWithdraw(int amount, string comment, params object[] commentParams)
+        {
+            return InsertWithdraw(_workContext.CurrentCustomer, amount, comment, commentParams);
+        }
+
+
+        /// <summary>
+        /// Inserts an withdraw log item
+        /// </summary>
+        /// <param name="customer">The customer</param>
+        /// <param name="amount">The withdraw amount</param>
+        /// <param name="comment">The activity comment</param>
+        /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
+        /// <returns>Withdraw log item</returns>
+        public virtual WithdrawLog InsertWithdraw(Customer customer, int amount, string comment, params object[] commentParams)
+        {
+            if (customer == null)
+                return null;
+
+            comment = CommonHelper.EnsureNotNull(comment);
+            comment = string.Format(comment, commentParams);
+            comment = CommonHelper.EnsureMaximumLength(comment, 4000);
+
+            var withdraw = new WithdrawLog();
+            withdraw.Amount = amount;
+            withdraw.IsDone = false;
+            withdraw.Customer = customer;
+            withdraw.Comment = comment;
+            withdraw.CreatedOnUtc = DateTime.UtcNow;
+            withdraw.IpAddress = _webHelper.GetCurrentIpAddress();
+
+            _withdrawLogRepository.Insert(withdraw);
+
+            return withdraw;
+        }
+        
+        /// <summary>
+        /// Deletes an withdraw log item
+        /// </summary>
+        /// <param name="withdrawLog">Activity log type</param>
+        public virtual void DeleteWithdraw(WithdrawLog withdrawLog)
+        {
+            if (withdrawLog == null)
+                throw new ArgumentNullException("activityLog");
+
+            _withdrawLogRepository.Delete(withdrawLog);
+        }
+
+        /// <summary>
+        /// Gets all activity log items
+        /// </summary>
+        /// <param name="createdOnFrom">Log item creation from; null to load all activities</param>
+        /// <param name="createdOnTo">Log item creation to; null to load all activities</param>
+        /// <param name="customerId">Customer identifier; null to load all activities</param>
+        /// <param name="activityLogTypeId">Activity log type identifier</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
+        /// <param name="ipAddress">IP address; null or empty to load all activities</param>
+        /// <returns>Activity log items</returns>
+        public virtual IPagedList<WithdrawLog> GetAllWithdraws(DateTime? createdOnFrom = null,
+            DateTime? createdOnTo = null, int? customerId = null, bool? isDone = false,
+            int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null)
+        {
+            var query = _withdrawLogRepository.Table;
+            if(!String.IsNullOrEmpty(ipAddress))
+                query = query.Where(al => al.IpAddress.Contains(ipAddress));
+            if (createdOnFrom.HasValue)
+                query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
+            if (createdOnTo.HasValue)
+                query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
+            if (isDone.HasValue)
+                query = query.Where(al => al.IsDone == isDone.Value);
+            if (customerId.HasValue)
+                query = query.Where(al => customerId.Value == al.CustomerId);
+
+            query = query.OrderByDescending(al => al.CreatedOnUtc);
+
+            var withdrawLog = new PagedList<WithdrawLog>(query, pageIndex, pageSize);
+            return withdrawLog;
+        }
+
+        /// <summary>
+        /// Gets an withdraw log item
+        /// </summary>
+        /// <param name="withdrawLogId">withdrawLog log identifier</param>
+        /// <returns>Activity log item</returns>
+        public virtual WithdrawLog GetWithdrawById(int withdrawLogId)
+        {
+            if (withdrawLogId == 0)
+                return null;
+
+            return _withdrawLogRepository.GetById(withdrawLogId);
+        }
+
+        /// <summary>
+        /// Clears Withdraw log
+        /// </summary>
+        public virtual void ClearAllWithdraws()
+        {
+            if (_commonSettings.UseStoredProceduresIfSupported && _dataProvider.StoredProceduredSupported)
+            {
+                //although it's not a stored procedure we use it to ensure that a database supports them
+                //we cannot wait until EF team has it implemented - http://data.uservoice.com/forums/72025-entity-framework-feature-suggestions/suggestions/1015357-batch-cud-support
+
+
+                //do all databases support "Truncate command"?
+                string WithdrawTableName = _dbContext.GetTableName<WithdrawLog>();
+                _dbContext.ExecuteSqlCommand(String.Format("TRUNCATE TABLE [{0}]", WithdrawTableName));
+            }
+            else
+            {
+                var withdrawLogs = _withdrawLogRepository.Table.ToList();
+                foreach (var withdrawLogItem in withdrawLogs)
+                    _withdrawLogRepository.Delete(withdrawLogItem);
+            }
+        }
+
         #endregion
 
+        #endregion
     }
 }

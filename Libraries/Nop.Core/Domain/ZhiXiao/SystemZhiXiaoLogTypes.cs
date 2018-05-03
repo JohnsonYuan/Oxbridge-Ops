@@ -21,5 +21,10 @@
         /// 小组人数满足15人, 升级
         /// </summary>
         public static string ReGroupTeam_UpdateLevel { get { return "ZhiXiao_ReGroup_UpdateLevel"; } }
+
+        /// <summary>
+        /// 充值电子币
+        /// </summary>
+        public static string RechargeMoney { get { return "ZhiXiao_Recharge"; } }
     }
 }

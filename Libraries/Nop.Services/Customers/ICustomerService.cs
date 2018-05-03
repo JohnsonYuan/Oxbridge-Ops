@@ -76,6 +76,13 @@ namespace Nop.Services.Customers
         IList<Customer> GetCustomersByIds(int[] customerIds);
         
         /// <summary>
+        /// Get customers children.
+        /// </summary>
+        /// <param name="customerIds">Customer parent id</param>
+        /// <returns>Customers</returns>
+        IList<Customer> GetCustomerChildren(int parentId);
+
+        /// <summary>
         /// Gets a customer by GUID
         /// </summary>
         /// <param name="customerGuid">Customer GUID</param>

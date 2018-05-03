@@ -144,6 +144,7 @@
     <Compile Include="Domain\Logging\ActivityLogType.cs" />
     <Compile Include="Domain\Logging\Log.cs" />
     <Compile Include="Domain\Logging\LogLevel.cs" />
+    <Compile Include="Domain\Logging\WithdrawLog.cs" />
     <Compile Include="Domain\News\Events.cs" />
     <Compile Include="Domain\News\NewsComment.cs" />
     <Compile Include="Domain\News\NewsItem.cs" />

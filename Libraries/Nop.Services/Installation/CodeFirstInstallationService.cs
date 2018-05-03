@@ -515,6 +515,18 @@ namespace Nop.Services.Installation
                     Enabled = true,
                     Name = "分组提升级别"
                 },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
+                    Enabled = true,
+                    Name = "分组提升级别"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
+                    Enabled = true,
+                    Name = "充值电子币"
+                },
 
                 //admin area activities
                 new ActivityLogType

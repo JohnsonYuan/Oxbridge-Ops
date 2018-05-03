@@ -36,7 +36,7 @@ namespace Web.ZhiXiao.Controllers
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ICustomerService _customerService;
-        private readonly ICustomerTeamService _customerTeamService;
+        private readonly IZhiXiaoService _customerTeamService;
         //private readonly ICustomerAttributeParser _customerAttributeParser;
         private readonly ICustomerAttributeService _customerAttributeService;
         private readonly IGenericAttributeService _genericAttributeService;
@@ -70,7 +70,7 @@ namespace Web.ZhiXiao.Controllers
             IWorkContext workContext,
             IStoreContext storeContext,
             ICustomerService customerService,
-            ICustomerTeamService customerTeamService,
+            IZhiXiaoService customerTeamService,
             //ICustomerAttributeParser customerAttributeParser,
             //ICustomerAttributeService customerAttributeService,
             IGenericAttributeService genericAttributeService,

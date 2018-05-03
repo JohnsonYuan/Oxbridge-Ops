@@ -1,0 +1,58 @@
+﻿@model TeamDiagramModel
+
+@{
+    //page title
+    ViewBag.Title = T("Admin.Customers.Customers.AddNew").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Customer teams");
+
+   // Html.AppendCssFileParts("~/Content/lib/jquery.orgchart.css");
+   //  Html.AppendScriptParts("~/Scripts/kendo.dataviz.diagram.min.js");
+}
+
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        小组@(Model.Team.CustomNumber)
+        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(T("Admin.Customers.CustomerTeams.BackToList").Text, "List")</small>
+    </h1>
+</div>
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <p><i class="fa fa-users"></i>当前人数: @Model.Team.UserCount</p>
+
+            <div class="panel-body">
+                <div class="row" style="min-height: 150px;">
+                    @TeamDiagarm(Model.TopHalfUsers, "class='diagarm'")
+                </div>
+                <div class="row" style="min-height: 150px;">
+                    @TeamDiagarm(Model.LastHalfUsers, "class='diagarm'")
+                </div>
+                <div class="row">
+                    @TeamDiagarm(Model.AllUsers, "id='#treeview'")
+                    <script>
+                        $(document).ready(function () {
+                            $("#treeview").kendoTreeView();
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+@helper TeamDiagarm(IList<CustomerDiagramModel> models, string attrs)
+{
+    if (models.Count > 0)
+    {
+        <ul @Html.Raw(attrs)>
+            @foreach (var item in models)
+            {
+                <li>
+                    <a>@item.DisplayInfo</a>
+                    @TeamDiagarm(item.Child, "")
+                </li>
+            }
+        </ul>
+    }
+}

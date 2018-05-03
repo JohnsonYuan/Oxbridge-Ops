@@ -8418,6 +8418,9 @@
   <LocaleResource Name="Admin.Customers.CustomerTeams">
     <Value>小组管理</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Customers.CustomerTeams.BackToList">
+    <Value>返回小组列表</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.ActivityLog">
     <Value>活动记录</Value>
   </LocaleResource>

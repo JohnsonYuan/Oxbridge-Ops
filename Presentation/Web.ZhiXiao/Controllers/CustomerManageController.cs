@@ -38,7 +38,7 @@ namespace Web.ZhiXiao.Controllers
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ICustomerService _customerService;
-        private readonly ICustomerTeamService _customerTeamService;
+        private readonly IZhiXiaoService _zhiXiaoService;
         //private readonly ICustomerAttributeParser _customerAttributeParser;
         private readonly ICustomerAttributeService _customerAttributeService;
         private readonly IGenericAttributeService _genericAttributeService;
@@ -72,7 +72,7 @@ namespace Web.ZhiXiao.Controllers
             IWorkContext workContext,
             IStoreContext storeContext,
             ICustomerService customerService,
-            ICustomerTeamService customerTeamService,
+            IZhiXiaoService zhiXiaoTeamService,
             //ICustomerAttributeParser customerAttributeParser,
             //ICustomerAttributeService customerAttributeService,
             IGenericAttributeService genericAttributeService,
@@ -114,7 +114,7 @@ namespace Web.ZhiXiao.Controllers
             this._workContext = workContext;
             this._storeContext = storeContext;
             this._customerService = customerService;
-            this._customerTeamService = customerTeamService;
+            this._zhiXiaoService = zhiXiaoTeamService;
             //this._customerAttributeParser = customerAttributeParser;
             //this._customerAttributeService = customerAttributeService;
             this._genericAttributeService = genericAttributeService;
@@ -184,7 +184,8 @@ namespace Web.ZhiXiao.Controllers
                 CreatedOn = _dateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc),
                 LastActivityDate = _dateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
 
-                NickName = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_NickName)
+                NickName = customer.GetNickName(),
+                ZhiXiao_MoneyNum = customer.GetMoneyNum()
             };
         }
 
@@ -318,7 +319,7 @@ namespace Web.ZhiXiao.Controllers
                 .ToList();
 
             //customer roles
-             //precheck Registered Role as a default role while creating a new customer through admin
+            //precheck Registered Role as a default role while creating a new customer through admin
             if (customer != null)
             {
                 var allRoles = _customerService.GetAllCustomerRoles(true);
@@ -423,7 +424,7 @@ namespace Web.ZhiXiao.Controllers
             return View(model);
         }
 
-        
+
         [HttpPost, ParameterBasedOnQueryString("advanced", "registerAdvanceUser")]
         [FormValueRequired("save", "save-continue")]
         [ValidateInput(false)]
@@ -473,8 +474,8 @@ namespace Web.ZhiXiao.Controllers
         {
             for (int i = 1; i <= 11; i++)
             {
-                var team = _customerTeamService.GetAllCustomerTeams().First();
-               var customer =  _customerService.GetCustomerByUsername("user_" + i);
+                var team = _zhiXiaoService.GetAllCustomerTeams().First();
+                var customer = _customerService.GetCustomerByUsername("user_" + i);
 
                 customer.CustomerTeam = team;
                 _customerService.UpdateCustomer(customer);
@@ -647,7 +648,7 @@ namespace Web.ZhiXiao.Controllers
                 foreach (var customerRole in newCustomerRoles)
                 {
                     //ensure that the current customer cannot add to "Administrators" system role if he's not an admin himself
-                    if (customerRole.SystemName == SystemCustomerRoleNames.Administrators && 
+                    if (customerRole.SystemName == SystemCustomerRoleNames.Administrators &&
                         !_workContext.CurrentCustomer.IsAdmin())
                         continue;
 
@@ -686,7 +687,7 @@ namespace Web.ZhiXiao.Controllers
                     //selected tab
                     SaveSelectedTabName();
 
-                    return RedirectToAction("Edit", new {id = customer.Id});
+                    return RedirectToAction("Edit", new { id = customer.Id });
                 }
                 return RedirectToAction("List");
             }
@@ -1123,14 +1124,15 @@ namespace Web.ZhiXiao.Controllers
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedKendoGridJson();
-            
+
             var activityLog = _customerActivityService.GetAllActivitiesByTypes(new string[]
             {
                 SystemZhiXiaoLogTypes.AddNewUser,
                 SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
                 SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
                 SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
-            }, command.Page - 1, command.PageSize);
+                SystemZhiXiaoLogTypes.RechargeMoney,
+            }, customerId, command.Page - 1, command.PageSize);
 
             var gridModel = new DataSourceResult
             {
@@ -1185,6 +1187,73 @@ namespace Web.ZhiXiao.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        #endregion
+
+        #region 直销
+
+        /// <summary>
+        /// 充值电子币
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
+        public virtual ActionResult Recharge(int id)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedKendoGridJson();
+
+            var customer = _customerService.GetCustomerById(id);
+            if (customer == null)
+                return RedirectToAction("List");
+
+            ViewBag.NickName = customer.GetNickName();
+            ViewBag.UserName = customer.Username;
+            ViewBag.MoneyNum = customer.GetMoneyNum();
+
+            return View();
+        }
+
+        [HttpPost]
+        public virtual ActionResult Recharge(int id, int amount)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedKendoGridJson();
+
+            var customer = _customerService.GetCustomerById(id);
+            if (customer == null)
+                return RedirectToAction("List");
+
+            if (amount == 0)
+                ModelState.AddModelError("", "充值金额不能为0");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _zhiXiaoService.UpdateMoneyForUserAndLog(customer, amount, SystemZhiXiaoLogTypes.RechargeMoney,
+                        "管理员充值电子币{0}", amount);
+
+                    //activity log
+                    _customerActivityService.InsertActivity(SystemZhiXiaoLogTypes.RechargeMoney,
+                        _localizationService.GetResource("给用户{0}充值电子币{1}"),
+                        customer.GetNickNameAndUserName(),
+                        amount);
+
+                    SuccessNotification(string.Format("用户{0}充值{1}", customer.GetNickName(), amount));
+                }
+                catch (Exception ex)
+                {
+                    ErrorNotification("充值失败, " + ex.Message);
+                }
+
+            }
+
+            ViewBag.NickName = customer.GetNickName();
+            ViewBag.UserName = customer.Username;
+            ViewBag.MoneyNum = customer.GetMoneyNum();
+            return View();
         }
 
         #endregion
