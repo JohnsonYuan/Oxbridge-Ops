@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using Nop.Admin.Helpers;
+using Nop.Admin.Models.Logging;
 using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Customers;
@@ -11,6 +12,7 @@ using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.ZhiXiao;
 using Nop.Core.Infrastructure;
+using Nop.Extensions;
 using Nop.Models.Customers;
 using Nop.Services.Authentication;
 using Nop.Services.Common;
@@ -1218,6 +1220,9 @@ namespace Web.ZhiXiao.Controllers
         }
 
         [HttpPost]
+        /// <summary>
+        /// 充值电子币
+        /// </summary>
         public virtual ActionResult Recharge(int id, int amount)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
@@ -1258,28 +1263,76 @@ namespace Web.ZhiXiao.Controllers
             return View();
         }
 
-        public void InstallRequiredData()
+        /// <summary>
+        /// 提现申请
+        /// </summary>
+        public virtual ActionResult Withdraw()
         {
-            var types = new List<ActivityLogType>() {
-                new ActivityLogType
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedKendoGridJson();
+
+            var model = new WithdrawLogSearchModel();
+            return View(model);
+        }
+
+        /// <summary>
+        /// 提现申请
+        /// </summary>
+        [HttpPost, ActionName("Withdraw")]
+        public virtual ActionResult WithdrawList(DataSourceRequest command,
+            WithdrawLogSearchModel searchModel)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedKendoGridJson();
+      
+            DateTime? startDateValue = (searchModel.CreatedOnFrom == null) ? null
+                : (DateTime?)_dateTimeHelper.ConvertToUtcTime(searchModel.CreatedOnFrom.Value, _dateTimeHelper.CurrentTimeZone);
+
+            DateTime? endDateValue = (searchModel.CreatedOnTo == null) ? null
+                            : (DateTime?)_dateTimeHelper.ConvertToUtcTime(searchModel.CreatedOnTo.Value, _dateTimeHelper.CurrentTimeZone).AddDays(1);
+
+            var withdraws = _customerActivityService.GetAllWithdraws(startDateValue, endDateValue, null, searchModel.IsDone, command.Page - 1, command.PageSize);
+            var gridModel = new DataSourceResult
+            {
+                Data = withdraws.Select(x =>
                 {
-                    SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
-                    Enabled = true,
-                    Name = "充值电子币"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
-                    Enabled = true,
-                    Name = "管理员发货"
-                }
+                    var m = x.ToModel();
+                    m.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                    if (x.CompleteOnUtc.HasValue)
+                        m.CompleteOn = _dateTimeHelper.ConvertToUserTime(x.CompleteOnUtc.Value, DateTimeKind.Utc);
+                    return m;
+                }),
+                Total = withdraws.TotalCount
             };
 
-            // 用属性来关联是否收货
+            return Json(gridModel);
+        }
 
-            var repos = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<ActivityLogType>>();
+        public void InstallRequiredData()
+        {
+            //var types = new List<ActivityLogType>() {
+            //    new ActivityLogType
+            //    {
+            //        SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
+            //        Enabled = true,
+            //        Name = "充值电子币"
+            //    },
+            //    new ActivityLogType
+            //    {
+            //        SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
+            //        Enabled = true,
+            //        Name = "管理员发货"
+            //    }
+            //};
 
-            repos.Insert(types);
+            //// 用属性来关联是否收货
+
+            //var repos = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<ActivityLogType>>();
+
+            //repos.Insert(types);
+
+            var firstCustomer = _customerService.GetCustomerByUsername("user_1");
+            _customerActivityService.InsertWithdraw(firstCustomer, 500, "申请提现500", "");
         }
 
         #endregion

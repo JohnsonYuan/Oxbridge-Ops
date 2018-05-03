@@ -36,7 +36,7 @@ namespace Nop.Core.Domain.Logging
         /// <summary>
         /// Gets or sets the date and time when this work is done.
         /// </summary>
-        public DateTime CompleteOnUtc { get; set; }
+        public DateTime? CompleteOnUtc { get; set; }
 
         /// <summary>
         /// Gets the customer

@@ -14,7 +14,7 @@ namespace Nop.Services.Logging
     /// <summary>
     /// Customer activity service
     /// </summary>
-    public class CustomerActivityService : ICustomerActivityService
+    public class CustomerActivityService : ICustomerActivityService, ICustomerActivityService2
     {
         #region Constants
 

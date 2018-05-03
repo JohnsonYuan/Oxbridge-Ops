@@ -75,6 +75,15 @@ namespace Nop.Extensions
 
         #endregion
 
+        #region Withdraw
+
+        public static WithdrawLogModel ToModel(this WithdrawLog entity)
+        {
+            return entity.MapTo<WithdrawLog, WithdrawLogModel>();
+        }
+
+        #endregion
+
         #region Log
 
         public static LogModel ToModel(this Log entity)

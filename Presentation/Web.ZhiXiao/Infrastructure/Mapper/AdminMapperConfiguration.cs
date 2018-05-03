@@ -52,6 +52,14 @@ namespace Nop.Admin.Infrastructure.Mapper
                     .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
                     .ForMember(dest => dest.Customers, mo => mo.Ignore());
 
+                //withdraw logs
+                cfg.CreateMap<WithdrawLog, WithdrawLogModel>()
+                    .ForMember(dest => dest.CustomerUserName, mo => mo.MapFrom(src => src.Customer.Username))
+                    .ForMember(dest => dest.CustomerNickName, mo => mo.MapFrom(src => src.Customer.GetNickName()))
+                    .ForMember(dest => dest.MoneyNum, mo => mo.MapFrom(src => src.Customer.GetMoneyNum()))
+                    .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
+                    .ForMember(dest => dest.CompleteOn, mo => mo.Ignore());
+
                 //logs
                 cfg.CreateMap<Log, LogModel>()
                         .ForMember(dest => dest.CustomerEmail, mo => mo.Ignore())

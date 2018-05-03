@@ -112,7 +112,7 @@ namespace Web.ZhiXiao.Controllers
         
         #endregion
 
-        #region Team test
+        #region Team diagarm
 
         public ActionResult View(int id)
         {

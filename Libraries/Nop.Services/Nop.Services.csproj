@@ -132,6 +132,7 @@
     <Compile Include="Localization\LocalizedEntityService.cs" />
     <Compile Include="Directory\GeoLookupService.cs" />
     <Compile Include="Directory\IGeoLookupService.cs" />
+    <Compile Include="Logging\ICustomerActivityService2.cs" />
     <Compile Include="News\INewsService.cs" />
     <Compile Include="News\NewsService.cs" />
     <Compile Include="Orders\IRewardPointService.cs" />

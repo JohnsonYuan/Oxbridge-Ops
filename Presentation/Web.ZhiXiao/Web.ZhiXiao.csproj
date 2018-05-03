@@ -1357,6 +1357,8 @@
     <Compile Include="Models\Logging\ActivityLogTypeModel.cs" />
     <Compile Include="Models\Logging\LogListModel.cs" />
     <Compile Include="Models\Logging\LogModel.cs" />
+    <Compile Include="Models\Logging\WithdrawLogModel.cs" />
+    <Compile Include="Models\Logging\WithdrawLogSearchModel.cs" />
     <Compile Include="Models\News\NewsCommentListModel.cs" />
     <Compile Include="Models\News\NewsCommentModel.cs" />
     <Compile Include="Models\News\NewsItemListModel.cs" />
@@ -1520,6 +1522,7 @@
     <Content Include="Views\CustomerManage\RegisterZhiXiaoUser.cshtml" />
     <Content Include="Views\CustomerTeam\View.cshtml" />
     <Content Include="Views\CustomerManage\Recharge.cshtml" />
+    <Content Include="Views\CustomerManage\Withdraw.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
