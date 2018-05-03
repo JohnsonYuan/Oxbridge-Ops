@@ -8,7 +8,9 @@ using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Localization;
+using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.ZhiXiao;
+using Nop.Core.Infrastructure;
 using Nop.Models.Customers;
 using Nop.Services.Authentication;
 using Nop.Services.Common;
@@ -1254,6 +1256,30 @@ namespace Web.ZhiXiao.Controllers
             ViewBag.UserName = customer.Username;
             ViewBag.MoneyNum = customer.GetMoneyNum();
             return View();
+        }
+
+        public void InstallRequiredData()
+        {
+            var types = new List<ActivityLogType>() {
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
+                    Enabled = true,
+                    Name = "充值电子币"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
+                    Enabled = true,
+                    Name = "管理员发货"
+                }
+            };
+
+            // 用属性来关联是否收货
+
+            var repos = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<ActivityLogType>>();
+
+            repos.Insert(types);
         }
 
         #endregion

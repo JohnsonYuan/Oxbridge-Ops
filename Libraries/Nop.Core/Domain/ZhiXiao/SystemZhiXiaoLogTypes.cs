@@ -26,5 +26,10 @@
         /// 充值电子币
         /// </summary>
         public static string RechargeMoney { get { return "ZhiXiao_Recharge"; } }
+        
+        /// <summary>
+        /// 管理员发货
+        /// </summary>
+        public static string SendProduct { get { return "ZhiXiao_SendProduct"; } }
     }
 }

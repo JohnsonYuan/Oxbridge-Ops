@@ -527,6 +527,12 @@ namespace Nop.Services.Installation
                     Enabled = true,
                     Name = "充值电子币"
                 },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
+                    Enabled = true,
+                    Name = "管理员发货"
+                },
 
                 //admin area activities
                 new ActivityLogType
