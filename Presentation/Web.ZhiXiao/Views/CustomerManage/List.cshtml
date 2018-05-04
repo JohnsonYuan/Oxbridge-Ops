@@ -325,8 +325,7 @@
                                             width: 50,
                                             headerAttributes: { style: "text-align:center" },
                                             attributes: { style: "text-align:center" },
-                                            template: '<a class="btn btn-default" href="Edit/#=Id#"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</a>'
-                                            + '<a class="btn btn-primary" href="Recharge/#=Id#"><i class="fa fa-cny"></i>充值</a>'
+                                            template: kendo.template($("#editTemplate").html())
                                         }
                                     ]
                                 });
@@ -431,3 +430,83 @@
         </div>
     </div>
 }
+
+<script type="text/x-kendo-template" id="editTemplate">
+    <a class="btn btn-default" href="Edit/#=Id#"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</a>
+    <a class="btn btn-primary" href="Recharge/#=Id#"><i class="fa fa-cny"></i>充值</a>
+    #if(ProductStatusId == 0){#
+        <a class="btn btn-warning" data-toggle="modal" data-target="\\#sendProduct-window" data-id="#=Id#" data-name="#=Username#"><i class="fa fa-paper-plane" aria-hidden="true"></i>发货</a>
+    #}else if(ProductStatusId == 1){#
+        <span class="badge"><i class="fa-paper-plane">已发货</i></span>
+    #}else if(ProductStatusId == 2){#
+        <span class="badge bg-green"><i class="fa fa-check">已收货</i></span>
+    #}#
+</script>
+
+@*send product form*@
+<div id="sendProduct-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="process-window-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="process-window-title">发货</h4>
+            </div>
+            @using (Html.BeginForm("SendProduct", "CustomerManage", new { id= 12 }))
+            {
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("id")
+                        <input name="testVal" value="testVal" type="hidden" />
+                        <div class="form-group">
+                            <div class="col-md-4">
+                                <div class="label-wrapper">
+                                    <label title="" class="control-label">用户</label>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-control">
+                                    <span id="user"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-4">
+                                @Html.NopLabelFor(model => model.SendProduct.OrderNo)
+                            </div>
+                            <div class="col-md-8">
+                                @Html.NopEditorFor(model => model.SendProduct.OrderNo, required: true)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-4">
+                                @Html.NopLabelFor(model => model.SendProduct.Comment)
+                            </div>
+                            <div class="col-md-8">
+                                @Html.NopTextAreaFor(model => model.SendProduct.Comment)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">          
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">
+                            发货
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $('#sendProduct-window').on('show.bs.modal', function (e) {
+        var button = $(e.relatedTarget);
+
+        var modal = $(this);
+        $('#user', $(this)).text(button.data('name'));
+        $('#id', $(this)).val(button.data('id'));
+        //button.data('id');
+    });
+</script>

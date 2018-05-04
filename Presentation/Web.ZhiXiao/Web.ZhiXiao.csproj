@@ -1523,6 +1523,8 @@
     <Content Include="Views\CustomerTeam\View.cshtml" />
     <Content Include="Views\CustomerManage\Recharge.cshtml" />
     <Content Include="Views\CustomerManage\Withdraw.cshtml" />
+    <Content Include="Views\CustomerManage\ProcessWithdrawPopup.cshtml" />
+    <Content Include="Views\Shared\_AdminPopupLayout.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

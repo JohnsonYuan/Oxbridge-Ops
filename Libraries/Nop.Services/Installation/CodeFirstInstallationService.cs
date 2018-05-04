@@ -529,9 +529,15 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
+                    SystemKeyword = SystemZhiXiaoLogTypes.SendProduct,
                     Enabled = true,
                     Name = "管理员发货"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ProcessWithdraw,
+                    Enabled = true,
+                    Name = "管理员处理提现申请"
                 },
 
                 //admin area activities

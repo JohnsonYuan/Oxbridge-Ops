@@ -105,7 +105,7 @@ namespace Nop.Services.Logging
 
         WithdrawLog InsertWithdraw(Customer customer, int amount, string comment, params object[] commentParams);
         WithdrawLog InsertWithdraw(int amount, string comment, params object[] commentParams);
-        
+        void UpdateWithdrawLog(WithdrawLog withdrawLog);
         void DeleteWithdraw(WithdrawLog withdrawLog);
         WithdrawLog GetWithdrawById(int withdrawLogId);
         IPagedList<WithdrawLog> GetAllWithdraws(DateTime? createdOnFrom = null, DateTime? createdOnTo = null, int? customerId = null, bool? isDone = false, int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null);

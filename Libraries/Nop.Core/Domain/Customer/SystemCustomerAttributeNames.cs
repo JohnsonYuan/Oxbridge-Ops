@@ -73,5 +73,6 @@ namespace Nop.Core.Domain.Customers
         public static string ZhiXiao_ChildCount { get { return "ZhiXiao.ChildCount"; } }        // 下线个数
         public static string ZhiXiao_MoneyNum { get { return "ZhiXiao.MoneyNum"; } }            // 当前金币
         public static string ZhiXiao_MoneyHistory { get { return "ZhiXiao.MoneyHistory"; } }    // 历史金币(只计算增加)
+        public static string ZhiXiao_SendProductStatus { get { return "ZhiXiao.SendProductStatus"; } }    // 收货状态
     }
 }

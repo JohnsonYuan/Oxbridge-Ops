@@ -639,6 +639,29 @@ namespace Nop.Services.ZhiXiao
 
         #endregion
 
+        #region Send product
+
+        /// <summary>
+        /// 得到用户收货状态
+        /// </summary>
+        /// <param name="customerId"></param>
+        public virtual SendProductStatus GetSendProductStatus(Customer customer)
+        {
+            var statue = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductStatus);
+            return (SendProductStatus)statue;
+        }
+
+        /// <summary>
+        /// 给用户发货, 设置发货状态属性
+        /// </summary>
+        /// <param name="customerId"></param>
+        public virtual void SetSendProductStatus(Customer customer, SendProductStatus status)
+        {
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_SendProductStatus, (int)status);
+        }
+
+        #endregion
+
         #endregion
     }
 }

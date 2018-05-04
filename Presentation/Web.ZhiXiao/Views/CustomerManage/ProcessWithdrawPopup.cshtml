@@ -1,0 +1,184 @@
+﻿@using Nop.Services.Customers;
+
+@model WithdrawLogModel
+
+@{
+    Layout = "~/Views/Shared/_AdminPopupLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "处理提现申请";
+}
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script type="text/javascript">
+        try {
+            window.opener.document.getElementById('@(ViewBag.btnId)').click();
+        } catch (e) {
+        }
+        window.close();
+    </script>
+}
+
+@using (Html.BeginForm(new RouteValueDictionary(new { id = Model.Id, btnId = ViewBag.btnId })))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@(Model.Id)">
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            提现申请(金额 @Model.Amount)
+        </h1>
+        <div class="pull-right">
+            &nbsp;
+        </div>
+    </div>
+    <div class="content">
+        @Html.ValidationSummary(false)
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default panel-popup">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.CustomerId)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.CustomerModel.NickName)
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.Amount)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.Amount)
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                <div class="label-wrapper">
+                                   当前电子币 
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.CustomerModel.ZhiXiao_MoneyNum)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.CustomerModel.Phone)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.CustomerModel.Phone)
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.CustomerModel.ZhiXiao_IdCardNum)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.CustomerModel.ZhiXiao_IdCardNum)
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.CustomerModel.ZhiXiao_YinHang)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.CustomerModel.ZhiXiao_YinHang)
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.CustomerModel.ZhiXiao_KaiHuHang)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.CustomerModel.ZhiXiao_KaiHuHang)
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.CustomerModel.ZhiXiao_KaiHuMing)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.CustomerModel.ZhiXiao_KaiHuMing)
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.CustomerModel.ZhiXiao_BandNum)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.CustomerModel.ZhiXiao_BandNum)
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.IsDone)
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-text-row">
+                                    @if (Model.IsDone)
+                                    {
+                                        <span class="badge bg-green">已处理</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-yellow">未处理</span>
+                                    }
+                                </div>
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.CreatedOn)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.CreatedOn)
+                            </div>
+                        </div>
+                        @if (Model.IsDone)
+                        {
+                            <div class="form-group">
+                                <div class="col-xs-4">
+                                    @Html.NopLabelFor(model => model.CompleteOn)
+                                </div>
+                                <div class="col-xs-6">
+                                    @Html.NopDisplayFor(model => model.CompleteOn)
+                                </div>
+                            </div>
+                        }
+                        <div class="form-group">
+                            <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.IpAddress)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.IpAddress)
+                            </div>
+                        </div> 
+                        @if (!Model.IsDone)
+                        {
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-4">
+                                    @Html.Hidden("IsDone", "true")
+                                    <button type="submit" class="btn btn-primary">
+                                        已处理
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('form').submit(function () {
+                if (!confirm('确认已经处理?'))
+                    return false;
+            });
+        })
+    </script>
+}

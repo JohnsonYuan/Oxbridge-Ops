@@ -7,7 +7,7 @@ using Nop.Web.Framework.Mvc;
 
 namespace Nop.Admin.Models.Logging
 {
-    public partial class WithdrawLogSearchModel : BaseNopModel
+    public partial class WithdrawLogSearchModel : BaseNopEntityModel
     {
         public WithdrawLogSearchModel()
         {

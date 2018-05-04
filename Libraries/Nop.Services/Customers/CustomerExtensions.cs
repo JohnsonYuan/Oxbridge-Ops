@@ -78,6 +78,22 @@ namespace Nop.Services.Customers
         }
 
         /// <summary>
+        ///  Get phone number
+        ///  {nickName}
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <returns>nickname</returns>
+        public static string GetPhone(this Customer customer)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            var phone = customer.GetAttribute<string>(SystemCustomerAttributeNames.Phone);
+
+            return phone;
+        }
+
+        /// <summary>
         ///  Get user name and email
         /// </summary>
         /// <param name="customer"></param>
@@ -89,7 +105,7 @@ namespace Nop.Services.Customers
 
             var nickName = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_NickName);
 
-            return string.Format("{0} - {1}", nickName, customer.Username);
+            return string.Format("{0} ({1})", nickName, customer.Username);
         }
 
         /// <summary>

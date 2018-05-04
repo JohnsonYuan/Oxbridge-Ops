@@ -137,7 +137,6 @@ namespace Nop.Models.Customers
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.RegisteredInStore")]
         public string RegisteredInStore { get; set; }
 
-
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.AdminComment")]
         [AllowHtml]
         public string AdminComment { get; set; }
@@ -249,6 +248,7 @@ namespace Nop.Models.Customers
         public string ZhiXiao_InTeamOrder { get; set; }  // 在小组中顺序
         public string ZhiXiao_InTeamTime { get; set; }   // 进入该小组时间
         public string ZhiXiao_ChildCount { get; set; }   // 下线个数
+        [Display(Name = "用户级别")]
         public int ZhiXiao_LevelId { get; set; }        // 级别
         [Display(Name = "电子币")]
         public long ZhiXiao_MoneyNum { get; set; }       // 电子币(真是个数)
@@ -264,7 +264,10 @@ namespace Nop.Models.Customers
         [Display(Name = "开户名")]
         public string ZhiXiao_KaiHuMing { get; set; }       // 开户名
         [Display(Name = "银行卡号")]
-        public string ZhiXiao_BandNum { get; set; }         // 银行卡号   
+        public string ZhiXiao_BandNum { get; set; }         // 银行卡号
+        [Display(Name = "发货状态")]
+        public int ProductStatusId { get; set; }
+
         [Display(Name = "级别")]
         public CustomerLevel CustomerLevel
         {
@@ -277,6 +280,19 @@ namespace Nop.Models.Customers
                 this.ZhiXiao_LevelId = (int)value;
             }
         }
+
+        public SendProductStatus ProductStatus
+        {
+            get
+            {
+                return (SendProductStatus)this.ProductStatusId;
+            }
+            set
+            {
+                this.ProductStatusId = (int)value;
+            }
+        }
+
         #endregion
 
         #region Nested classes

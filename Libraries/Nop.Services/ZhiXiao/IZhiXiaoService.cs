@@ -64,5 +64,17 @@ namespace Nop.Services.ZhiXiao
         /// 1. 给组长， 副组长分钱, 2. 如果人数满足, 重新分组
         /// </summary>
         void AddNewUserToTeam(CustomerTeam team, Customer newCustomer);
+        
+        /// <summary>
+        /// 得到用户收货状态
+        /// </summary>
+        /// <param name="customerId"></param>
+        SendProductStatus GetSendProductStatus(Customer customer);
+
+        /// <summary>
+        /// 给用户发货, 设置发货状态属性
+        /// </summary>
+        /// <param name="customerId"></param>
+        void SetSendProductStatus(Customer customer, SendProductStatus status);
     }
 }

@@ -358,7 +358,6 @@ namespace Nop.Services.Logging
             return InsertWithdraw(_workContext.CurrentCustomer, amount, comment, commentParams);
         }
 
-
         /// <summary>
         /// Inserts an withdraw log item
         /// </summary>
@@ -389,6 +388,18 @@ namespace Nop.Services.Logging
             return withdraw;
         }
         
+        /// <summary>
+        /// Update withdraw log item
+        /// </summary>
+        /// <param name="withdrawLog"></param>
+        public virtual void UpdateWithdrawLog(WithdrawLog withdrawLog)
+        {
+            if (withdrawLog == null)
+                throw new ArgumentNullException("withdrawLog");
+
+            _withdrawLogRepository.Update(withdrawLog);
+        }
+
         /// <summary>
         /// Deletes an withdraw log item
         /// </summary>

@@ -161,9 +161,9 @@
     <Compile Include="Topics\ITopicTemplateService.cs" />
     <Compile Include="Topics\TopicService.cs" />
     <Compile Include="Topics\TopicTemplateService.cs" />
-    <Compile Include="ZhiXiao\CustomerTeamService.cs" />
+    <Compile Include="ZhiXiao\ZhiXiaoService.cs" />
     <Compile Include="ZhiXiao\CustomNumberFormatter.cs" />
-    <Compile Include="ZhiXiao\ICustomerTeamService.cs" />
+    <Compile Include="ZhiXiao\IZhiXiaoService.cs" />
     <Compile Include="ZhiXiao\ICustomNumberFormatter.cs" />
   </ItemGroup>
   <ItemGroup>

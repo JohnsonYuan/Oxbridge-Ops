@@ -54,7 +54,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-8 col-md-offset-4">
-                                <button type="button" id="search-teams" class="btn btn-primary btn-search">
+                                <button type="button" id="search-terms" class="btn btn-primary btn-search">
                                     <i class="fa fa-search"></i>
                                     @T("Admin.Common.Search")
                                 </button>
@@ -70,7 +70,14 @@
                             #if(IsDone){#
                                 <button type="button" class="btn btn-success disabled">已处理</button>
                             #}else{#
-                                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="\\#process-window" data-id="#=Id#" data-amount="#=Amount#" data-user="#=CustomerNickName# (#=CustomerUserName#)">处理</button>
+                                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="\\#process-window" data-id="#=Id#">处理</button>
+                            #}#
+                        </script>
+                        <script type="text/x-kendo-template" id="editTemplate2">
+                            #if(IsDone){#
+                                <button type="button" class="btn btn-success disabled">已处理</button>
+                            #}else{#
+                                <button type="button" class="btn btn-warning">处理</button>
                             #}#
                         </script>
                         <script>
@@ -110,10 +117,10 @@
                                     //dataBound: onDataBound,
                                     columns: [
                                         {
-                                            field: "CustomerNickName",
+                                            //field: "CustomerNickName",
                                             title: "用户",
                                             width: 100,
-                                            template: '<a target="_blank" href="/CustomerManage/Edit/#=Id#">#=CustomerNickName#</a>'
+                                            template: '<a target="_blank" href="/CustomerManage/Edit/#=CustomerId#">#=Nickname# (#=Username#)</a>'
                                         }, {
                                             //field: "Amount",
                                             title: "提取金额",
@@ -129,23 +136,22 @@
                                             title: "@T("Admin.Customers.Customers.Fields.CreatedOn")",
                                             width: 120,
                                             type: "date",
-                                            format: "{0:G}"
+                                            format: "{0:g}"
                                         },
                                         {
+                                            field: "CompleteOn",
                                             title: "处理日期",
                                             width: 120,
                                             type: "date",
-                                            format: "{0:G}",
-                                            field: 'CompleteOn'
-                                            //template: '#if(#=IsDone#){# <span class="badge bg-blue">#=CompleteOn#</span> #} else {# #=<span class="badge bg-red">未处理</span># #}#'
+                                            format: "{0:g}",
+                                            //template: '#if(IsDone){# <i class="fa fa-check true-icon"></i>#=CompleteOn# #} else {# <i class="fa fa-close false-icon"></i> #}#'
                                         },
                                         {
-                                            field: "Id",
                                             title: "操作",
                                             width: 50,
                                             headerAttributes: { style: "text-align:center" },
                                             attributes: { style: "text-align:center" },
-                                            template: kendo.template($("#editTemplate").html())
+                                            template: '# if(IsDone) {# <a class="btn btn-success process" data-id="#=Id#"><i class="fa fa-pencil"></i>查看</a> #} else {# <a class="btn btn-warning process" data-id="#=Id#"><i class="fa fa-pencil"></i>处理</a> #} #'
                                         }
                                     ]
                                 });
@@ -153,8 +159,15 @@
                         </script>
                         <script type="text/javascript">
                             $(document).ready(function () {
+                                $('#withdraws-grid').on('click', 'a.process', function () {
+                                    var id = $(this).data('id');
+                                    var url = '@(Url.Action("ProcessWithdrawPopup", new { id = "__id__", btnId = "search-terms" }))';
+                                    OpenWindow(url.replace('__id__', id), 600, 700, true);
+                                    return false;
+                                });
+
                                 //search button
-                                $('#search-teams').click(function () {
+                                $('#search-terms').click(function () {
                                     var grid = $('#withdraws-grid').data('kendoGrid');
                                     grid.dataSource.page(1); // new search. Set page size to 1
                                     //grid.dataSource.read(); we already loaded the grid above using "page" function
@@ -163,7 +176,6 @@
                                     selectedIds = [];
                                     return false;
                                 });
-                                
                             });
 
                             function additionalData() {
@@ -182,51 +194,3 @@
         </div>
     </div>
 }
-
-@*process email form*@
-<div id="process-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="process-window-title">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="process-window-title">同意提现申请?</h4>
-            </div>
-            @using (Html.BeginForm("ProcessWithdraw", "CustomerManage"))
-            {
-                <div class="form-horizontal">
-                    <div class="modal-body">
-                        @Html.AntiForgeryToken()
-
-                        <div>
-                            <label class="col-form-label">用户:</label>
-                            <span id="user"></span>
-                        </div>
-                        <div>
-                            <label class="col-form-label">提现金额:</label>
-                            <span id="amount"></span>
-                        </div>
-                        <input id="wId" type="hidden" value="" />
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">取消</button>
-                        <button type="submit" class="btn btn-primary">
-                            已处理
-                        </button>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-</div>
-
-<script type="text/javascript">
-    $('#process-window').on('show.bs.modal', function (e) {
-        var button = $(e.relatedTarget);
-
-        var modal = $(this);
-        $('#user', $(this)).text(button.data('user'));
-        $('#amount', $(this)).text(button.data('amount'));
-        $('#wId', $(this)).text(button.data('id'));
-        //button.data('id');
-    });
-</script>

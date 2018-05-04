@@ -8865,6 +8865,12 @@
   <LocaleResource Name="Admin.Customers.Customers.List.SearchUsername.Hint">
     <Value>用户名筛选</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.List.SearchNickname">
+    <Value>昵称</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.List.SearchNickname.Hint">
+    <Value>昵称筛选</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.List.SearchZipCode">
     <Value>邮政编码</Value>
   </LocaleResource>

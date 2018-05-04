@@ -13,6 +13,7 @@ using Nop.Core.Domain.Stores;
 using Nop.Core.Domain.ZhiXiao;
 using Nop.Core.Infrastructure.Mapper;
 using Nop.Models.Customers;
+using Nop.Services.Common;
 using Nop.Services.Customers;
 
 namespace Nop.Admin.Infrastructure.Mapper
@@ -54,9 +55,10 @@ namespace Nop.Admin.Infrastructure.Mapper
 
                 //withdraw logs
                 cfg.CreateMap<WithdrawLog, WithdrawLogModel>()
-                    .ForMember(dest => dest.CustomerUserName, mo => mo.MapFrom(src => src.Customer.Username))
-                    .ForMember(dest => dest.CustomerNickName, mo => mo.MapFrom(src => src.Customer.GetNickName()))
+                    .ForMember(dest => dest.Username, mo => mo.MapFrom(src => src.Customer.Username))
+                    .ForMember(dest => dest.Nickname, mo => mo.MapFrom(src => src.Customer.GetNickName()))
                     .ForMember(dest => dest.MoneyNum, mo => mo.MapFrom(src => src.Customer.GetMoneyNum()))
+                    .ForMember(dest => dest.CustomerModel, mo => mo.Ignore())
                     .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
                     .ForMember(dest => dest.CompleteOn, mo => mo.Ignore());
 

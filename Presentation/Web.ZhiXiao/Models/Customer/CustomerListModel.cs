@@ -12,6 +12,8 @@ namespace Nop.Models.Customers
         {
             SearchCustomerRoleIds = new List<int>();
             AvailableCustomerRoles = new List<SelectListItem>();
+
+            this.SendProduct = new SendProductModel() { };
         }
 
 
@@ -23,6 +25,10 @@ namespace Nop.Models.Customers
         [NopResourceDisplayName("Admin.Customers.Customers.List.SearchEmail")]
         [AllowHtml]
         public string SearchEmail { get; set; }
+        
+        [NopResourceDisplayName("Admin.Customers.Customers.List.SearchNickname")]
+        [AllowHtml]
+        public string SearchNickname { get; set; }
 
         [NopResourceDisplayName("Admin.Customers.Customers.List.SearchUsername")]
         [AllowHtml]
@@ -62,5 +68,19 @@ namespace Nop.Models.Customers
 
         [NopResourceDisplayName("Admin.Customers.Customers.List.SearchIpAddress")]
         public string SearchIpAddress { get; set; }
+
+        public SendProductModel SendProduct { get; set; }
+
+        /// <summary>
+        /// 发货信息
+        /// </summary>
+        public partial class SendProductModel
+        {
+            [Display(Name ="快递单号")]
+            public string OrderNo { get; set; }
+            
+            [Display(Name ="备注")]
+            public string Comment { get; set; }
+        }
     }
 }

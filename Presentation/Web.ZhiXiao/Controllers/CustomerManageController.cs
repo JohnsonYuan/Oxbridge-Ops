@@ -27,6 +27,7 @@ using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Kendoui;
 using Nop.Web.Framework.Mvc;
 using Web.ZhiXiao.Factories;
+using static Nop.Models.Customers.CustomerListModel;
 
 namespace Web.ZhiXiao.Controllers
 {
@@ -172,6 +173,37 @@ namespace Web.ZhiXiao.Controllers
         }
 
         [NonAction]
+        protected virtual CustomerModel PrepareCustomerModelForZhiXiaoInfo(Customer customer)
+        {
+            return new CustomerModel
+            {
+                Id = customer.Id,
+                Email = customer.IsRegistered() ? customer.Email : _localizationService.GetResource("Admin.Customers.Guest"),
+                Username = customer.Username,
+                FullName = customer.GetFullName(),
+                Company = customer.GetAttribute<string>(SystemCustomerAttributeNames.Company),
+                Phone = customer.GetAttribute<string>(SystemCustomerAttributeNames.Phone),
+                //ZipPostalCode = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZipPostalCode),
+                CustomerRoleNames = GetCustomerRolesNames(customer.CustomerRoles.ToList()),
+                Active = customer.Active,
+                CreatedOn = _dateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc),
+                LastActivityDate = _dateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
+
+                NickName = customer.GetNickName(),
+                ZhiXiao_MoneyNum = customer.GetMoneyNum(),
+               
+                ZhiXiao_IdCardNum = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_IdCardNum),
+                ZhiXiao_YinHang = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_YinHang),        // 银行
+                ZhiXiao_KaiHuHang = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_KaiHuHang),      // 开户行
+                ZhiXiao_KaiHuMing = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_KaiHuMing),     // 开户名
+                ZhiXiao_BandNum = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_BandNum),      // 银行卡号
+                
+                ZhiXiao_LevelId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId),
+                ZhiXiao_MoneyHistory = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyHistory),
+            };
+        }
+
+        [NonAction]
         protected virtual CustomerModel PrepareCustomerModelForList(Customer customer)
         {
             return new CustomerModel
@@ -189,7 +221,8 @@ namespace Web.ZhiXiao.Controllers
                 LastActivityDate = _dateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
 
                 NickName = customer.GetNickName(),
-                ZhiXiao_MoneyNum = customer.GetMoneyNum()
+                ZhiXiao_MoneyNum = customer.GetMoneyNum(),
+                ProductStatusId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductStatus) // 发货状态
             };
         }
 
@@ -278,6 +311,8 @@ namespace Web.ZhiXiao.Controllers
                     model.ZhiXiao_LevelId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId);
                     model.ZhiXiao_MoneyNum = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyNum);
                     model.ZhiXiao_MoneyHistory = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyHistory);
+
+                    model.ProductStatusId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductStatus); // 发货状态
                 }
             }
 
@@ -738,6 +773,47 @@ namespace Web.ZhiXiao.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        [HttpPost]
+        public virtual ActionResult SendProduct(int id, [Bind(Prefix = "SendProduct")]SendProductModel sendModel)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedView();
+            
+            var customer = _customerService.GetCustomerById(id);
+            if (customer == null || customer.Deleted)
+                //No customer found with the specified id
+                return RedirectToAction("List");
+
+            try
+            {
+                if (_zhiXiaoService.GetSendProductStatus(customer) != SendProductStatus.NotYet)
+                    throw new Exception("该用户的产品已经发货");
+
+                if (string.IsNullOrEmpty(sendModel.OrderNo))
+                     throw new NopException("快递单号不能为空");
+
+                _zhiXiaoService.SetSendProductStatus(customer, SendProductStatus.Sended);
+
+                _customerActivityService.InsertActivity(SystemZhiXiaoLogTypes.SendProduct,
+                    "给用户 {0} 发货, 快递单号: {1}, 备注: {2}",
+                    customer.GetNickNameAndUserName(),
+                    sendModel.OrderNo,
+                    sendModel.Comment);
+
+                _customerActivityService.InsertActivity(customer,
+                    SystemZhiXiaoLogTypes.SendProduct,
+                    "管理员发货, 快递单号: {0}, 备注: {1}",
+                     sendModel.OrderNo,
+                     sendModel.Comment);
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc.Message);
+            }
+
+            return RedirectToAction("List");
         }
 
         public virtual ActionResult Edit(int id)
@@ -1308,31 +1384,595 @@ namespace Web.ZhiXiao.Controllers
             return Json(gridModel);
         }
 
+        /// <summary>
+        /// Process withdraw
+        /// </summary>
+        /// <param name="id">Withdraw id</param> 
+        public virtual ActionResult ProcessWithdrawPopup(int id, string btnId)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedKendoGridJson();
+      
+            var withDraw = _customerActivityService.GetWithdrawById(id);
+
+            if (withDraw == null)
+                return RedirectToAction("List");
+
+            ViewBag.btnId = btnId;
+            var model = withDraw.ToModel();
+            model.CustomerModel = PrepareCustomerModelForZhiXiaoInfo(withDraw.Customer);
+            var customer = _customerService.GetCustomerById(model.CustomerId);
+            PrepareCustomerModel(model.CustomerModel, customer, false);
+            return View(model);
+        }
+
+        /// <summary>
+        /// Process withdraw
+        /// </summary>
+        /// <param name="id">Withdraw id</param> 
+        [HttpPost]
+        public virtual ActionResult ProcessWithdrawPopup(string btnId, int id, bool isDone)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedKendoGridJson();
+      
+            var withDraw = _customerActivityService.GetWithdrawById(id);
+
+            if (withDraw == null)
+                return RedirectToAction("List");
+            
+            if (isDone)
+            {
+                ViewBag.RefreshPage = true;
+                withDraw.IsDone = true;
+                withDraw.CompleteOnUtc = DateTime.UtcNow;
+                _customerActivityService.UpdateWithdrawLog(withDraw);
+
+                var customer = withDraw.Customer;
+                _customerActivityService.InsertActivity(SystemZhiXiaoLogTypes.ProcessWithdraw,
+                    "管理员通过用户{0}的{1}电子币提现申请",
+                    customer.GetNickNameAndUserName(),
+                    withDraw.Amount);
+
+                _customerActivityService.InsertActivity(withDraw.Customer, SystemZhiXiaoLogTypes.ProcessWithdraw,
+                    "管理员通过提现{0}电子币申请",
+                    withDraw.Amount);
+            }
+
+            ViewBag.btnId = btnId;
+            ViewBag.RefreshPage = true;
+
+            var model = withDraw.ToModel();
+            return View(model);
+        }
+
         public void InstallRequiredData()
         {
-            //var types = new List<ActivityLogType>() {
-            //    new ActivityLogType
-            //    {
-            //        SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
-            //        Enabled = true,
-            //        Name = "充值电子币"
-            //    },
-            //    new ActivityLogType
-            //    {
-            //        SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
-            //        Enabled = true,
-            //        Name = "管理员发货"
-            //    }
-            //};
+            
+            var activityLogTypes = new List<ActivityLogType>
+            {
+                // 直销
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.AddNewUser,
+                    Enabled = true,
+                    Name = "小组新增用户"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
+                    Enabled = true,
+                    Name = "重新分组"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
+                    Enabled = true,
+                    Name = "分组增加奖金"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
+                    Enabled = true,
+                    Name = "分组提升级别"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
+                    Enabled = true,
+                    Name = "分组提升级别"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
+                    Enabled = true,
+                    Name = "充值电子币"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.SendProduct,
+                    Enabled = true,
+                    Name = "管理员发货"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ProcessWithdraw,
+                    Enabled = true,
+                    Name = "管理员处理提现申请"
+                },
 
-            //// 用属性来关联是否收货
+                //admin area activities
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewCustomer",
+                    Enabled = true,
+                    Name = "Add a new customer"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewCustomerAttribute",
+                    Enabled = true,
+                    Name = "Add a new customer attribute"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewCustomerAttributeValue",
+                    Enabled = true,
+                    Name = "Add a new customer attribute value"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewCustomerRole",
+                    Enabled = true,
+                    Name = "Add a new customer role"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewDiscount",
+                    Enabled = true,
+                    Name = "Add a new discount"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewEmailAccount",
+                    Enabled = true,
+                    Name = "Add a new email account"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewGiftCard",
+                    Enabled = true,
+                    Name = "Add a new gift card"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewLanguage",
+                    Enabled = true,
+                    Name = "Add a new language"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewNews",
+                    Enabled = true,
+                    Name = "Add a new news"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewProduct",
+                    Enabled = true,
+                    Name = "Add a new product"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewProductAttribute",
+                    Enabled = true,
+                    Name = "Add a new product attribute"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewSetting",
+                    Enabled = true,
+                    Name = "Add a new setting"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewSpecAttribute",
+                    Enabled = true,
+                    Name = "Add a new specification attribute"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewStateProvince",
+                    Enabled = true,
+                    Name = "Add a new state or province"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewStore",
+                    Enabled = true,
+                    Name = "Add a new store"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteActivityLog",
+                    Enabled = true,
+                    Name = "Delete activity log"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteAddressAttribute",
+                    Enabled = true,
+                    Name = "Delete an address attribute"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteAddressAttributeValue",
+                    Enabled = true,
+                    Name = "Delete an address attribute value"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteCategory",
+                    Enabled = true,
+                    Name = "Delete category"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteCustomer",
+                    Enabled = true,
+                    Name = "Delete a customer"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteCustomerAttribute",
+                    Enabled = true,
+                    Name = "Delete a customer attribute"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteCustomerAttributeValue",
+                    Enabled = true,
+                    Name = "Delete a customer attribute value"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteCustomerRole",
+                    Enabled = true,
+                    Name = "Delete a customer role"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteDiscount",
+                    Enabled = true,
+                    Name = "Delete a discount"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteEmailAccount",
+                    Enabled = true,
+                    Name = "Delete an email account"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteGiftCard",
+                    Enabled = true,
+                    Name = "Delete a gift card"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteLanguage",
+                    Enabled = true,
+                    Name = "Delete a language"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteMessageTemplate",
+                    Enabled = true,
+                    Name = "Delete a message template"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteNews",
+                    Enabled = true,
+                    Name = "Delete a news"
+                },
+                 new ActivityLogType
+                {
+                    SystemKeyword = "DeleteNewsComment",
+                    Enabled = true,
+                    Name = "Delete a news comment"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeletePlugin",
+                    Enabled = true,
+                    Name = "Delete a plugin"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteProduct",
+                    Enabled = true,
+                    Name = "Delete a product"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteProductAttribute",
+                    Enabled = true,
+                    Name = "Delete a product attribute"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteProductReview",
+                    Enabled = true,
+                    Name = "Delete a product review"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteReturnRequest",
+                    Enabled = true,
+                    Name = "Delete a return request"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteSetting",
+                    Enabled = true,
+                    Name = "Delete a setting"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteStateProvince",
+                    Enabled = true,
+                    Name = "Delete a state or province"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteStore",
+                    Enabled = true,
+                    Name = "Delete a store"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteSystemLog",
+                    Enabled = true,
+                    Name = "Delete system log"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditActivityLogTypes",
+                    Enabled = true,
+                    Name = "Edit activity log types"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditAddressAttribute",
+                    Enabled = true,
+                    Name = "Edit an address attribute"
+                },
+                 new ActivityLogType
+                {
+                    SystemKeyword = "EditAddressAttributeValue",
+                    Enabled = true,
+                    Name = "Edit an address attribute value"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditCategory",
+                    Enabled = true,
+                    Name = "Edit category"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditCheckoutAttribute",
+                    Enabled = true,
+                    Name = "Edit a checkout attribute"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditCustomer",
+                    Enabled = true,
+                    Name = "Edit a customer"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditCustomerAttribute",
+                    Enabled = true,
+                    Name = "Edit a customer attribute"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditCustomerAttributeValue",
+                    Enabled = true,
+                    Name = "Edit a customer attribute value"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditCustomerRole",
+                    Enabled = true,
+                    Name = "Edit a customer role"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditEmailAccount",
+                    Enabled = true,
+                    Name = "Edit an email account"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditGiftCard",
+                    Enabled = true,
+                    Name = "Edit a gift card"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditLanguage",
+                    Enabled = true,
+                    Name = "Edit a language"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditNews",
+                    Enabled = true,
+                    Name = "Edit a news"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditOrder",
+                    Enabled = true,
+                    Name = "Edit an order"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditProduct",
+                    Enabled = true,
+                    Name = "Edit a product"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditProductAttribute",
+                    Enabled = true,
+                    Name = "Edit a product attribute"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditProductReview",
+                    Enabled = true,
+                    Name = "Edit a product review"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditReturnRequest",
+                    Enabled = true,
+                    Name = "Edit a return request"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditSettings",
+                    Enabled = true,
+                    Name = "Edit setting(s)"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditStateProvince",
+                    Enabled = true,
+                    Name = "Edit a state or province"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditStore",
+                    Enabled = true,
+                    Name = "Edit a store"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditVendor",
+                    Enabled = true,
+                    Name = "Edit a vendor"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditTopic",
+                    Enabled = true,
+                    Name = "Edit a topic"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "Impersonation.Started",
+                    Enabled = true,
+                    Name = "Customer impersonation session. Started"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "Impersonation.Finished",
+                    Enabled = true,
+                    Name = "Customer impersonation session. Finished"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "ImportCategories",
+                    Enabled = true,
+                    Name = "Categories were imported"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "ImportProducts",
+                    Enabled = true,
+                    Name = "Products were imported"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "ImportStates",
+                    Enabled = true,
+                    Name = "States were imported"
+                },
+                //public store activities
+                new ActivityLogType
+                {
+                    SystemKeyword = "PublicStore.ViewCategory",
+                    Enabled = false,
+                    Name = "Public store. View a category"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "PublicStore.ViewProduct",
+                    Enabled = false,
+                    Name = "Public store. View a product"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "PublicStore.PlaceOrder",
+                    Enabled = false,
+                    Name = "Public store. Place an order"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "PublicStore.AddToShoppingCart",
+                    Enabled = false,
+                    Name = "Public store. Add to shopping cart"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "PublicStore.Login",
+                    Enabled = false,
+                    Name = "Public store. Login"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "PublicStore.AddNewsComment",
+                    Enabled = false,
+                    Name = "Public store. Add news comment"
+                }
+            };
+            //_activityLogTypeRepository.Insert(activityLogTypes);
 
-            //var repos = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<ActivityLogType>>();
+            var types = new List<ActivityLogType>() {
+                //new ActivityLogType
+                //{
+                //    SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
+                //    Enabled = true,
+                //    Name = "充值电子币"
+                //},
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.SendProduct,
+                    Enabled = true,
+                    Name = "管理员发货"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ProcessWithdraw,
+                    Enabled = true,
+                    Name = "管理员处理提现申请"
+                }
+            };
 
-            //repos.Insert(types);
+            // 用属性来关联是否收货
 
-            var firstCustomer = _customerService.GetCustomerByUsername("user_1");
-            _customerActivityService.InsertWithdraw(firstCustomer, 500, "申请提现500", "");
+            var repos = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<ActivityLogType>>();
+
+            repos.Insert(activityLogTypes);
+
+            //var firstCustomer = _customerService.GetCustomerByUsername("user_1");
+            //_customerActivityService.InsertWithdraw(firstCustomer, 500, "申请提现500", "");
         }
 
         #endregion
