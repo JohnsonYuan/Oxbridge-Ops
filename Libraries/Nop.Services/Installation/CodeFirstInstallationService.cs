@@ -535,6 +535,12 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = SystemZhiXiaoLogTypes.Withdraw,
+                    Enabled = true,
+                    Name = "提现申请"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = SystemZhiXiaoLogTypes.ProcessWithdraw,
                     Enabled = true,
                     Name = "管理员处理提现申请"
@@ -1313,6 +1319,13 @@ namespace Nop.Services.Installation
             // 直销相关配置
             settingService.SaveSetting(new ZhiXiaoSettings
             {
+                /// <summary>
+                /// 提现比例
+                /// </summary>
+                Withdraw_Rate = 0.95,
+                /// <summary>
+                /// 注册普通用户需要金币
+                /// </summary>
                 Register_Money_NormalUser = 10000,
                 /// <summary>
                 /// 注册高级用户需要钱

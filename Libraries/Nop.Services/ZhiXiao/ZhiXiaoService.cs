@@ -6,6 +6,7 @@ using Nop.Core.Caching;
 using Nop.Core.Data;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.ZhiXiao;
 using Nop.Services.Common;
 using Nop.Services.Customers;
@@ -112,7 +113,7 @@ namespace Nop.Services.ZhiXiao
         #endregion
 
         #region Methods
-        
+
         /// <summary>
         /// 更新用户钱, 并且加入log
         /// </summary>
@@ -212,7 +213,7 @@ namespace Nop.Services.ZhiXiao
             DateTime? createdOnTo = null, int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = _customerTeamRepository.Table;
-            if(!String.IsNullOrEmpty(teamNumber))
+            if (!String.IsNullOrEmpty(teamNumber))
                 query = query.Where(al => al.CustomNumber.Contains(teamNumber));
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
@@ -408,9 +409,9 @@ namespace Nop.Services.ZhiXiao
                 }
 
                 var currentUser = sortedUsers[i];
-                
+
                 //var currentUserOldTeam = currentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_TeamId);
-                
+
                 var currentUserOldLevel = currentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId);
                 _customerActivityService.InsertActivity(zuZhang,
                         SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
@@ -642,13 +643,29 @@ namespace Nop.Services.ZhiXiao
         #region Send product
 
         /// <summary>
+        /// 得到用户收货状态和对应log
+        /// </summary>
+        /// <param name="customer"></param>
+        public virtual SendProductInfo GetSendProductInfo(Customer customer)
+        {
+            SendProductInfo info = new SendProductInfo();
+            info.Status = (SendProductStatus)customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductStatus);
+            var logId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductLogId);
+            if (logId > 0)
+            {
+                info.Log = _customerActivityService.GetActivityById(logId);
+            }
+            return info;
+        }
+
+        /// <summary>
         /// 得到用户收货状态
         /// </summary>
-        /// <param name="customerId"></param>
+        /// <param name="customer"></param>
+        /// <returns></returns>
         public virtual SendProductStatus GetSendProductStatus(Customer customer)
         {
-            var statue = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductStatus);
-            return (SendProductStatus)statue;
+            return (SendProductStatus)customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductStatus);
         }
 
         /// <summary>
@@ -662,6 +679,93 @@ namespace Nop.Services.ZhiXiao
 
         #endregion
 
+        #region Use infos
+
+        /// <summary>
+        /// 用户二级密码是否正确
+        /// </summary>
+        /// <param name="customer">current user</param>
+        /// <param name="password2">input password2</param>
+        /// <returns>Is match</returns>
+        public virtual bool UserPassword2Valid(Customer customer, string password2)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            var userPassword2 = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_Password2);
+            return string.Equals(userPassword2, password2, StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// 用户提现
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <param name="amount"></param>
+        public virtual int WithdrawMoney(Customer customer, int amount)
+        {
+            // make sure rate range from (0, 1]
+            var rate = _zhiXiaoSettings.Withdraw_Rate;
+            if (rate <= 0 || rate > 1)
+                rate = 1;
+
+            // 实际提取金额会扣除手续费
+            var actualAmount = Convert.ToInt32(_zhiXiaoSettings.Withdraw_Rate * amount);
+
+            var totalMoney = customer.GetMoneyNum();
+
+            if (actualAmount > totalMoney)
+                throw new ArgumentException("提现金额超出当前电子币余额");
+
+            // 实际扣除输入的金额
+            _genericAttributeService.SaveAttribute(
+                customer,
+                SystemCustomerAttributeNames.ZhiXiao_MoneyNum,
+                totalMoney - amount);
+
+            // 提现记录显示扣除手续费的金额
+            _customerActivityService.InsertWithdraw(customer,
+                actualAmount,
+                "提现申请{0}, 实际金额{1}",
+                amount,
+                actualAmount);
+
+            _customerActivityService.InsertActivity(customer,
+                SystemZhiXiaoLogTypes.Withdraw,
+                "提现申请{0}, 实际金额{1}",
+                amount,
+                actualAmount);
+
+            return actualAmount;
+        }
+
         #endregion
+
+        #endregion
+
+        /// <summary>
+        /// 发货信息
+        /// </summary>
+        public class SendProductInfo
+        {
+            /// <summary>
+            /// 状态
+            /// </summary>
+            public SendProductStatus Status { get; set; }
+            /// <summary>
+            /// 发货对应的log
+            /// </summary>
+            public ActivityLog Log { get; set; }
+
+            /// <summary>
+            /// Is received?
+            /// </summary>
+            public bool IsRecevied
+            {
+                get
+                {
+                    return Status == SendProductStatus.Received;
+                }
+            }
+        }
     }
 }

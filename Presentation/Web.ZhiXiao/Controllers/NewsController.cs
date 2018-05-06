@@ -164,8 +164,14 @@ namespace Nop.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var newsItem = model.ToEntity();
-                newsItem.StartDateUtc = model.StartDate;
-                newsItem.EndDateUtc = model.EndDate;
+                if (model.StartDate.HasValue)
+                    newsItem.StartDateUtc = _dateTimeHelper.ConvertToUtcTime(model.StartDate.Value);
+                else
+                    newsItem.StartDateUtc = null;
+                if (model.EndDate.HasValue)
+                    newsItem.EndDateUtc = _dateTimeHelper.ConvertToUtcTime(model.EndDate.Value);
+                else
+                    newsItem.EndDateUtc = null;
                 newsItem.CreatedOnUtc = DateTime.UtcNow;
                 _newsService.InsertNews(newsItem);
 
@@ -209,8 +215,10 @@ namespace Nop.Admin.Controllers
                 return RedirectToAction("List");
 
             var model = newsItem.ToModel();
-            model.StartDate = newsItem.StartDateUtc;
-            model.EndDate = newsItem.EndDateUtc;
+            if (newsItem.StartDateUtc.HasValue)
+                model.StartDate = _dateTimeHelper.ConvertToUserTime(newsItem.StartDateUtc.Value);
+            if (newsItem.EndDateUtc.HasValue)
+                model.EndDate = _dateTimeHelper.ConvertToUserTime(newsItem.EndDateUtc.Value);
             //languages
             PrepareLanguagesModel(model);
             //Store
@@ -232,8 +240,15 @@ namespace Nop.Admin.Controllers
             if (ModelState.IsValid)
             {
                 newsItem = model.ToEntity(newsItem);
-                newsItem.StartDateUtc = model.StartDate;
-                newsItem.EndDateUtc = model.EndDate;
+                if (model.StartDate.HasValue)
+                    newsItem.StartDateUtc = _dateTimeHelper.ConvertToUtcTime(model.StartDate.Value);
+                else
+                    newsItem.StartDateUtc = null;
+                if (model.EndDate.HasValue)
+                    newsItem.EndDateUtc = _dateTimeHelper.ConvertToUtcTime(model.EndDate.Value);
+                else
+                    newsItem.EndDateUtc = null;
+
                 _newsService.UpdateNews(newsItem);
 
                 //activity log

@@ -14,43 +14,28 @@ namespace Nop.Web.Validators.Customer
         public CustomerInfoValidator(ILocalizationService localizationService,
             CustomerSettings customerSettings)
         {
-            RuleFor(x => x.Email).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Email.Required"));
-            RuleFor(x => x.Email).EmailAddress().WithMessage(localizationService.GetResource("Common.WrongEmail"));
-            RuleFor(x => x.FirstName).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.FirstName.Required"));
-            RuleFor(x => x.LastName).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.LastName.Required"));
+            //RuleFor(x => x.Email).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Email.Required"));
+            //RuleFor(x => x.Email).EmailAddress().WithMessage(localizationService.GetResource("Common.WrongEmail"));
+            //RuleFor(x => x.FirstName).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.FirstName.Required"));
+            //RuleFor(x => x.LastName).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.LastName.Required"));
 
-            if (customerSettings.UsernamesEnabled && customerSettings.AllowUsersToChangeUsernames)
-            {
-                RuleFor(x => x.Username).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Username.Required"));
-            }
+            //if (customerSettings.UsernamesEnabled && customerSettings.AllowUsersToChangeUsernames)
+            //{
+            RuleFor(x => x.Username).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Username.Required"));
+            //}
 
             //form fields
-            if (customerSettings.CountryEnabled && customerSettings.CountryRequired)
-            {
-                RuleFor(x => x.CountryId)
-                    .NotEqual(0)
-                    .WithMessage(localizationService.GetResource("Account.Fields.Country.Required"));
-            }
-            if (customerSettings.CountryEnabled && 
+            if (/*customerSettings.CountryEnabled &&*/
                 customerSettings.StateProvinceEnabled &&
                 customerSettings.StateProvinceRequired)
             {
-                Custom(x =>
-                {
-                    //does selected country have states?
-                    //var hasStates = stateProvinceService.GetStateProvincesByCountryId(x.CountryId).Any();
-                    //if (hasStates)
-                    //{
-                    //    //if yes, then ensure that a state is selected
-                    //    if (x.StateProvinceId == 0)
-                    //    {
-                    //        return new ValidationFailure("StateProvinceId", localizationService.GetResource("Account.Fields.StateProvince.Required"));
-                    //    }
-                    //}
-                    return null;
-                });
+                //RuleFor(x => x.CountryId)
+                //    .NotEqual(0)
+                //    .WithMessage(localizationService.GetResource("Account.Fields.Country.Required"));
+                RuleFor(x => x.StateProvince).NotEmpty()
+                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.StateProvince.Required"));
             }
-            if (customerSettings.DateOfBirthEnabled &&customerSettings.DateOfBirthRequired)
+            if (customerSettings.DateOfBirthEnabled && customerSettings.DateOfBirthRequired)
             {
                 Custom(x =>
                 {
@@ -88,11 +73,31 @@ namespace Nop.Web.Validators.Customer
             if (customerSettings.CityRequired && customerSettings.CityEnabled)
             {
                 RuleFor(x => x.City).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.City.Required"));
+
+                RuleFor(x => x.District).NotEmpty()
+                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.District.Required"));
             }
             if (customerSettings.PhoneRequired && customerSettings.PhoneEnabled)
             {
-                RuleFor(x => x.Phone).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Phone.Required"));
+                RuleFor(x => x.Phone)
+                    .NotEmpty()
+                    .WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.Phone.Required"));
+
+                Custom(x =>
+                {
+                    bool match = true;
+                    if (!string.IsNullOrEmpty(customerSettings.PhoneNumberRegex))
+                        match = System.Text.RegularExpressions.Regex.IsMatch(x.Phone, customerSettings.PhoneNumberRegex);
+                    //if yes, then ensure that a state is selected
+                    if (!match)
+                    {
+                        return new ValidationFailure("Phone", localizationService.GetResource("Account.Fields.Phone.FormatWrong"));
+                    }
+
+                    return null;
+                });
             }
+
             if (customerSettings.FaxRequired && customerSettings.FaxEnabled)
             {
                 RuleFor(x => x.Fax).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Fax.Required"));

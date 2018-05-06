@@ -1343,6 +1343,7 @@
     <Compile Include="Models\Customer\CustomerRoleModel.cs" />
     <Compile Include="Models\Customer\CustomerTeamSearchModel.cs" />
     <Compile Include="Models\Customer\CustomerTeamModel.cs" />
+    <Compile Include="Models\Customer\CustomerWithdrawModel.cs" />
     <Compile Include="Models\Customer\OnlineCustomerModel.cs" />
     <Compile Include="Models\Customer\RegisterModel.cs" />
     <Compile Include="Models\Home\CommonStatisticsModel.cs" />
@@ -1378,6 +1379,7 @@
     <Compile Include="Validators\Customer\CustomerInfoValidator.cs" />
     <Compile Include="Validators\Customer\CustomerRoleValidator.cs" />
     <Compile Include="Validators\Customer\CustomerValidator.cs" />
+    <Compile Include="Validators\Customer\CustomerWithdrawValidator.cs" />
     <Compile Include="Validators\Customer\LoginValidator.cs" />
     <Compile Include="Validators\Customer\RegisterValidator.cs" />
     <Compile Include="Validators\Install\InstallValidator.cs" />
@@ -1512,7 +1514,7 @@
     <Content Include="Views\Setting\Mode.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\RichEditor.cshtml" />
     <Content Include="Views\Customer\Register.cshtml" />
-    <Content Include="Views\Customer\_Create.cshtml" />
+    <Content Include="Views\Customer\_RegisterInfo.cshtml" />
     <Content Include="Views\CustomerManage\Create.cshtml" />
     <Content Include="Views\CustomerManage\_CreateOrUpdate.cshtml" />
     <Content Include="Views\CustomerManage\_RegisterZhiXiaoUserPartial.cshtml" />
@@ -1520,11 +1522,23 @@
     <Content Include="Views\CustomerManage\Edit.cshtml" />
     <Content Include="Views\CustomerTeam\List.cshtml" />
     <Content Include="Views\CustomerManage\RegisterZhiXiaoUser.cshtml" />
-    <Content Include="Views\CustomerTeam\View.cshtml" />
+    <Content Include="Views\CustomerTeam\Diagarm.cshtml" />
     <Content Include="Views\CustomerManage\Recharge.cshtml" />
     <Content Include="Views\CustomerManage\Withdraw.cshtml" />
     <Content Include="Views\CustomerManage\ProcessWithdrawPopup.cshtml" />
     <Content Include="Views\Shared\_AdminPopupLayout.cshtml" />
+    <Content Include="Views\Customer\ViewDateTest.cshtml" />
+    <Content Include="Views\Customer\ViewDateTest2.cshtml" />
+    <Content Include="Views\Customer\Index.cshtml" />
+    <Content Include="Views\Customer\ValidatePassword2.cshtml" />
+    <Content Include="Views\Setting\ZhiXiao.cshtml" />
+    <Content Include="Views\Setting\ZhiXiao - Copy.cshtml" />
+    <Content Include="Views\Customer\WithdrawList.cshtml" />
+    <Content Include="Views\Customer\MoneyLogList.cshtml" />
+    <Content Include="Views\Customer\Withdraw.cshtml" />
+    <Content Include="Views\Customer\ProductInfo.cshtml" />
+    <Content Include="Views\Customer\Info.cshtml" />
+    <Content Include="Views\Customer\ChangePassword.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

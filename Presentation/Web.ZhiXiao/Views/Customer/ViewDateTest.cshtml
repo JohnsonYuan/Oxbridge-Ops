@@ -1,0 +1,34 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ViewDateTest</title>
+</head>
+<body>
+    <div>
+
+        @foreach (var item in ModelBinders.Binders)
+        {
+            <p>@item.Key   @item.Value</p>
+        }
+
+        Testvalue: @ViewBag.TestValue <br/>
+        TestValue: @TempData["TestValue"]<br />
+        TestValue2 @TempData["TestValue2"] <br />
+
+        @Html.BeginForm()
+        {
+        <input type="text" name="name" />
+        <input type="checkbox" name="redirect" value="true" />True
+        <input type="hidden" name="redirect" value="false" />False
+        <button type="submit">Post</button>
+        }
+    </div>
+</body>
+</html>

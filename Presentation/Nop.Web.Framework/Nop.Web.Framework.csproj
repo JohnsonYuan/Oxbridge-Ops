@@ -114,6 +114,7 @@
     <Compile Include="Controllers\FormValueRequiredAttribute.cs" />
     <Compile Include="Controllers\ParameterBasedOnFormNameAttribute.cs" />
     <Compile Include="Controllers\ParameterBasedOnQueryString.cs" />
+    <Compile Include="Controllers\UserPassword2AuthorizeAttribute.cs" />
     <Compile Include="CustomerLastActivityAttribute.cs" />
     <Compile Include="DependencyRegistrar.cs" />
     <Compile Include="Extensions.cs" />

@@ -444,9 +444,6 @@ namespace Nop.Services.Customers
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
-            if (!_customerSettings.PhoneEnabled)
-                throw new NopException("Phone number are disabled");
-
             newNickName = newNickName.Trim();
 
             if (newNickName.Length > 100)
@@ -482,6 +479,51 @@ namespace Nop.Services.Customers
                 throw new NopException("手机号已经使用");
 
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Phone, newPhoneNumber);
+        }
+
+        /// <summary>
+        /// 修改二级密码
+        /// </summary>
+        /// <param name="request">Request</param>
+        /// <returns>Result</returns>
+        public virtual ChangePasswordResult ChangeZhiXiaoPassword(ChangePasswordRequest request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            var result = new ChangePasswordResult();
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                result.AddError(_localizationService.GetResource("Account.ChangePassword.Errors.EmailIsNotProvided"));
+                return result;
+            }
+            if (string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                result.AddError(_localizationService.GetResource("Account.ChangePassword.Errors.PasswordIsNotProvided"));
+                return result;
+            }
+
+            var customer = _customerService.GetCustomerByEmail(request.Email);
+            if (customer == null)
+            {
+                result.AddError(_localizationService.GetResource("Account.ChangePassword.Errors.EmailNotFound"));
+                return result;
+            }
+
+            if (request.ValidateRequest)
+            {
+                var currentPassword2 = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_Password2);
+
+                //request isn't valid
+                if (!currentPassword2.Equals(request.OldPassword))
+                {
+                    result.AddError(_localizationService.GetResource("Account.ChangePassword.Errors.OldPasswordDoesntMatch"));
+                    return result;
+                }
+            }
+
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_Password2, request.NewPassword);
+            return result;
         }
 
         #endregion

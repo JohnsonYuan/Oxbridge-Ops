@@ -62,6 +62,45 @@ namespace Web.ZhiXiao.Controllers
 
         #endregion
 
+        #region Utilities
+        
+        [NonAction]
+        protected virtual TeamDiagramModel PrepareTeamDiagarmModel(CustomerTeam team)
+        {
+            if (team == null)
+                throw new ArgumentNullException("team");
+
+            // 默认为7
+            var teamUnitCount = _zhiXiaoSettings.TeamInitUserCount;
+
+            List<CustomerDiagramModel> diagarmModel = new List<CustomerDiagramModel>();
+            foreach (var customer in team.Customers)
+            {
+                var model = customer.ToModel();
+
+                var childs = _customerService.GetCustomerChildren(customer.Id);
+
+                foreach (var child in childs)
+                {
+                    model.Child.Add(child.ToModel());
+                }
+
+                diagarmModel.Add(model);
+            }
+
+            var group1Users = diagarmModel.Where(x => x.InTeamOrder < teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
+            var group2Users = diagarmModel.Where(x => x.InTeamOrder >= teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
+
+            return new TeamDiagramModel
+            {
+                TopHalfUsers = group1Users,
+                LastHalfUsers = group2Users,
+                Team = team
+            };
+        }
+
+        #endregion
+
         #region Customer teams
 
         public virtual ActionResult Index()
@@ -114,7 +153,7 @@ namespace Web.ZhiXiao.Controllers
 
         #region Team diagarm
 
-        public ActionResult View(int id)
+        public ActionResult Diagarm(int id)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedView();
@@ -122,35 +161,11 @@ namespace Web.ZhiXiao.Controllers
             var team = _customerTeamService.GetCustomerTeamById(id);
             if (team == null)
                 //No customer role found with the specified id
-                return RedirectToAction("List");
+                return RedirectToRoute("HomePage");
 
-            // 默认为7
-            var teamUnitCount = _zhiXiaoSettings.TeamInitUserCount;
-
-            List<CustomerDiagramModel> diagarmModel = new List<CustomerDiagramModel>();
-            foreach (var customer in team.Customers)
-            {
-                var model = customer.ToModel();
-
-                var childs = _customerService.GetCustomerChildren(customer.Id);
-
-                foreach (var child in childs)
-                {
-                    model.Child.Add(child.ToModel());
-                }
-
-                diagarmModel.Add(model);
-            }
-
-            var group1Users = diagarmModel.Where(x => x.InTeamOrder < teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
-            var group2Users = diagarmModel.Where(x => x.InTeamOrder >= teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
-
-            return View(new TeamDiagramModel
-            {
-                TopHalfUsers = group1Users,
-                LastHalfUsers = group2Users,
-                Team = team
-            });
+            var model = PrepareTeamDiagarmModel(team);
+            
+            return View(model);
         }
 
         #endregion

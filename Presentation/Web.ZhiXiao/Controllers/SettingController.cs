@@ -9,6 +9,7 @@ using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.News;
 using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Seo;
+using Nop.Core.Domain.ZhiXiao;
 using Nop.Extensions;
 using Nop.Services;
 using Nop.Services.Common;
@@ -651,9 +652,6 @@ namespace Web.ZhiXiao.Controllers
             return new NullJsonResult();
         }
 
-
-
-        
         public virtual ActionResult News()
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageSettings))
@@ -711,6 +709,40 @@ namespace Web.ZhiXiao.Controllers
             SuccessNotification(_localizationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("News");
         }
+        
+        /// <summary>
+        /// 直销有关设置
+        /// </summary>
+        /// <returns></returns>
+        public virtual ActionResult ZhiXiao()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageSettings))
+                return AccessDeniedView();
+
+            var storeScope = this.GetActiveStoreScopeConfiguration(_storeService, _workContext);
+            var zhiXiaoSettings = _settingService.LoadSetting<ZhiXiaoSettings>(storeScope);
+
+            return View(zhiXiaoSettings);
+        }
+
+        [HttpPost]
+        public virtual ActionResult ZhiXiao(ZhiXiaoSettings settings)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageSettings))
+                return AccessDeniedView();
+
+            _settingService.SaveSetting<ZhiXiaoSettings>(settings);
+            
+            //now clear settings cache
+            _settingService.ClearCache();
+
+            //activity log
+            _customerActivityService.InsertActivity("EditSettings", _localizationService.GetResource("ActivityLog.EditSettings"));
+            SuccessNotification(_localizationService.GetResource("Admin.Configuration.Updated"));
+
+            return RedirectToAction("ZhiXiao");
+        }
+
         #endregion
     }
 }

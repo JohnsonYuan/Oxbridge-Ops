@@ -17,6 +17,13 @@ namespace Web.ZhiXiao.App_Start
                             new { controller = "Home", action = "Index" },
                             new[] { "Web.ZhiXiao.Controllers" });
 
+            // customer
+            //customer account links
+            routes.MapRoute("CustomerInfo",
+                            "customer/info",
+                            new { controller = "Customer", action = "Info" },
+                            new[] { "Web.ZhiXiao.Controllers" });
+
             //login
             routes.MapRoute("Login",
                             "login/",

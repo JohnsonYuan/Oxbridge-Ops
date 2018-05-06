@@ -175,6 +175,7 @@
     <Compile Include="Domain\ZhiXiao\CustomerTeam.cs" />
     <Compile Include="Domain\ZhiXiao\SendProductStatus.cs" />
     <Compile Include="Domain\ZhiXiao\SystemZhiXiaoLogTypes.cs" />
+    <Compile Include="Domain\ZhiXiao\ZhiXiaoConstants.cs" />
     <Compile Include="Domain\ZhiXiao\ZhiXiaoSettings.cs" />
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="Events\EntityDeleted.cs" />

@@ -36,7 +36,7 @@ namespace Nop.Services.Customers
         /// {0} : show hidden records?
         /// </remarks>
         private const string CUSTOMERROLES_ZHIXIAO_KEY = "Nop.customerrole.zhixiao-{0}";
-                /// <summary>
+        /// <summary>
         /// Key for caching
         /// </summary>
         /// <remarks>
@@ -928,6 +928,8 @@ namespace Nop.Services.Customers
         }
 
         #endregion
+
+
 
         #endregion
     }

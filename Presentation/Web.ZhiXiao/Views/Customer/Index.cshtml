@@ -1,0 +1,230 @@
+﻿@{
+    var newsGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.News.NewsSettings>().NewsArchivePageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = "个人中心";
+    //active menu item(system name)
+    Html.SetActiveMenuItemSystemName("Customer Index");
+}
+
+@Html.AntiForgeryToken()
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        @T("Admin.ContentManagement.News.NewsItems")
+    </h1>
+</div>
+
+<div class="content">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="box box-success box-widget widget-user-2">
+                <div class="box-header with-border">
+                    <h3 class="box-title">个人信息</h3>
+                    <div class="box-tools pull-right">
+                        <button class="btn btn-box-tool" type="button" data-widget="collapse">
+                            <i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                    <!-- /.box-tools -->
+                </div>
+                <div class="box-body">
+                    <div class="widget-user-header bg-aqua-active">
+                        <p>您当前的等级是: 组长</p>
+                        <p>您的下线成员有:</p>
+                        <ul class="diagarm">
+                            <li>
+                                <button class="btn btn-success" type="button">组员A</button>
+                            </li>
+                            <li>
+                                <button class="btn btn-success" type="button">组员B</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="box-footer no-padding">
+                    <ul class="nav nav-stacked">
+                        <li><p class="margin">Projects <span class="pull-right badge bg-blue">31</span></p></li>
+                        <li><a href="#">Tasks <span class="pull-right badge bg-aqua">5</span></a></li>
+                        <li><a href="#">Completed Projects <span class="pull-right badge bg-green">12</span></a></li>
+                        <li><a href="#">Followers <span class="pull-right badge bg-red">842</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="box box-success">
+                <div class="box-header with-border">
+                    <h3 class="box-title">小组信息</h3>
+                    <div class="box-tools pull-right">
+                        <button class="btn btn-box-tool" type="button" data-widget="collapse">
+                            <i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                    <!-- /.box-tools -->
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <ul id="treeview">
+                        <li data-expanded="true">
+                            My Web Site
+                            <ul>
+                                <li data-expanded="true">
+                                    images
+                                    <ul>
+                                        <li><span class="k-sprite image"></span>logo.png</li>
+                                        <li><span class="k-sprite image"></span>body-back.png</li>
+                                        <li><span class="k-sprite image"></span>my-photo.jpg</li>
+                                    </ul>
+                                </li>
+                                <li data-expanded="true">
+                                    resources
+                                    <ul>
+                                        <li data-expanded="true">
+                                            <span class="k-sprite folder"></span>pdf
+                                            <ul>
+                                                <li><span class="k-sprite pdf"></span>brochure.pdf</li>
+                                                <li><span class="k-sprite pdf"></span>prices.pdf</li>
+                                            </ul>
+                                        </li>
+                                        <li><span class="k-sprite folder"></span>zip</li>
+                                    </ul>
+                                </li>
+                                <li><span class="k-sprite html"></span>about.html</li>
+                                <li><span class="k-sprite html"></span>contacts.html</li>
+                                <li><span class="k-sprite html"></span>index.html</li>
+                                <li><span class="k-sprite html"></span>portfolio.html</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <script>
+                        $(document).ready(function () {
+                            $("#treeview").kendoTreeView();
+                        });
+                    </script>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.col -->
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">新闻</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div id="newsitem-grid"></div>
+
+                    <script>
+                        $(document).ready(function() {
+                            $("#newsitem-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("NewsList", "Customer"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken()
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(newsGridPageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(gridPageSizes)],
+                                    @Html.Partial("_GridPagerMessages")
+                                },
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "Title",
+                                        title: "@T("Admin.ContentManagement.News.NewsItems.Fields.Title")",
+                                        width: 100
+                                    }, {
+                                        field: "Short",
+                                        title: "摘要",
+                                        width: 300
+                                    }, {
+                                        field: "CreatedOn",
+                                        title: "@T("Admin.ContentManagement.News.NewsItems.Fields.CreatedOn")",
+                                        width: 200,
+                                        type: "date",
+                                        format: "{0:yyyy-MM-dd}"
+                                    }, {
+                                        width: 100,
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        template: '<a class="btn btn-info" data-id="#=Id#" data-toggle="modal" data-target="\\#news-window"><i class="fa fa-file-text"></i>查看</a>'
+                                    }
+                                ]
+                            });
+                        });
+                    </script>
+                </div>
+                <!-- /.box-body -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@*news window*@
+<div id="news-window" class="modal fade in">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" aria-label="Close" type="button" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <span class="pull-left"><i class="fa fa-calendar"></i><span class="modal-date"></span></span>
+                <button class="btn btn-primary" type="button" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<script type="text/javascript">
+    $('#news-window').on('show.bs.modal', function (e) {
+        var button = $(e.relatedTarget);
+        var modal = $(this);
+        var id = button.data('id');
+        var url = '@Html.Raw(Url.Action("NewsItem", new { newsItemId = "__id__" }))';
+        url = url.replace('__id__', id);
+
+        $.getJSON(url, function (data) {
+            if (data == null) {
+                alert('新闻不存在');
+                modal.hide();
+            } else {
+                $('.modal-title', modal).text(data.Title);
+                $('.modal-body', modal).html(data.Full);
+                $('.modal-date', modal).text(new Date(data.CreatedOn).Format("yyyy-MM-dd"));
+            }
+        });
+    });
+</script>

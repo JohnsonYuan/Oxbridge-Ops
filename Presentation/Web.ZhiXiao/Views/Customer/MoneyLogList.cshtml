@@ -1,0 +1,94 @@
+﻿@model WithdrawLogSearchModel
+
+@{
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    // page title
+    ViewBag.Title = "资金清单";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("MoneyLog list");
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            提现申请
+        </h1>
+    </div>
+
+    <div class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="moneylog-grid"></div>
+                        <script>
+                        $(document).ready(function () {
+                            $("#moneylog-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Action("MoneyLogList")",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(defaultGridPageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(gridPageSizes)],
+                                    @Html.Partial("_GridPagerMessages")
+                                },
+                                editable: {
+                                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [{
+                                        field: "ActivityLogTypeName",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.ActivityLogType")",
+                                        width: 150,
+                                    }, {
+                                        field: "Comment",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.Comment")",
+                                        width: 300,
+                                    }, {
+                                        field: "CreatedOn",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.CreatedOn")",
+                                        width: 200,
+                                        type: "date",
+                                        format: "{0:G}"
+                                    }, {
+                                        field: "IpAddress",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.IpAddress")",
+                                        width: 100
+                                    }
+                                ]
+                            });
+                        });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

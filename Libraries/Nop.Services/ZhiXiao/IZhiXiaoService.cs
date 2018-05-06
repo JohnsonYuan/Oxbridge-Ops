@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using Nop.Core;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.ZhiXiao;
+using static Nop.Services.ZhiXiao.ZhiXiaoService;
 
 namespace Nop.Services.ZhiXiao
 {
@@ -68,7 +70,13 @@ namespace Nop.Services.ZhiXiao
         /// <summary>
         /// 得到用户收货状态
         /// </summary>
-        /// <param name="customerId"></param>
+        /// <param name="customer"></param>
+        SendProductInfo GetSendProductInfo(Customer customer);
+        /// <summary>
+        /// 得到用户收货状态
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <returns></returns>
         SendProductStatus GetSendProductStatus(Customer customer);
 
         /// <summary>
@@ -76,5 +84,20 @@ namespace Nop.Services.ZhiXiao
         /// </summary>
         /// <param name="customerId"></param>
         void SetSendProductStatus(Customer customer, SendProductStatus status);
+
+        /// <summary>
+        /// 用户二级密码是否正确
+        /// </summary>
+        /// <param name="customer">current user</param>
+        /// <param name="password2">input password2</param>
+        /// <returns>Is match</returns>
+        bool UserPassword2Valid(Customer customer, string password2);
+
+        /// <summary>
+        /// 用户提现
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <param name="amount"></param>
+        int WithdrawMoney(Customer customer, int amount);
     }
 }

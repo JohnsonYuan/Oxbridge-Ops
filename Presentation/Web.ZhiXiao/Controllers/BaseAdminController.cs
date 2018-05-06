@@ -41,17 +41,6 @@ namespace Web.ZhiXiao.Controllers
         }
 
         /// <summary>
-        /// Access denied json data for kendo grid
-        /// </summary>
-        /// <returns>Access denied json data</returns>
-        protected JsonResult AccessDeniedKendoGridJson()
-        {
-            var localizationService = EngineContext.Current.Resolve<ILocalizationService>();
-
-            return ErrorForKendoGridJson(localizationService.GetResource("Admin.AccessDenied.Description"));
-        }
-
-        /// <summary>
         /// Save selected TAB name
         /// </summary>
         /// <param name="tabName">Tab name to save; empty to automatically detect it</param>
