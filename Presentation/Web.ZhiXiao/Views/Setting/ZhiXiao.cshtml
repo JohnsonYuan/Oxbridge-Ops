@@ -33,7 +33,14 @@
                     @T("Admin.Configuration.Settings.News.BlockTitle.NewsComments")
                 </div>
                 <div class="panel-body">
-                    
+                    <div class="form-group">
+                        @Html.NopLabelFor(model => model.Password2_ValidTime)
+                        <div class="col-md-10">
+                            @Html.NopEditorFor(model => model.Password2_ValidTime)
+                            @Html.ValidationMessageFor(model => model.Password2_ValidTime)
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         @Html.NopLabelFor(model => model.Withdraw_Rate)
                         <div class="col-md-10">

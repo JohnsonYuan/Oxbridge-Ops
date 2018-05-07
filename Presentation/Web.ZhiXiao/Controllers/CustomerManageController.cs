@@ -20,6 +20,7 @@ using Nop.Services.Customers;
 using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
+using Nop.Services.News;
 using Nop.Services.Security;
 using Nop.Services.Stores;
 using Nop.Services.ZhiXiao;
@@ -191,13 +192,13 @@ namespace Web.ZhiXiao.Controllers
 
                 NickName = customer.GetNickName(),
                 ZhiXiao_MoneyNum = customer.GetMoneyNum(),
-               
+
                 ZhiXiao_IdCardNum = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_IdCardNum),
                 ZhiXiao_YinHang = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_YinHang),        // 银行
                 ZhiXiao_KaiHuHang = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_KaiHuHang),      // 开户行
                 ZhiXiao_KaiHuMing = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_KaiHuMing),     // 开户名
                 ZhiXiao_BandNum = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_BandNum),      // 银行卡号
-                
+
                 ZhiXiao_LevelId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId),
                 ZhiXiao_MoneyHistory = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyHistory),
             };
@@ -780,7 +781,7 @@ namespace Web.ZhiXiao.Controllers
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedView();
-            
+
             var customer = _customerService.GetCustomerById(id);
             if (customer == null || customer.Deleted)
                 //No customer found with the specified id
@@ -792,7 +793,7 @@ namespace Web.ZhiXiao.Controllers
                     throw new Exception("该用户的产品已经发货");
 
                 if (string.IsNullOrEmpty(sendModel.OrderNo))
-                     throw new NopException("快递单号不能为空");
+                    throw new NopException("快递单号不能为空");
 
                 _customerActivityService.InsertActivity(SystemZhiXiaoLogTypes.SendProduct,
                     "给用户 {0} 发货, 快递单号: {1}, 备注: {2}",
@@ -800,11 +801,11 @@ namespace Web.ZhiXiao.Controllers
                     sendModel.OrderNo,
                     sendModel.Comment);
 
-               var userProductLog = _customerActivityService.InsertActivity(customer,
-                    SystemZhiXiaoLogTypes.SendProduct,
-                    "管理员发货, 快递单号: {0}, 备注: {1}",
-                     sendModel.OrderNo,
-                     sendModel.Comment);
+                var userProductLog = _customerActivityService.InsertActivity(customer,
+                     SystemZhiXiaoLogTypes.SendProduct,
+                     "快递单号: {0}, 备注: {1}",
+                      sendModel.OrderNo,
+                      sendModel.Comment);
 
                 _zhiXiaoService.SetSendProductStatus(customer, SendProductStatus.Sended);
                 _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_SendProductLogId, (int)userProductLog.Id);
@@ -1363,7 +1364,7 @@ namespace Web.ZhiXiao.Controllers
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedKendoGridJson();
-      
+
             DateTime? startDateValue = (searchModel.CreatedOnFrom == null) ? null
                 : (DateTime?)_dateTimeHelper.ConvertToUtcTime(searchModel.CreatedOnFrom.Value, _dateTimeHelper.CurrentTimeZone);
 
@@ -1395,7 +1396,7 @@ namespace Web.ZhiXiao.Controllers
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedKendoGridJson();
-      
+
             var withDraw = _customerActivityService.GetWithdrawById(id);
 
             if (withDraw == null)
@@ -1418,12 +1419,12 @@ namespace Web.ZhiXiao.Controllers
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedKendoGridJson();
-      
+
             var withDraw = _customerActivityService.GetWithdrawById(id);
 
             if (withDraw == null)
                 return RedirectToAction("List");
-            
+
             if (isDone)
             {
                 ViewBag.RefreshPage = true;
@@ -1439,7 +1440,7 @@ namespace Web.ZhiXiao.Controllers
 
                 _customerActivityService.InsertActivity(withDraw.Customer, SystemZhiXiaoLogTypes.ProcessWithdraw,
                     "管理员通过提现{0}电子币申请",
-                    withDraw.Amount) ;
+                    withDraw.Amount);
             }
 
             ViewBag.btnId = btnId;
@@ -1449,8 +1450,62 @@ namespace Web.ZhiXiao.Controllers
             return View(model);
         }
 
+
+        public void InstallTestNews()
+        {
+            var newsService = EngineContext.Current.Resolve<INewsService>();
+            for (int i = 0; i < 25; i++)
+            {
+                var newsItem = new Nop.Core.Domain.News.NewsItem();
+                newsItem.LanguageId = 2;
+                newsItem.Title = "测试新闻" + i;
+                newsItem.Short = "新闻描述" + i;
+                newsItem.Published = true;
+                
+                if (i % 2 == 0)
+                {
+                    newsItem.StartDateUtc = DateTime.UtcNow.AddMinutes(-(i * 5));
+                    newsItem.EndDateUtc = DateTime.UtcNow.AddDays((i * 10));
+                }
+
+                newsItem.Full = "第" + i + @"条测试内容 : 历史长河奔流不息，真理之光穿越时空。1818年5月5日，德国小城特里尔，一代伟人马克思诞生。200年后，世界东方。高擎马克思主义的精神火炬，在习近平新时代中国特色社会主义思想指引下，中国共产党正领导亿万人民书写人类发展史上新的奇迹。这是2018年5月3日在德国特里尔马克思故居纪念馆内拍摄的1848年出版的《共产党宣言》第一版。 新华社记者单宇琦摄
+历史长河奔流不息，真理之光穿越时空。
+1818年5月5日，德国小城特里尔，一代伟人马克思诞生。
+<img src='http://p3.ifengimg.com/a/2018_19/05b8c24d55616be_size293_w900_h658.jpg'>
+200年后，世界东方。高擎马克思主义的精神火炬，在习近平新时代中国特色社会主义思想指引下，中国共产党正领导亿万人民书写人类发展史上新的奇迹。
+“历史和人民选择马克思主义是完全正确的，中国共产党把马克思主义写在自己的旗帜上是完全正确的，坚持马克思主义基本原理同中国具体实际相结合、不断推进马克思主义中国化时代化是完全正确的！”
+2018年5月4日，纪念马克思诞辰200周年大会在北京人民大会堂隆重举行，习近平总书记向世人庄严宣示——
+“前进道路上，我们要继续高扬马克思主义伟大旗帜，让马克思、恩格斯设想的人类社会美好前景不断在中国大地上生动展现出来！”
+历史长河奔流不息，真理之光穿越时空。1818年5月5日，德国小城特里尔，一代伟人马克思诞生。200年后，世界东方。高擎马克思主义的精神火炬，在习近平新时代中国特色社会主义思想指引下，中国共产党正领导亿万人民书写人类发展史上新的奇迹。这是2018年5月3日在德国特里尔市立西麦翁博物馆拍摄的马克思主题展入口。 新华社记者单宇琦摄";
+                
+                newsItem.CreatedOnUtc = DateTime.UtcNow;
+                newsService.InsertNews(newsItem);
+                
+                _customerActivityService.InsertActivity("AddNewNews", _localizationService.GetResource("ActivityLog.AddNewNews"), newsItem.Id);
+            }
+        }
+
+        public void InsallLangData()
+        {
+            var localResources = EngineContext.Current.Resolve<ILocalizationService>();
+            //localResources.InsertLocaleStringResource(new LocaleStringResource
+            //{
+            //    LanguageId = 2,
+            //    ResourceName = "Account.Fields.ConfirmPassword2",
+            //    ResourceValue = "确认二级密码"
+            //});
+            localResources.InsertLocaleStringResource(new LocaleStringResource
+            {
+                LanguageId = 2,
+                ResourceName = "account.changepassword.errors.passwordmatcheswithprevious",
+                ResourceValue = "新的密码之前已经使用过, 为了安全, 请重新输入"
+            });
+
+            
+        }
         public void InstallRequiredData()
-        { 
+        {
+
             var types = new List<ActivityLogType>() {
                 //new ActivityLogType
                 //{
@@ -1485,9 +1540,13 @@ namespace Web.ZhiXiao.Controllers
             repos.Insert(types);
 
             var settingService = EngineContext.Current.Resolve<Nop.Services.Configuration.ISettingService>();
-             // 直销相关配置
+            // 直销相关配置
             settingService.SaveSetting(new ZhiXiaoSettings
             {
+                ///<summary>
+                ///二级密码缓存时间
+                /// </summary>
+                Password2_ValidTime = 15,
                 /// <summary>
                 /// 提现比例
                 /// </summary>
@@ -1526,13 +1585,13 @@ namespace Web.ZhiXiao.Controllers
                 /// <summary>
                 /// 新增用户时组长分的钱
                 /// </summary>
-                NewUserMoney_ZuZhang_Normal = 3000, 
+                NewUserMoney_ZuZhang_Normal = 3000,
                 NewUserMoney_ZuZhang_Advanced = 3000,
 
                 /// <summary>
                 /// 新增用户时副组长分的钱
                 /// </summary>
-                NewUserMoney_FuZuZhang_Normal = 800, 
+                NewUserMoney_FuZuZhang_Normal = 800,
                 NewUserMoney_FuZuZhang_Advanced = 1000,
 
                 /// <summary>
@@ -1556,7 +1615,7 @@ namespace Web.ZhiXiao.Controllers
                 /// <summary>
                 /// 重新分组时组长分的钱
                 /// </summary>
-                ReGroupMoney_ZuZhang_Normal = 40000, 
+                ReGroupMoney_ZuZhang_Normal = 40000,
                 ReGroupMoney_ZuZhang_Advanced = 50000,
                 /// <summary>
                 /// 重新分组时前x个组员分钱
@@ -1571,7 +1630,7 @@ namespace Web.ZhiXiao.Controllers
                 /// </summary>
                 ReGroupMoney_ZuYuan_Advanced = 1600
             });
-     
+
             //var firstCustomer = _customerService.GetCustomerByUsername("user_1");
             //_customerActivityService.InsertWithdraw(firstCustomer, 500, "申请提现500", "");
         }

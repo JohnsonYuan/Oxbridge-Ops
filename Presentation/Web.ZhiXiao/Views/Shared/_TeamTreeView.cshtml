@@ -1,0 +1,55 @@
+﻿@model IList<CustomerDiagramModel>
+
+@using Nop.Core;
+
+@{
+    //other variables
+    var random = CommonHelper.GenerateRandomInteger();
+    var clientId = "treeView" + random;
+}
+
+@helper RenderCategoryLine(CustomerDiagramModel customer, int level)
+{
+    <li data-expanded="true">
+        @if (level == 0)
+        {
+            <i class="fa fa-user"></i>@customer.DisplayInfo
+        }
+        else
+        {
+            <i class="fa fa-child"></i>@customer.DisplayInfo
+        }
+             
+        @if (customer.Child.Count > 0)
+        {
+            var levelClass = "";
+            if (level == 0)
+            {
+                levelClass = "first-level";
+            }
+
+            <ul class="sublist @levelClass">
+                @foreach (var child in customer.Child)
+                {
+                    @RenderCategoryLine(child, level + 1)
+                }
+            </ul>
+        }
+    </li>
+}
+
+@if (Model != null && Model.Count > 0)
+{
+    <ul id="@(clientId)">
+        @foreach (var customer in Model)
+        {
+            @RenderCategoryLine(customer, 0)
+        }
+    </ul>
+
+    <script>
+    $(document).ready(function () {
+        $("#@(clientId)").kendoTreeView();
+    });
+    </script>
+}

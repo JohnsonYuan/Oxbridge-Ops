@@ -1,17 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Web.Mvc;
-using System.Xml;
+﻿using System.Web.Mvc;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
-using Nop.Web.Models.Home;
 using Nop.Services.Configuration;
 using Nop.Services.Customers;
-using Nop.Services.Orders;
 using Nop.Services.Security;
+using Nop.Web.Models.Home;
 
 namespace Web.ZhiXiao.Controllers
 {
@@ -67,9 +62,16 @@ namespace Web.ZhiXiao.Controllers
 
         public virtual ActionResult Index()
         {
-            var model = new DashboardModel();
-            model.IsLoggedInAsVendor = false;
-            return View(model);
+            if (_workContext.CurrentCustomer.IsAdmin() 
+                || _workContext.CurrentCustomer.IsManager())
+            {
+                var model = new DashboardModel();
+                model.IsLoggedInAsVendor = false;
+                return View(model);
+            } else
+            {
+                return RedirectToAction("Index", "Customer");
+            }
         }
 
         [ChildActionOnly]

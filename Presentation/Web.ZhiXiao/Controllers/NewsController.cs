@@ -164,14 +164,13 @@ namespace Nop.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var newsItem = model.ToEntity();
-                if (model.StartDate.HasValue)
-                    newsItem.StartDateUtc = _dateTimeHelper.ConvertToUtcTime(model.StartDate.Value);
-                else
-                    newsItem.StartDateUtc = null;
-                if (model.EndDate.HasValue)
-                    newsItem.EndDateUtc = _dateTimeHelper.ConvertToUtcTime(model.EndDate.Value);
-                else
-                    newsItem.EndDateUtc = null;
+               
+                newsItem.StartDateUtc = (model.StartDate == null) ? null
+                    : (DateTime?)_dateTimeHelper.ConvertToUtcTime(model.StartDate.Value, _dateTimeHelper.CurrentTimeZone);
+
+                newsItem.EndDateUtc = (model.EndDate == null) ? null
+                    : (DateTime?)_dateTimeHelper.ConvertToUserTime(model.EndDate.Value, _dateTimeHelper.CurrentTimeZone);
+
                 newsItem.CreatedOnUtc = DateTime.UtcNow;
                 _newsService.InsertNews(newsItem);
 
@@ -216,9 +215,9 @@ namespace Nop.Admin.Controllers
 
             var model = newsItem.ToModel();
             if (newsItem.StartDateUtc.HasValue)
-                model.StartDate = _dateTimeHelper.ConvertToUserTime(newsItem.StartDateUtc.Value);
+                model.StartDate = _dateTimeHelper.ConvertToUserTime(newsItem.StartDateUtc.Value, DateTimeKind.Utc);
             if (newsItem.EndDateUtc.HasValue)
-                model.EndDate = _dateTimeHelper.ConvertToUserTime(newsItem.EndDateUtc.Value);
+                model.EndDate = _dateTimeHelper.ConvertToUserTime(newsItem.EndDateUtc.Value, DateTimeKind.Utc);
             //languages
             PrepareLanguagesModel(model);
             //Store
@@ -240,14 +239,12 @@ namespace Nop.Admin.Controllers
             if (ModelState.IsValid)
             {
                 newsItem = model.ToEntity(newsItem);
-                if (model.StartDate.HasValue)
-                    newsItem.StartDateUtc = _dateTimeHelper.ConvertToUtcTime(model.StartDate.Value);
-                else
-                    newsItem.StartDateUtc = null;
-                if (model.EndDate.HasValue)
-                    newsItem.EndDateUtc = _dateTimeHelper.ConvertToUtcTime(model.EndDate.Value);
-                else
-                    newsItem.EndDateUtc = null;
+
+                newsItem.StartDateUtc = (model.StartDate == null) ? null
+                    : (DateTime?)_dateTimeHelper.ConvertToUtcTime(model.StartDate.Value, _dateTimeHelper.CurrentTimeZone);
+
+                newsItem.EndDateUtc = (model.EndDate == null) ? null
+                    : (DateTime?)_dateTimeHelper.ConvertToUserTime(model.EndDate.Value, _dateTimeHelper.CurrentTimeZone);
 
                 _newsService.UpdateNews(newsItem);
 

@@ -15,7 +15,7 @@
     @Html.AntiForgeryToken()
     <div class="content-header clearfix">
         <h1 class="pull-left">
-            提现申请
+            资金清单
         </h1>
     </div>
 
@@ -32,7 +32,7 @@
                                     type: "json",
                                     transport: {
                                         read: {
-                                            url: "@Html.Action("MoneyLogList")",
+                                            url: "@Html.Raw(Url.Action("MoneyLogList", "Customer"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken

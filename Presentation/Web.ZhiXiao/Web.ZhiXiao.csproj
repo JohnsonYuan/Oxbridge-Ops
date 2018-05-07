@@ -1539,6 +1539,8 @@
     <Content Include="Views\Customer\ProductInfo.cshtml" />
     <Content Include="Views\Customer\Info.cshtml" />
     <Content Include="Views\Customer\ChangePassword.cshtml" />
+    <Content Include="Views\Customer\DiagarmTreeTest.cshtml" />
+    <Content Include="Views\Shared\_TeamTreeView.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1550,6 +1552,7 @@
     <Folder Include="Content\lib\Roxy_Fileman\tmp\" />
     <Folder Include="Content\uploaded\" />
     <Folder Include="db_backups\" />
+    <Folder Include="Views\CacheTest1\" />
     <Folder Include="Views\Preferences\" />
     <Folder Include="Views\Widget\" />
   </ItemGroup>

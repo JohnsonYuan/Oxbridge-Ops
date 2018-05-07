@@ -6,6 +6,12 @@ namespace Nop.Core.Domain.ZhiXiao
     public partial class ZhiXiaoSettings : ISettings
     {
         /// <summary>
+        /// 二级密码缓存时间()
+        /// </summary>
+        [DisplayName("二级密码有效时间(分钟)")]
+        public int Password2_ValidTime { get; set; } = 1;
+
+        /// <summary>
         /// 提现比例
         /// </summary>
         [DisplayName("用户提现比例")]

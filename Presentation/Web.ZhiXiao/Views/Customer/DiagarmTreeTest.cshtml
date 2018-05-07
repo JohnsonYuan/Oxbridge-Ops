@@ -1,0 +1,219 @@
+﻿<div class="panel">
+    <div id="testTree">
+
+    <ul>
+        <li>
+            测试用户1 (组长)
+            <ul>
+                <li>
+                    测试用户8 (组员)
+
+                </li>
+                <li>
+                    测试用户9 (组员)
+
+                </li>
+            </ul>
+
+        </li>
+        <li>
+            测试用户2 (副组长)
+            <ul>
+                <li>
+                    测试用户11 (组员)
+
+                </li>
+            </ul>
+
+        </li>
+        <li>
+            测试用户3 (副组长)
+            <ul>
+                <li>
+                    测试用户10 (组员)
+
+                </li>
+            </ul>
+
+        </li>
+        <li>
+            测试用户4 (组员)
+
+        </li>
+        <li>
+            测试用户5 (组员)
+
+        </li>
+        <li>
+            测试用户6 (组员)
+
+        </li>
+        <li>
+            测试用户7 (组员)
+
+        </li>
+        <li>
+            测试用户8 (组员)
+
+        </li>
+        <li>
+            测试用户9 (组员)
+
+        </li>
+        <li>
+            测试用户10 (组员)
+
+        </li>
+        <li>
+            测试用户11 (组员)
+
+        </li>
+    </ul>
+
+    </div> 
+    <ul id="treeview">
+        <li>
+            <a>测试用户1 (组长)</a>
+            <ul>
+                <li>
+                    <a>测试用户8 (组员)</a>
+
+                </li>
+                <li>
+                    <a>测试用户9 (组员)</a>
+
+                </li>
+            </ul>
+
+        </li>
+        <li>
+            <a>测试用户2 (副组长)</a>
+            <ul>
+                <li>
+                    <a>测试用户11 (组员)</a>
+
+                </li>
+            </ul>
+
+        </li>
+        <li>
+            <a>测试用户3 (副组长)</a>
+            <ul>
+                <li>
+                    <a>测试用户10 (组员)</a>
+
+                </li>
+            </ul>
+
+        </li>
+        <li>
+            <a>测试用户4 (组员)</a>
+
+        </li>
+        <li>
+            <a>测试用户5 (组员)</a>
+
+        </li>
+        <li>
+            <a>测试用户6 (组员)</a>
+
+        </li>
+        <li>
+            <a>测试用户7 (组员)</a>
+
+        </li>
+        <li>
+            <a>测试用户8 (组员)</a>
+
+        </li>
+        <li>
+            <a>测试用户9 (组员)</a>
+
+        </li>
+        <li>
+            <a>测试用户10 (组员)</a>
+
+        </li>
+        <li>
+            <a>测试用户11 (组员)</a>
+
+        </li>
+    </ul>
+
+    <ul id="treeview2">
+        <li data-expanded="true">
+            <span class="k-sprite folder"></span>
+            My Web Site
+            <ul>
+                <li data-expanded="true">
+                    <span class="k-sprite folder"></span>images
+                    <ul>
+                        <li><span class="k-sprite image"></span>logo.png</li>
+                        <li><span class="k-sprite image"></span>body-back.png</li>
+                        <li><span class="k-sprite image"></span>my-photo.jpg</li>
+                    </ul>
+                </li>
+                <li data-expanded="true">
+                    <span class="k-sprite folder"></span>resources
+                    <ul>
+                        <li data-expanded="true">
+                            <span class="k-sprite folder"></span>pdf
+                            <ul>
+                                <li><span class="k-sprite pdf"></span>brochure.pdf</li>
+                                <li><span class="k-sprite pdf"></span>prices.pdf</li>
+                            </ul>
+                        </li>
+                        <li><span class="k-sprite folder"></span>zip</li>
+                    </ul>
+                </li>
+                <li><span class="k-sprite html"></span>about.html</li>
+                <li><span class="k-sprite html"></span>contacts.html</li>
+                <li><span class="k-sprite html"></span>index.html</li>
+                <li><span class="k-sprite html"></span>portfolio.html</li>
+            </ul>
+        </li>
+    </ul>
+
+    <p>New tree</p>
+    <ul id="treeview3">
+        <li>
+            <a>images</a>
+            <ul>
+                <li>
+                    <a>测试用户8 (组员)</a>
+
+                </li>
+                <li>
+                    <a>测试用户9 (组员)</a>
+
+                </li>
+            </ul>
+        </li>
+        <li data-expanded="true">
+            <span class="k-sprite folder"></span>resources
+            <ul>
+                <li data-expanded="true">
+                    <span class="k-sprite folder"></span>pdf
+                    <ul>
+                        <li><span class="k-sprite pdf"></span>brochure.pdf</li>
+                        <li><span class="k-sprite pdf"></span>prices.pdf</li>
+                    </ul>
+                </li>
+                <li><span class="k-sprite folder"></span>zip</li>
+            </ul>
+        </li>
+        <li><span class="k-sprite html"></span>about.html</li>
+        <li><span class="k-sprite html"></span>contacts.html</li>
+        <li><span class="k-sprite html"></span>index.html</li>
+        <li><span class="k-sprite html"></span>portfolio.html</li>
+    </ul>
+</div>
+<script>
+    $(document).ready(function () {
+        //$("#testTree").kendoTreeView();
+        $("#treeview").kendoTreeView();
+
+        $("#treeview2").kendoTreeView();
+        $("#treeview3").kendoTreeView();
+    });
+</script>

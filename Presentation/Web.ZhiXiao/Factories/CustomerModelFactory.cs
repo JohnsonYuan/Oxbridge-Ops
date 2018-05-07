@@ -16,7 +16,7 @@ namespace Web.ZhiXiao.Factories
         #region Fields
 
         private readonly ICustomerService _customerService;
-        private readonly DateTimeHelper _dateTimeHelper;
+        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly CustomerSettings _customerSettings;
         private readonly DateTimeSettings _dateTimeSettings;
 
@@ -26,7 +26,7 @@ namespace Web.ZhiXiao.Factories
 
         public CustomerModelFactory(
             ICustomerService customerService,
-            DateTimeHelper dateTimeHelper,
+            IDateTimeHelper dateTimeHelper,
             CustomerSettings customerSettings,
             DateTimeSettings dateTimeSettings)
         {

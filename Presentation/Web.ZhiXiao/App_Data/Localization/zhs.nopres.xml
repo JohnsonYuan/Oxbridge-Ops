@@ -66,6 +66,9 @@
   <LocaleResource Name="Account.ChangePassword.Button">
     <Value>修改密码</Value>
   </LocaleResource>
+  <LocaleResource Name="account.changepassword.errors.passwordmatcheswithprevious">
+    <Value>新的密码之前已经使用过, 为了安全, 请重新输入</Value>
+  </LocaleResource>
   <LocaleResource Name="Account.ChangePassword.Errors.EmailIsNotProvided">
     <Value>请输入电子邮箱</Value>
   </LocaleResource>

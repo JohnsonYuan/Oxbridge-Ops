@@ -30,6 +30,13 @@ namespace Nop.Services.Customers
         ChangePasswordResult ChangePassword(ChangePasswordRequest request);
 
         /// <summary>
+        /// 修改二级密码
+        /// </summary>
+        /// <param name="request">Request</param>
+        /// <returns>Result</returns>
+        ChangePasswordResult ChangeZhiXiaoPassword(ChangePasswordRequest request);
+        
+        /// <summary>
         /// Sets a user email
         /// </summary>
         /// <param name="customer">Customer</param>

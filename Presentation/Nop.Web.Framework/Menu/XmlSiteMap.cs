@@ -113,13 +113,13 @@ namespace Nop.Web.Framework.Menu
 
             // 继续验证是否在role中
             var customer = EngineContext.Current.Resolve<IWorkContext>().CurrentCustomer;
-            if (!string.IsNullOrEmpty(rolesNames))
+            if (siteMapNode.Visible && !string.IsNullOrEmpty(rolesNames))
             {
                 siteMapNode.Visible = rolesNames.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                    .Any(roleName => customer.IsInCustomerRole(roleName.Trim()));
             }
 
-            if (!string.IsNullOrEmpty(excludeRoleNames))
+            if (siteMapNode.Visible && !string.IsNullOrEmpty(excludeRoleNames))
             {
                 siteMapNode.Visible = !excludeRoleNames.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                    .Any(roleName => customer.IsInCustomerRole(roleName.Trim()));

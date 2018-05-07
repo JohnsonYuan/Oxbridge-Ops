@@ -1208,7 +1208,7 @@ namespace Nop.Services.Installation
                 DefaultPasswordFormat = PasswordFormat.Hashed,
                 HashedPasswordFormat = "SHA1",
                 PasswordMinLength = 6,
-                UnduplicatedPasswordsNumber = 4,
+                UnduplicatedPasswordsNumber = 1,
                 PasswordRecoveryLinkDaysValid = 7,
                 PasswordLifetime = 90,
                 FailedPasswordAllowedAttempts = 0,

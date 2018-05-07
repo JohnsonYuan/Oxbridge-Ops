@@ -66,20 +66,6 @@
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <div id="withdraws-grid"></div>
-                        <script type="text/x-kendo-template" id="editTemplate">
-                            #if(IsDone){#
-                            <button type="button" class="btn btn-success disabled">已处理</button>
-                            #}else{#
-                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="\\#process-window" data-id="#=Id#">处理</button>
-                            #}#
-                        </script>
-                        <script type="text/x-kendo-template" id="editTemplate2">
-                            #if(IsDone){#
-                            <button type="button" class="btn btn-success disabled">已处理</button>
-                            #}else{#
-                            <button type="button" class="btn btn-warning">处理</button>
-                            #}#
-                        </script>
                         <script>
                             $(document).ready(function () {
                                 $("#withdraws-grid").kendoGrid({
@@ -87,7 +73,7 @@
                                         type: "json",
                                         transport: {
                                             read: {
-                                                url: "@Html.Raw(Url.Action("Withdraw", "Customer"))",
+                                                url: "@Html.Raw(Url.Action("WithdrawList", "Customer"))",
                                                 type: "POST",
                                                 dataType: "json",
                                                 data: additionalData
@@ -115,21 +101,12 @@
                                     },
                                     scrollable: false,
                                     //dataBound: onDataBound,
-                                    columns: [
-                                        {
-                                            //field: "CustomerNickName",
-                                            title: "用户",
-                                            width: 100,
-                                            template: '<a target="_blank" href="/CustomerManage/Edit/#=CustomerId#">#=Nickname# (#=Username#)</a>'
-                                        }, {
-                                            //field: "Amount",
+                                    columns: [{
+                                            field: "Amount",
                                             title: "提取金额",
-                                            width: 100,
-                                            template: '<span class="btn bg-green">#=Amount#</span>'
-                                        }, {
-                                            field: "MoneyNum",
-                                            title: "余额",
-                                            width: 50
+                                            width: 50,
+                                            //attributes: { style: "text-align:center," },
+                                            //template: '<span class="label label-primary">#=Amount#</span>'
                                         },
                                         {
                                             field: "CreatedOn",
@@ -147,11 +124,11 @@
                                             //template: '#if(IsDone){# <i class="fa fa-check true-icon"></i>#=CompleteOn# #} else {# <i class="fa fa-close false-icon"></i> #}#'
                                         },
                                         {
-                                            title: "操作",
+                                            title: "状态",
                                             width: 50,
                                             headerAttributes: { style: "text-align:center" },
                                             attributes: { style: "text-align:center" },
-                                            template: '# if(IsDone) {# <a class="btn btn-success process" data-id="#=Id#"><i class="fa fa-pencil"></i>查看</a> #} else {# <a class="btn btn-warning process" data-id="#=Id#"><i class="fa fa-pencil"></i>处理</a> #} #'
+                                            template: '# if(IsDone) {# <span class="label label-success">已处理</span> #} else {# <span class="label label-warning">处理中</span> #} #'
                                         }
                                     ]
                                 });

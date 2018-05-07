@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IList<CustomerDiagramModel>
+
+@{
     var newsGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.News.NewsSettings>().NewsArchivePageSize;
     var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
 
@@ -9,11 +11,6 @@
 }
 
 @Html.AntiForgeryToken()
-<div class="content-header clearfix">
-    <h1 class="pull-left">
-        @T("Admin.ContentManagement.News.NewsItems")
-    </h1>
-</div>
 
 <div class="content">
     <div class="row">
@@ -65,43 +62,7 @@
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
-                    <ul id="treeview">
-                        <li data-expanded="true">
-                            My Web Site
-                            <ul>
-                                <li data-expanded="true">
-                                    images
-                                    <ul>
-                                        <li><span class="k-sprite image"></span>logo.png</li>
-                                        <li><span class="k-sprite image"></span>body-back.png</li>
-                                        <li><span class="k-sprite image"></span>my-photo.jpg</li>
-                                    </ul>
-                                </li>
-                                <li data-expanded="true">
-                                    resources
-                                    <ul>
-                                        <li data-expanded="true">
-                                            <span class="k-sprite folder"></span>pdf
-                                            <ul>
-                                                <li><span class="k-sprite pdf"></span>brochure.pdf</li>
-                                                <li><span class="k-sprite pdf"></span>prices.pdf</li>
-                                            </ul>
-                                        </li>
-                                        <li><span class="k-sprite folder"></span>zip</li>
-                                    </ul>
-                                </li>
-                                <li><span class="k-sprite html"></span>about.html</li>
-                                <li><span class="k-sprite html"></span>contacts.html</li>
-                                <li><span class="k-sprite html"></span>index.html</li>
-                                <li><span class="k-sprite html"></span>portfolio.html</li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <script>
-                        $(document).ready(function () {
-                            $("#treeview").kendoTreeView();
-                        });
-                    </script>
+                    @Html.Partial("_TeamTreeView", Model)
                 </div>
                 <!-- /.box-body -->
             </div>
@@ -218,13 +179,18 @@
 
         $.getJSON(url, function (data) {
             if (data == null) {
+                $('.modal-title', modal).text('');
+                $('.modal-body', modal).html('');
+                $('.modal-date', modal).text('');
+                modal.modal('hide');
                 alert('新闻不存在');
-                modal.hide();
             } else {
                 $('.modal-title', modal).text(data.Title);
                 $('.modal-body', modal).html(data.Full);
                 $('.modal-date', modal).text(new Date(data.CreatedOn).Format("yyyy-MM-dd"));
+
             }
         });
     });
+
 </script>

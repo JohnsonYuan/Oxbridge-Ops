@@ -254,6 +254,33 @@ namespace Web.ZhiXiao.Controllers
             };
         }
 
+        [NonAction]
+        protected virtual IList<CustomerDiagramModel> GetDiagarmMdoelInTeam(CustomerTeam team)
+        {
+            if (team == null)
+                throw new ArgumentNullException("team");
+
+            // 默认为7
+            var teamUnitCount = _zhiXiaoSettings.TeamInitUserCount;
+
+            List<CustomerDiagramModel> diagarmModel = new List<CustomerDiagramModel>();
+            foreach (var customer in team.Customers)
+            {
+                var model = customer.ToModel();
+
+                var childs = _customerService.GetCustomerChildren(customer.Id);
+
+                foreach (var child in childs)
+                {
+                    model.Child.Add(child.ToModel());
+                }
+
+                diagarmModel.Add(model);
+            }
+            diagarmModel = diagarmModel.OrderBy(x => x.InTeamOrder).ThenBy(x => x.CreatedOnUtc).ToList();
+            return diagarmModel;
+        }
+
         #endregion
 
         #region Register
@@ -328,6 +355,7 @@ namespace Web.ZhiXiao.Controllers
         //[UserPassword2AuthorizeAttribute]
         public ActionResult ValidatePassword2()
         {
+            WarningNotification(string.Format("验证二级密码, {0}分钟内容不用重复验证", _zhiXiaoSettings.Password2_ValidTime));
             return View();
         }
 
@@ -344,9 +372,11 @@ namespace Web.ZhiXiao.Controllers
 
             if (pwdValid)
             {
-                // use Context.Items
-                var cacheManager = EngineContext.Current.ContainerManager.Resolve<ICacheManager>("nop_cache_per_request");
-                cacheManager.Set(string.Format(ZhiXiaoConstants.Password2Key, _workContext.CurrentCustomer.Id), true, 0);
+                TempData[string.Format(ZhiXiaoConstants.Password2Key, _workContext.CurrentCustomer.Id)] = true;
+
+                var cacheManager = EngineContext.Current.ContainerManager.Resolve<ICacheManager>("nop_cache_static");
+
+                cacheManager.Set(string.Format(ZhiXiaoConstants.Password2Key, _workContext.CurrentCustomer.Id), true, _zhiXiaoSettings.Password2_ValidTime);
 
                 if (String.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
                     return RedirectToRoute("HomePage");
@@ -366,6 +396,7 @@ namespace Web.ZhiXiao.Controllers
         /// Get customer news
         /// </summary>
         /// <returns></returns>
+        [HttpPost]
         public ActionResult NewsList(DataSourceRequest command)
         {
             if (command.PageSize <= 0) command.PageSize = _newsSettings.NewsArchivePageSize;
@@ -434,7 +465,10 @@ namespace Web.ZhiXiao.Controllers
             if (!_workContext.CurrentCustomer.IsRegistered())
                 return new HttpUnauthorizedResult();
 
-            return View();
+            var team = _workContext.CurrentCustomer.CustomerTeam;
+
+            var users = GetDiagarmMdoelInTeam(team);
+            return View(users);
         }
 
         public ActionResult Info()
@@ -592,7 +626,7 @@ namespace Web.ZhiXiao.Controllers
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
                 return new HttpUnauthorizedResult();
-            
+
             var model = _customerModelFactory.PrepareChangePasswordModel();
 
             //display the cause of the change password 
@@ -606,7 +640,7 @@ namespace Web.ZhiXiao.Controllers
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
                 return new HttpUnauthorizedResult();
-            
+
             var customer = _workContext.CurrentCustomer;
 
             if (ModelState.IsValid)
@@ -618,13 +652,13 @@ namespace Web.ZhiXiao.Controllers
                     changePasswordRequest = new ChangePasswordRequest(customer.Email,
                         true, _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
                     changePasswordResult = _customerRegistrationService.ChangePassword(changePasswordRequest);
-                    
+
                 }
                 else if (pwdType == "pwd2")
                 {
                     changePasswordRequest = new ChangePasswordRequest(customer.Email,
                         true, _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
-                    changePasswordResult = _customerRegistrationService.ChangePassword(changePasswordRequest);
+                    changePasswordResult = _customerRegistrationService.ChangeZhiXiaoPassword(changePasswordRequest);
                 }
                 else
                 {
@@ -634,13 +668,15 @@ namespace Web.ZhiXiao.Controllers
 
                 if (changePasswordResult.Success)
                 {
-                    model.Result = _localizationService.GetResource("Account.ChangePassword.Success");
+                    SuccessNotification(_localizationService.GetResource("Account.ChangePassword.Success"));
+                    //model.Result = _localizationService.GetResource("Account.ChangePassword.Success");
                     return View(model);
                 }
-                
+
                 //errors
                 foreach (var error in changePasswordResult.Errors)
-                    ModelState.AddModelError("", error);
+                    ErrorNotification(error);
+                    //ModelState.AddModelError("", error);
             }
 
             //If we got this far, something failed, redisplay form
@@ -655,7 +691,7 @@ namespace Web.ZhiXiao.Controllers
         /// 提现
         /// </summary>
         /// <returns></returns>
-        [UserPassword2Authorize]
+        [UserPassword2Authorize("Withdraw money")]
         public ActionResult Withdraw()
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
@@ -663,37 +699,41 @@ namespace Web.ZhiXiao.Controllers
 
             CustomerWithdrawModel model = new CustomerWithdrawModel();
             model.MaxAmount = _workContext.CurrentCustomer.GetMoneyNum();
-            return View();
+            return View(model);
         }
 
         [HttpPost]
-        [UserPassword2Authorize]
+        [UserPassword2Authorize("Withdraw money")]
         public ActionResult Withdraw(CustomerWithdrawModel model)
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
                 return new HttpUnauthorizedResult();
 
-            try
+            if (ModelState.IsValid)
             {
-                var acutalAmount = _zhiXiaoService.WithdrawMoney(_workContext.CurrentCustomer, model.Amount);
+                try
+                {
+                    var acutalAmount = _zhiXiaoService.WithdrawMoney(_workContext.CurrentCustomer, model.Amount);
 
-                SuccessNotification(string.Format("提现成功, 手续费{0}, 实际到账{1}, 资金不久会打入您的银行卡中， 请耐心等待！",
-                    model.Amount - acutalAmount,
-                    acutalAmount));
+                    SuccessNotification(string.Format("提现成功, 手续费{0}, 实际到账{1}, 资金不久会打入您的银行卡中， 请耐心等待！",
+                        model.Amount - acutalAmount,
+                        acutalAmount));
+                }
+                catch (Exception exc)
+                {
+                    ErrorNotification(exc.Message);
+                }
             }
-            catch (Exception exc)
-            {
-                ErrorNotification(exc.Message);
-            }
-
-            return RedirectToAction("Withdraw");
+            
+            model.MaxAmount = _workContext.CurrentCustomer.GetMoneyNum();
+            return View(model);
         }
 
         /// <summary>
         /// 提现列表
         /// </summary>
         /// <returns></returns>
-        [UserPassword2Authorize]
+        [UserPassword2Authorize("Withdraw list")]
         public ActionResult WithdrawList()
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
@@ -702,9 +742,8 @@ namespace Web.ZhiXiao.Controllers
             var model = new WithdrawLogSearchModel();
             return View(model);
         }
-
         [HttpPost]
-        [UserPassword2Authorize]
+        [UserPassword2Authorize("Withdraw list")]
         public ActionResult WithdrawList(DataSourceRequest command,
             WithdrawLogSearchModel searchModel)
         {
@@ -744,7 +783,7 @@ namespace Web.ZhiXiao.Controllers
         /// 资金清单
         /// </summary>
         /// <returns></returns>
-        [UserPassword2Authorize]
+        [UserPassword2Authorize("MoneyLog list")]
         public ActionResult MoneyLogList()
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
@@ -752,10 +791,9 @@ namespace Web.ZhiXiao.Controllers
 
             return View();
         }
-
         [HttpPost]
-        [UserPassword2Authorize]
-        public ActionResult MoneyLogList(DataSourceRequest command)
+        [UserPassword2Authorize("MoneyLog list")]
+        public ActionResult MoneyLogList(DataSourceRequest command, FormCollection forms)
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
                 return new HttpUnauthorizedResult();
@@ -799,7 +837,7 @@ namespace Web.ZhiXiao.Controllers
         /// 提货中心
         /// </summary>
         /// <returns></returns>
-        [UserPassword2Authorize]
+        [UserPassword2Authorize("Customer product")]
         public ActionResult ProductInfo()
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
@@ -810,7 +848,7 @@ namespace Web.ZhiXiao.Controllers
             return View(productInfo);
         }
         [HttpPost]
-        [UserPassword2Authorize]
+        [UserPassword2Authorize("Customer product")]
         public ActionResult ProductInfo(bool received)
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
@@ -854,7 +892,13 @@ namespace Web.ZhiXiao.Controllers
 
             var model = PrepareTeamDiagarmModel(team);
 
-            return View("~/Views/CustomerTeam/Diagarm", model);
+            ViewBag.ActiveMenuItemSystemName = "Customer teams diagarm";
+            return View("~/Views/CustomerTeam/Diagarm.cshtml", model);
+        }
+
+        public ActionResult DiagarmTreeTest()
+        {
+            return View();
         }
 
         #endregion
@@ -882,7 +926,6 @@ namespace Web.ZhiXiao.Controllers
         {
             return View();
         }
-
         #endregion
     }
 }

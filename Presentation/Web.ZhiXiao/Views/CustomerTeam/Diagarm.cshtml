@@ -3,17 +3,22 @@
 @{
     //page title
     ViewBag.Title = "小组系谱图";
-    //active menu item (system name)
-    Html.SetActiveMenuItemSystemName("Customer teams");
-
-   // Html.AppendCssFileParts("~/Content/lib/jquery.orgchart.css");
-   //  Html.AppendScriptParts("~/Scripts/kendo.dataviz.diagram.min.js");
+    //active menu item (system name) 用户和管理员共同使用一个view
+    if (!string.IsNullOrEmpty(ViewBag.ActiveMenuItemSystemName))
+    {
+        Html.SetActiveMenuItemSystemName(ViewBag.ActiveMenuItemSystemName as string);
+    }
+    else
+    {
+        Html.SetActiveMenuItemSystemName("Customer teams");
+    }
+    // Html.AppendCssFileParts("~/Content/lib/jquery.orgchart.css");
+    //  Html.AppendScriptParts("~/Scripts/kendo.dataviz.diagram.min.js");
 }
 
 <div class="content-header clearfix">
     <h1 class="pull-left">
         小组@(Model.Team.CustomNumber)
-        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(T("Admin.Customers.CustomerTeams.BackToList").Text, "List")</small>
     </h1>
 </div>
 <div class="content">
@@ -23,34 +28,54 @@
 
             <div class="panel-body">
                 <div class="row" style="min-height: 150px;">
-                    @TeamDiagarm(Model.TopHalfUsers, "class='diagarm'")
+                    @TeamDiagarm_v1(Model.TopHalfUsers)
                 </div>
                 <div class="row" style="min-height: 150px;">
-                    @TeamDiagarm(Model.LastHalfUsers, "class='diagarm'")
+                    @TeamDiagarm_v1(Model.LastHalfUsers)
                 </div>
-                <div class="row">
-                    @TeamDiagarm(Model.AllUsers, "id='#treeview'")
-                    <script>
-                        $(document).ready(function () {
-                            $("#treeview").kendoTreeView();
-                        });
-                    </script>
+
+                <div class="row" id="treeView">
+                    @Html.Partial("_TeamTreeView", Model.AllUsers)
+
                 </div>
             </div>
         </div>
     </div>
 </div>
  
-@helper TeamDiagarm(IList<CustomerDiagramModel> models, string attrs)
+@helper TeamDiagarm_v1(IList<CustomerDiagramModel> models)
 {
     if (models.Count > 0)
     {
-        <ul @Html.Raw(attrs)>
+        <ul class="diagarm">
             @foreach (var item in models)
             {
                 <li>
                     <a>@item.DisplayInfo</a>
-                    @TeamDiagarm(item.Child, "")
+                    @TeamDiagarm_v1(item.Child)
+                </li>
+            }
+        </ul>
+    }
+}
+
+@helper TeamDiagarm_Tree(IList<CustomerDiagramModel> models, int level)
+{
+    if (models.Count > 0)
+    {
+        <ul>
+            @foreach (var item in models)
+            {
+                <li data-expanded="true">
+                    @if (level == 0)
+                    {
+                        <i class="fa fa-user"></i>@item.DisplayInfo
+                    }
+                    else
+                    {
+                        <i class="fa fa-child"></i>@item.DisplayInfo
+                    }
+                    @TeamDiagarm_Tree(item.Child, level + 1)
                 </li>
             }
         </ul>

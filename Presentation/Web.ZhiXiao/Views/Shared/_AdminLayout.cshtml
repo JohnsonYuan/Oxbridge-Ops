@@ -137,18 +137,13 @@
                                         @currentCustomer.GetDisplayName()
                                     </li>
                                     <li>
-                                        <a href="@Url.Action("Logout", "Customer", new {area = ""}, null)">
+                                        <a href="@Url.RouteUrl("logout")">
                                             @T("Admin.Header.Logout")
                                         </a>
                                     </li>
                                 }
                                 <li>
                                     @Html.Widget("admin_header_middle", area: "Admin")
-                                </li>
-                                <li>
-                                    <a href="@Url.Action("Index", "Home", new {area = ""})">
-                                        @T("Admin.Header.PublicStore")
-                                    </a>
                                 </li>
                                 @if (canManageMaintenance)
                                 {

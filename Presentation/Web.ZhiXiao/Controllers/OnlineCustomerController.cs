@@ -67,7 +67,7 @@ namespace Nop.Admin.Controllers
                 Data = customers.Select(x => new OnlineCustomerModel
                 {
                     Id = x.Id,
-                    CustomerInfo = x.IsRegistered() ? x.Email : _localizationService.GetResource("Admin.Customers.Guest"),
+                    CustomerInfo = x.IsRegistered() ? x.Username : _localizationService.GetResource("Admin.Customers.Guest"),
                     LastIpAddress = x.LastIpAddress,
                     Location = _geoLookupService.LookupCountryName(x.LastIpAddress),
                     LastActivityDate = _dateTimeHelper.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
