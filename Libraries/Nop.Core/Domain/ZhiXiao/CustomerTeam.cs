@@ -26,6 +26,11 @@ namespace Nop.Core.Domain.ZhiXiao
         public string CustomNumber { get; set; }
 
         /// <summary>
+        /// Gets or sets the team type. 
+        /// </summary>
+        public int TypeId { get; set; }
+
+        /// <summary>
         /// Gets or sets the customer Guid
         /// </summary>
         public Guid TeamGuid { get; set; }
@@ -39,6 +44,21 @@ namespace Nop.Core.Domain.ZhiXiao
         /// Gets or sets the date and time of entity creation
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the team type. 
+        /// </summary>
+        public CustomerTeamType TeamType
+        {
+            get
+            {
+                return (CustomerTeamType)this.TypeId;
+            }
+            set
+            {
+                this.TypeId = (int)value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets customer addresses

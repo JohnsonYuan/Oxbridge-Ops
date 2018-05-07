@@ -8,6 +8,7 @@ using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.ZhiXiao;
+using Nop.Core.Infrastructure;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Logging;
@@ -320,7 +321,7 @@ namespace Nop.Services.ZhiXiao
             if (teamMembers.Count < _zhiXiaoSettings.TeamReGroupUserCount)
                 return;
 
-            // 1.组长升级为董事, 拿50000元
+            // 1.组长升级为董事, 拿22000/80000元
             var zuZhang = FindTeamZuZhang(oldTeam);
 
             // 增加的钱数
@@ -363,13 +364,19 @@ namespace Nop.Services.ZhiXiao
             // 4.原来小组的组员(SortId < 7)每人1600
             ReGroup_UpdateZuYuanMoney(oldTeam);
 
+            var customNumberFormatter = EngineContext.Current.Resolve<ICustomNumberFormatter>();
+
             // 5. 开始分组
             var newTeam = new CustomerTeam
             {
-                CustomNumber = DateTime.UtcNow.ToString("yyyymmdd"),
+                //CustomNumber = DateTime.UtcNow.ToString("yyyymmdd"),
                 UserCount = 0,
                 CreatedOnUtc = DateTime.UtcNow
             };
+            
+            // 更新编号
+            newTeam.CustomNumber = customNumberFormatter.GenerateTeamNumber(newTeam);
+            _customerTeamRepository.Update(newTeam);
 
             _customerTeamRepository.Insert(newTeam);
 

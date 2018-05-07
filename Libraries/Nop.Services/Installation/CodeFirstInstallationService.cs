@@ -152,9 +152,15 @@ namespace Nop.Services.Installation
             {
                 new CustomerTeam
                 {
-                    CustomNumber = DateTime.UtcNow.ToString("yyyymmdd"),
                     UserCount = 0,
-                    CreatedOnUtc = DateTime.UtcNow
+                    CreatedOnUtc = DateTime.UtcNow,
+                    TypeId = (int)CustomerTeamType.Normal
+                },
+                new CustomerTeam
+                {
+                    UserCount = 0,
+                    CreatedOnUtc = DateTime.UtcNow.AddDays(-5),
+                    TypeId = (int)CustomerTeamType.Advanced
                 }
             };
 
@@ -353,7 +359,10 @@ namespace Nop.Services.Installation
             _customerRepository.Insert(backgroundTaskUser);
         }
 
-        protected virtual void InstallZhiXiaoTestUser()
+        /// <summary>
+        /// 插入普通用户
+        /// </summary>
+        protected virtual void InstallZhiXiaoTestUser_Normal()
         {
             //default store 
             var defaultStore = _storeRepository.Table.FirstOrDefault();
@@ -364,7 +373,7 @@ namespace Nop.Services.Installation
             var storeId = defaultStore.Id;
 
             //default team
-            var defaultTeam = _customerTeamRepository.Table.FirstOrDefault();
+            var defaultTeam = _customerTeamRepository.Table.First(x => x.TypeId == (int)CustomerTeamType.Normal);
 
             if (defaultTeam == null)
                 throw new Exception("No default team could be loaded");
@@ -431,6 +440,7 @@ namespace Nop.Services.Installation
 
                 // 更新用户team
                 currentUser.CustomerTeam = defaultTeam;
+                _customerRepository.Update(currentUser);
 
                 //set default customer name
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_NickName, "测试用户" + i);
@@ -482,6 +492,120 @@ namespace Nop.Services.Installation
             // 10 用户parentId为第3个用户
             _genericAttributeService.SaveAttribute(user_3, SystemCustomerAttributeNames.ZhiXiao_ChildCount, 1);
             _genericAttributeService.SaveAttribute(user_10, SystemCustomerAttributeNames.ZhiXiao_ParentId, user_3.Id);
+
+            #endregion
+        }
+
+        /// <summary>
+        /// 插入高级用户
+        /// </summary>
+        protected virtual void InstallZhiXiaoTestUser_Advanced()
+        {
+            //default store 
+            var defaultStore = _storeRepository.Table.FirstOrDefault();
+
+            if (defaultStore == null)
+                throw new Exception("No default store could be loaded");
+
+            var storeId = defaultStore.Id;
+
+            //default team
+            var defaultTeam = _customerTeamRepository.Table.First(x => x.TypeId == (int)CustomerTeamType.Advanced);
+
+            if (defaultTeam == null)
+                throw new Exception("No default team could be loaded");
+
+            var teamId = defaultTeam.Id;
+
+            var crRegistered_Normal = _customerRoleRepository.Table.Where(x => x.SystemName == SystemCustomerRoleNames.Registered).FirstOrDefault();
+            var crRegistered_Advanced = _customerRoleRepository.Table.Where(x => x.SystemName == SystemCustomerRoleNames.Registered_Advanced).FirstOrDefault();
+
+            var addToTeamTime = DateTime.UtcNow;
+
+            #region Registered user
+            
+            // 组长(*1) 副组长(*2) 组员 (*4)
+            for (int i = 1; i <= 7; i++)
+            {
+                var currentUserName = "USER_" + i;
+                var currentUserEmail = currentUserName + "@yourStore.com";
+                int currentLevel = 0;
+                if (i == 1)
+                {
+                    currentLevel = (int)CustomerLevel.ZuZhang;
+                }
+                else if( i <= 3)
+                {
+                    currentLevel = (int)CustomerLevel.FuZuZhang;
+                }
+                else
+                {
+                    currentLevel = (int)CustomerLevel.ZuYuan;
+                }
+
+                var currentUser = new Customer
+                {
+                    CustomerGuid = Guid.NewGuid(),
+                    Email = currentUserEmail,
+                    Username = currentUserName,
+                    Active = true,
+                    CreatedOnUtc = DateTime.UtcNow,
+                    LastActivityDateUtc = DateTime.UtcNow,
+                    RegisteredInStoreId = storeId
+                };
+                var currentUserAddress = new Address
+                {
+                    FirstName = "James",
+                    LastName = "Pan",
+                    PhoneNumber = "369258147",
+                    Email = currentUserEmail,
+                    FaxNumber = "",
+                    Company = "Pan Company",
+                    Address1 = "St Katharine抯 West 16",
+                    Address2 = "",
+                    City = "St Andrews",
+                    ZipPostalCode = "KY16 9AX",
+                    CreatedOnUtc = DateTime.UtcNow,
+                };
+                currentUser.Addresses.Add(currentUserAddress);
+                currentUser.BillingAddress = currentUserAddress;
+                currentUser.ShippingAddress = currentUserAddress;
+                
+                currentUser.CustomerRoles.Add(crRegistered_Normal);
+                currentUser.CustomerRoles.Add(crRegistered_Advanced);
+
+                _customerRepository.Insert(currentUser);
+
+                // 更新用户team
+                currentUser.CustomerTeam = defaultTeam;
+
+                //set default customer name
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_NickName, "测试用户" + i);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, i);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, addToTeamTime.AddMinutes(i + 5));
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_LevelId, currentLevel);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyNum, CommonHelper.GenerateRandomInteger(2000, 50000));
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyHistory, CommonHelper.GenerateRandomInteger(5000, 50000));
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_IdCardNum, CommonHelper.GenerateRandomDigitCode(18));
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_YinHang, "中国银行");
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_KaiHuHang, "太原支行");
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_KaiHuMing, currentUserName);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_BandNum, CommonHelper.GenerateRandomDigitCode(25));
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_Password2, "123456");  // 二级密码
+
+                //set customer password
+                _customerPasswordRepository.Insert(new CustomerPassword
+                {
+                    Customer = currentUser,
+                    Password = "123456",
+                    PasswordFormat = PasswordFormat.Clear,
+                    PasswordSalt = string.Empty,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+            }
+
+            defaultTeam.UserCount = 7;
+            _customerTeamRepository.Update(defaultTeam);
 
             #endregion
         }
@@ -1317,12 +1441,16 @@ namespace Nop.Services.Installation
             });
 
             // 直销相关配置
-            settingService.SaveSetting(new ZhiXiaoSettings
+        settingService.SaveSetting(new ZhiXiaoSettings
             {
+                ///<summary>
+                ///二级密码缓存时间
+                /// </summary>
+                Password2_ValidTime = 15,
                 /// <summary>
                 /// 提现比例
                 /// </summary>
-                Withdraw_Rate = 0.95,
+                Withdraw_Rate = 0.90,
                 /// <summary>
                 /// 注册普通用户需要金币
                 /// </summary>
@@ -1357,14 +1485,38 @@ namespace Nop.Services.Installation
                 /// <summary>
                 /// 新增用户时组长分的钱
                 /// </summary>
-                NewUserMoney_ZuZhang_Normal = 3000, 
+                NewUserMoney_ZuZhang_Normal = 1000,
                 NewUserMoney_ZuZhang_Advanced = 3000,
 
                 /// <summary>
                 /// 新增用户时副组长分的钱
                 /// </summary>
-                NewUserMoney_FuZuZhang_Normal = 800, 
-                NewUserMoney_FuZuZhang_Advanced = 1000,
+                NewUserMoney_FuZuZhang_Normal = 300,
+                NewUserMoney_FuZuZhang_Advanced = 800,
+
+                /// <summary>
+                /// 新增用户时组员分的钱
+                /// </summary>
+                NewUserMoney_ZuYuan_Normal = 100,
+                NewUserMoney_ZuYuan_Advanced = 200,
+
+                /// <summary>
+                /// 重新分组时组长分的钱
+                /// </summary>
+                ReGroupMoney_ZuZhang_Normal = 22000,
+                ReGroupMoney_ZuZhang_Advanced = 80000,
+                /// <summary>
+                /// 重新分组时前x个组员分钱
+                /// </summary>
+                ReGroupMoney_ZuYuan_Count = 4,
+                /// <summary>
+                /// 重新分组时组员钱数(一般用户)
+                /// </summary>
+                ReGroupMoney_ZuYuan_Normal = 800,
+                /// <summary>
+                /// 重新分组时组员钱数(高级用户)
+                /// </summary>
+                ReGroupMoney_ZuYuan_Advanced = 1600,
 
                 /// <summary>
                 /// 五星董事出盘, 奖励27万(五星董事升级！奖金30万， 扣除3万的税)
@@ -1384,23 +1536,6 @@ namespace Nop.Services.Installation
                 ReGroupMoney_Rate_DongShi3 = 0.06,
                 ReGroupMoney_Rate_DongShi4 = 0.08,
                 ReGroupMoney_Rate_DongShi5 = 0.02,
-                /// <summary>
-                /// 重新分组时组长分的钱
-                /// </summary>
-                ReGroupMoney_ZuZhang_Normal = 40000, 
-                ReGroupMoney_ZuZhang_Advanced = 50000,
-                /// <summary>
-                /// 重新分组时前x个组员分钱
-                /// </summary>
-                ReGroupMoney_ZuYuan_Count = 4,
-                /// <summary>
-                /// 重新分组时组员钱数(一般用户)
-                /// </summary>
-                ReGroupMoney_ZuYuan_Normal = 1200,
-                /// <summary>
-                /// 重新分组时组员钱数(高级用户)
-                /// </summary>
-                ReGroupMoney_ZuYuan_Advanced = 1600
             });
         }
 
@@ -1417,7 +1552,10 @@ namespace Nop.Services.Installation
             InstallLocaleResources();
             InstallCustomerTeams();
             InstallCustomersAndUsers(defaultUserEmail, defaultUserPassword);
-            InstallZhiXiaoTestUser();
+
+            InstallZhiXiaoTestUser_Normal();
+            InstallZhiXiaoTestUser_Advanced();
+
             InstallActivityLogTypes();
 
             if (installSampleData)

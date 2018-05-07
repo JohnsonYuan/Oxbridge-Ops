@@ -68,6 +68,14 @@ namespace Nop.Core.Domain.ZhiXiao
         /// <summary>
         /// 新增用户时副组长分的钱
         /// </summary>
+        [DisplayName("新增用户时组员分的钱(一般用户)")]
+        public int NewUserMoney_ZuYuan_Normal { get; set; } = 100; 
+        [DisplayName("新增用户时组员分的钱(高级用户)")]
+        public int NewUserMoney_ZuYuan_Advanced { get; set; } = 200;
+        
+        /// <summary>
+        /// 新增用户时副组长分的钱
+        /// </summary>
         [DisplayName("新增用户时副组长分的钱(一般用户)")]
         public int NewUserMoney_FuZuZhang_Normal { get; set; } = 800; 
         [DisplayName("新增用户时副组长分的钱(高级用户)")]

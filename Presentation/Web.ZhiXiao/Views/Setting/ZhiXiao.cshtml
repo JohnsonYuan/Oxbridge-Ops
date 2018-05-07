@@ -30,224 +30,287 @@
 
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    @T("Admin.Configuration.Settings.News.BlockTitle.NewsComments")
+                    注册与提现
                 </div>
                 <div class="panel-body">
+                    
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.Password2_ValidTime)
-                        <div class="col-md-10">
-                            @Html.NopEditorFor(model => model.Password2_ValidTime)
-                            @Html.ValidationMessageFor(model => model.Password2_ValidTime)
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        @Html.NopLabelFor(model => model.Withdraw_Rate)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.Withdraw_Rate)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.Withdraw_Rate)
                             @Html.ValidationMessageFor(model => model.Withdraw_Rate)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.Register_Money_NormalUser)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.Register_Money_NormalUser)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.Register_Money_NormalUser)
                             @Html.ValidationMessageFor(model => model.Register_Money_NormalUser)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.Register_Money_AdvancedUser)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.Register_Money_AdvancedUser)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.Register_Money_AdvancedUser)
                             @Html.ValidationMessageFor(model => model.Register_Money_AdvancedUser)
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="form-group">
-                        @Html.NopLabelFor(model => model.MaxChildCount)
-                        <div class="col-md-10">
-                            @Html.NopEditorFor(model => model.MaxChildCount)
-                            @Html.ValidationMessageFor(model => model.MaxChildCount)
-                        </div>
-                    </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    提成相关设置
+                </div>
+                <div class="panel-body">
 
+                    <!-- 组长 -->
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.Team_ZuZhangCount)
-                        <div class="col-md-10">
-                            @Html.NopEditorFor(model => model.Team_ZuZhangCount)
-                            @Html.ValidationMessageFor(model => model.Team_ZuZhangCount)
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        @Html.NopLabelFor(model => model.Team_FuZuZhangCount)
-                        <div class="col-md-10">
-                            @Html.NopEditorFor(model => model.Team_FuZuZhangCount)
-                            @Html.ValidationMessageFor(model => model.Team_FuZuZhangCount)
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        @Html.NopLabelFor(model => model.TeamInitUserCount)
-                        <div class="col-md-10">
-                            @Html.NopEditorFor(model => model.TeamInitUserCount)
-                            @Html.ValidationMessageFor(model => model.TeamInitUserCount)
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        @Html.NopLabelFor(model => model.TeamReGroupUserCount)
-                        <div class="col-md-10">
-                            @Html.NopEditorFor(model => model.TeamReGroupUserCount)
-                            @Html.ValidationMessageFor(model => model.TeamReGroupUserCount)
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        @Html.NopLabelFor(model => model.NewUserMoney_ZuZhang_Normal)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.NewUserMoney_ZuZhang_Normal)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.NewUserMoney_ZuZhang_Normal)
                             @Html.ValidationMessageFor(model => model.NewUserMoney_ZuZhang_Normal)
                         </div>
                     </div>
-
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.NewUserMoney_ZuZhang_Advanced)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.NewUserMoney_ZuZhang_Advanced)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.NewUserMoney_ZuZhang_Advanced)
                             @Html.ValidationMessageFor(model => model.NewUserMoney_ZuZhang_Advanced)
                         </div>
                     </div>
-
+                    
+                    <!-- 副组长 -->
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.NewUserMoney_FuZuZhang_Normal)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.NewUserMoney_FuZuZhang_Normal)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.NewUserMoney_FuZuZhang_Normal)
                             @Html.ValidationMessageFor(model => model.NewUserMoney_FuZuZhang_Normal)
                         </div>
                     </div>
-
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.NewUserMoney_FuZuZhang_Advanced)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.NewUserMoney_FuZuZhang_Advanced)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.NewUserMoney_FuZuZhang_Advanced)
                             @Html.ValidationMessageFor(model => model.NewUserMoney_FuZuZhang_Advanced)
                         </div>
                     </div>
 
+                    <!-- 组员 -->
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_DongShi5_ChuPan_Normal)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.NewUserMoney_ZuYuan_Normal)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.NewUserMoney_ZuYuan_Normal)
+                            @Html.ValidationMessageFor(model => model.NewUserMoney_ZuYuan_Normal)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.NewUserMoney_ZuYuan_Advanced)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.NewUserMoney_ZuYuan_Advanced)
+                            @Html.ValidationMessageFor(model => model.NewUserMoney_ZuYuan_Advanced)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_DongShi5_ChuPan_Normal)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_DongShi5_ChuPan_Normal)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_DongShi5_ChuPan_Normal)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_DongShi5_ChuPan_Advanced)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_DongShi5_ChuPan_Advanced)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_DongShi5_ChuPan_Advanced)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_DongShi5_ChuPan_Advanced)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_DongShiBase_Normal)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_DongShiBase_Normal)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_DongShiBase_Normal)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_DongShiBase_Normal)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_DongShiBase_Advanced)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_DongShiBase_Advanced)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_DongShiBase_Advanced)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_DongShiBase_Advanced)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_Rate_DongShi1)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_Rate_DongShi1)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_Rate_DongShi1)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_Rate_DongShi1)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_Rate_DongShi2)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_Rate_DongShi2)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_Rate_DongShi2)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_Rate_DongShi2)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_Rate_DongShi3)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_Rate_DongShi3)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_Rate_DongShi3)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_Rate_DongShi3)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_Rate_DongShi4)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_Rate_DongShi4)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_Rate_DongShi4)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_Rate_DongShi4)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_Rate_DongShi5)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_Rate_DongShi5)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_Rate_DongShi5)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_Rate_DongShi5)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_ZuZhang_Normal)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_ZuZhang_Normal)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_ZuZhang_Normal)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_ZuZhang_Normal)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_ZuZhang_Advanced)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_ZuZhang_Advanced)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_ZuZhang_Advanced)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_ZuZhang_Advanced)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_ZuYuan_Count)
-                        <div class="col-md-10">
-                            @Html.NopEditorFor(model => model.ReGroupMoney_ZuYuan_Count)
-                            @Html.ValidationMessageFor(model => model.ReGroupMoney_ZuYuan_Count)
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_ZuYuan_Normal)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_ZuYuan_Normal)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_ZuYuan_Normal)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_ZuYuan_Normal)
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.NopLabelFor(model => model.ReGroupMoney_ZuYuan_Advanced)
-                        <div class="col-md-10">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_ZuYuan_Advanced)
+                        </div><div class="col-md-8">
                             @Html.NopEditorFor(model => model.ReGroupMoney_ZuYuan_Advanced)
                             @Html.ValidationMessageFor(model => model.ReGroupMoney_ZuYuan_Advanced)
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="panel panel-danger advanced-setting">
+                <div class="panel-heading">
+                    其他设置
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.Password2_ValidTime)
+                        </div>
+                        <div class="col-md-8">
+                            @Html.NopEditorFor(model => model.Password2_ValidTime)
+                            @Html.ValidationMessageFor(model => model.Password2_ValidTime)
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.MaxChildCount)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.MaxChildCount)
+                            @Html.ValidationMessageFor(model => model.MaxChildCount)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.Team_ZuZhangCount)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.Team_ZuZhangCount)
+                            @Html.ValidationMessageFor(model => model.Team_ZuZhangCount)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.Team_FuZuZhangCount)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.Team_FuZuZhangCount)
+                            @Html.ValidationMessageFor(model => model.Team_FuZuZhangCount)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.TeamInitUserCount)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.TeamInitUserCount)
+                            @Html.ValidationMessageFor(model => model.TeamInitUserCount)
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.TeamReGroupUserCount)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.TeamReGroupUserCount)
+                            @Html.ValidationMessageFor(model => model.TeamReGroupUserCount)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.ReGroupMoney_ZuYuan_Count)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.ReGroupMoney_ZuYuan_Count)
+                            @Html.ValidationMessageFor(model => model.ReGroupMoney_ZuYuan_Count)
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
