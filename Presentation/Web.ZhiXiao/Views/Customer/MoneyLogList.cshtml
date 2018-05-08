@@ -23,7 +23,7 @@
         <div class="form-horizontal">
             <div class="panel-group">
                 <div class="panel panel-default">
-                    <div class="panel-body">
+                    <div class="panel-body no-padding">
                         <div id="moneylog-grid"></div>
                         <script>
                         $(document).ready(function () {
@@ -55,7 +55,7 @@
                                 },
                                 pageable: {
                                     refresh: true,
-                                    pageSizes: [@(gridPageSizes)],
+                                    //pageSizes: [@(gridPageSizes)],
                                     @Html.Partial("_GridPagerMessages")
                                 },
                                 editable: {
@@ -76,11 +76,7 @@
                                         title: "@T("Admin.Customers.Customers.ActivityLog.CreatedOn")",
                                         width: 200,
                                         type: "date",
-                                        format: "{0:G}"
-                                    }, {
-                                        field: "IpAddress",
-                                        title: "@T("Admin.Customers.Customers.ActivityLog.IpAddress")",
-                                        width: 100
+                                        format: "{0:yyyy-MM-dd}"
                                     }
                                 ]
                             });

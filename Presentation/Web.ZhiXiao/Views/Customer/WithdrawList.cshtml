@@ -22,8 +22,17 @@
     <div class="content">
         <div class="form-horizontal">
             <div class="panel-group">
-                <div class="panel panel-default panel-search">
-                    <div class="panel-body">
+                <div class="box box-info collapsed-box">
+                    <div class="box-header with-border">
+                        <h4 class="box-title">搜索</h4>
+
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -64,7 +73,7 @@
                 </div>
 
                 <div class="panel panel-default">
-                    <div class="panel-body">
+                    <div class="panel-body no-padding">
                         <div id="withdraws-grid"></div>
                         <script>
                             $(document).ready(function () {
@@ -95,8 +104,8 @@
                                         serverSorting: true
                                     },
                                     pageable: {
-                                        refersh: true,
-                                        pageSizes: [@(gridPageSizes)],
+                                        //refersh: true,
+                                        //pageSizes: [@(gridPageSizes)],
                                         @Html.Partial("_GridPagerMessages")
                                     },
                                     scrollable: false,
@@ -104,32 +113,32 @@
                                     columns: [{
                                             field: "Amount",
                                             title: "提取金额",
-                                            width: 50,
+                                            width: 100,
                                             //attributes: { style: "text-align:center," },
-                                            //template: '<span class="label label-primary">#=Amount#</span>'
+                                            template: '# if(IsDone) {# <span class="label label-success">#=Amount# (已处理)</span> #} else {# <span class="label label-warning">#=Amount# (处理中)</span> #} #'
                                         },
                                         {
                                             field: "CreatedOn",
                                             title: "@T("Admin.Customers.Customers.Fields.CreatedOn")",
                                             width: 120,
                                             type: "date",
-                                            format: "{0:g}"
+                                            format: "{0:yyyy-MM-dd}"
                                         },
                                         {
                                             field: "CompleteOn",
                                             title: "处理日期",
                                             width: 120,
                                             type: "date",
-                                            format: "{0:g}",
+                                            format: "{0:yyyy-MM-dd}"
                                             //template: '#if(IsDone){# <i class="fa fa-check true-icon"></i>#=CompleteOn# #} else {# <i class="fa fa-close false-icon"></i> #}#'
-                                        },
-                                        {
-                                            title: "状态",
-                                            width: 50,
-                                            headerAttributes: { style: "text-align:center" },
-                                            attributes: { style: "text-align:center" },
-                                            template: '# if(IsDone) {# <span class="label label-success">已处理</span> #} else {# <span class="label label-warning">处理中</span> #} #'
                                         }
+                                        //, {
+                                        //    title: "状态",
+                                        //    width: 50,
+                                        //    headerAttributes: { style: "text-align:center" },
+                                        //    attributes: { style: "text-align:center" },
+                                        //    template: '# if(IsDone) {# <span class="label label-success">已处理</span> #} else {# <span class="label label-warning">处理中</span> #} #'
+                                        //}
                                     ]
                                 });
                             });

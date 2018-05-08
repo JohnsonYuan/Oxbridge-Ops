@@ -12,6 +12,8 @@ namespace Nop.Admin.Models.Logging
         public int CustomerId { get; set; }
         [NopResourceDisplayName("Admin.Configuration.ActivityLog.ActivityLog.Fields.Customer")]
         public string CustomerEmail { get; set; }
+        [NopResourceDisplayName("Account.Login.Fields.UserName")]
+        public string CustomerUserName { get; set; }
         [NopResourceDisplayName("Admin.Configuration.ActivityLog.ActivityLog.Fields.Comment")]
         public string Comment { get; set; }
         [NopResourceDisplayName("Admin.Configuration.ActivityLog.ActivityLog.Fields.CreatedOn")]

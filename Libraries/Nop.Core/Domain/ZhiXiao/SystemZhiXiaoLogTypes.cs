@@ -31,6 +31,10 @@
         /// 管理员发货
         /// </summary>
         public static string SendProduct { get { return "ZhiXiao_SendProduct"; } }
+        /// <summary>
+        /// 用户发货
+        /// </summary>
+        public static string ReceiveProduct { get { return "ZhiXiao_ReceiveProduct"; } }
         
         /// <summary>
         /// 用户提现申请

@@ -433,7 +433,7 @@ namespace Nop.Services.ZhiXiao
                 currentUser.CustomerTeam = currentUserTeam;
                 //_genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_TeamId, currentUserTeamId);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_LevelId, (int)currentUserLevel);
-                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, (int)sortId);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder + 1, (int)sortId);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, DateTime.UtcNow);
             }
         }
@@ -655,12 +655,21 @@ namespace Nop.Services.ZhiXiao
         /// <param name="customer"></param>
         public virtual SendProductInfo GetSendProductInfo(Customer customer)
         {
+            if (customer == null)
+                throw new ArgumentException("customer");
+
             SendProductInfo info = new SendProductInfo();
             info.Status = (SendProductStatus)customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductStatus);
-            var logId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductLogId);
-            if (logId > 0)
+            var sendLogId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductLogId);
+            if (sendLogId > 0)
             {
-                info.Log = _customerActivityService.GetActivityById(logId);
+                info.SendLog = _customerActivityService.GetActivityById(sendLogId);
+            }
+
+            var receiedLogId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ReceiveProductLogId);
+            if (receiedLogId > 0)
+            {
+                info.ReceiveLog = _customerActivityService.GetActivityById(receiedLogId);
             }
             return info;
         }
@@ -672,6 +681,8 @@ namespace Nop.Services.ZhiXiao
         /// <returns></returns>
         public virtual SendProductStatus GetSendProductStatus(Customer customer)
         {
+            if (customer == null)
+                throw new ArgumentException("customer");
             return (SendProductStatus)customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductStatus);
         }
 
@@ -681,7 +692,36 @@ namespace Nop.Services.ZhiXiao
         /// <param name="customerId"></param>
         public virtual void SetSendProductStatus(Customer customer, SendProductStatus status)
         {
+            if (customer == null)
+                throw new ArgumentException("customer");
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_SendProductStatus, (int)status);
+        }
+
+        /// <summary>
+        /// 得到用户收货状态
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <returns></returns>
+        public virtual ActivityLog GetReceiveProductLog(Customer customer)
+        {
+            if (customer == null)
+                throw new ArgumentException("customer");
+
+            var logId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ReceiveProductLogId);
+            return _customerActivityService.GetActivityById(logId);
+        }
+        /// <summary>
+        /// 用户收货, 记录对应logid
+        /// </summary>
+        public virtual void SaveReceiveProductLog(Customer customer, ActivityLog log)
+        {
+            if (customer == null)
+                throw new ArgumentException("customer");
+            
+            if (log == null)
+                throw new ArgumentException("log");
+
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_ReceiveProductLogId, log.Id);
         }
 
         #endregion
@@ -761,16 +801,20 @@ namespace Nop.Services.ZhiXiao
             /// <summary>
             /// 发货对应的log
             /// </summary>
-            public ActivityLog Log { get; set; }
+            public ActivityLog SendLog { get; set; }
+            /// <summary>
+            /// 收货对应的log
+            /// </summary>
+            public ActivityLog ReceiveLog { get; set; }
 
             /// <summary>
-            /// Is received?
+            /// Is prodcut sended?
             /// </summary>
-            public bool IsRecevied
+            public bool HasSent
             {
                 get
                 {
-                    return Status == SendProductStatus.Received;
+                    return Status == SendProductStatus.Sended;
                 }
             }
         }

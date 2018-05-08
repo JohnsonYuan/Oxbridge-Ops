@@ -140,130 +140,6 @@ namespace Web.ZhiXiao.Controllers
 
         #region Methods
 
-        [AdminAuthorize]
-        public virtual ActionResult SystemInfo()
-        {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageMaintenance))
-                return AccessDeniedView();
-
-            var model = new SystemInfoModel();
-            model.NopVersion = NopVersion.CurrentVersion;
-            try
-            {
-                model.OperatingSystem = Environment.OSVersion.VersionString;
-            }
-            catch (Exception) { }
-            try
-            {
-                model.AspNetInfo = RuntimeEnvironment.GetSystemVersion();
-            }
-            catch (Exception) { }
-            try
-            {
-                model.IsFullTrust = AppDomain.CurrentDomain.IsFullyTrusted.ToString();
-            }
-            catch (Exception) { }
-            model.ServerTimeZone = TimeZone.CurrentTimeZone.StandardName;
-            model.ServerLocalTime = DateTime.Now;
-            model.UtcTime = DateTime.UtcNow;
-            model.CurrentUserTime = _dateTimeHelper.ConvertToUserTime(DateTime.Now);
-            model.HttpHost = _webHelper.ServerVariables("HTTP_HOST");
-            foreach (var key in _httpContext.Request.ServerVariables.AllKeys)
-            {
-                if (key.StartsWith("ALL_")) continue;
-
-                model.ServerVariables.Add(new SystemInfoModel.ServerVariableModel
-                {
-                    Name = key,
-                    Value = _httpContext.Request.ServerVariables[key]
-                });
-            }
-
-            //Environment.GetEnvironmentVariable("USERNAME");
-
-            var trustLevel = CommonHelper.GetTrustLevel();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                var loadedAssembly = new SystemInfoModel.LoadedAssembly
-                {
-                    FullName = assembly.FullName,
-
-                };
-                //ensure no exception is thrown
-                try
-                {
-                    var canGetLocation = trustLevel >= AspNetHostingPermissionLevel.High && !assembly.IsDynamic;
-                    loadedAssembly.Location = canGetLocation ? assembly.Location : null;
-                    loadedAssembly.IsDebug = IsDebugAssembly(assembly);
-                    loadedAssembly.BuildDate = canGetLocation ? (DateTime?)GetBuildDate(assembly, TimeZoneInfo.Local) : null;
-                }
-                catch (Exception) { }
-                model.LoadedAssemblies.Add(loadedAssembly);
-            }
-            return View(model);
-        }
-
-        [AdminAuthorize]
-        public virtual ActionResult PathTest()
-        {
-            return Content(_httpContext.Request.PhysicalApplicationPath);
-        }
-
-        [AdminAuthorize]
-        public virtual ActionResult Maintenance()
-        {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageMaintenance))
-                return AccessDeniedView();
-
-            var model = new MaintenanceModel();
-            model.DeleteGuests.EndDate = DateTime.UtcNow.AddDays(-7);
-            model.DeleteGuests.OnlyWithoutShoppingCart = true;
-            model.DeleteAbandonedCarts.OlderThan = DateTime.UtcNow.AddDays(-182);
-            return View(model);
-        }
-
-        [HttpPost]
-        [AdminAuthorize]
-        public virtual ActionResult BackupFiles(DataSourceRequest command)
-        {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageMaintenance))
-                return AccessDeniedKendoGridJson();
-
-            var backupFiles = _maintenanceService.GetAllBackupFiles().ToList();
-
-            var gridModel = new DataSourceResult
-            {
-                Data = backupFiles.Select(p => new {
-                    p.Name,
-                    Length = string.Format("{0:F2} Mb", p.Length / 1024f / 1024f),
-                    Link = _webHelper.GetStoreLocation(false) + "db_backups/" + p.Name
-                }),
-                Total = backupFiles.Count
-            };
-            return Json(gridModel);
-        }
-
-        [HttpPost, ActionName("Maintenance")]
-        [FormValueRequired("backup-database")]
-        [AdminAuthorize]
-        public virtual ActionResult BackupDatabase(MaintenanceModel model)
-        {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageMaintenance))
-                return AccessDeniedView();
-
-            try
-            {
-                _maintenanceService.BackupDatabase();
-                this.SuccessNotification(_localizationService.GetResource("Admin.System.Maintenance.BackupDatabase.BackupCreated"));
-            }
-            catch (Exception exc)
-            {
-                ErrorNotification(exc);
-            }
-
-            return View(model);
-        }
-
         //page not found
         public virtual ActionResult PageNotFound()
         {
@@ -272,25 +148,6 @@ namespace Web.ZhiXiao.Controllers
             this.Response.ContentType = "text/html";
 
             return View();
-        }
-
-        [HttpPost]
-        [AdminAuthorize]
-        public virtual ActionResult ClearCache(string returnUrl = "")
-        {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageMaintenance))
-                return RedirectToAction("AccessDenied");
-
-            var cacheManager = EngineContext.Current.ContainerManager.Resolve<ICacheManager>("nop_cache_static");
-            cacheManager.Clear();
-
-            //home page
-            if (String.IsNullOrEmpty(returnUrl))
-                return RedirectToAction("Index", "Home");
-            //prevent open redirection attack
-            if (!Url.IsLocalUrl(returnUrl))
-                return RedirectToAction("Index", "Home");
-            return Redirect(returnUrl);
         }
 
         public virtual ActionResult AccessDenied(string pageUrl)
@@ -352,7 +209,20 @@ namespace Web.ZhiXiao.Controllers
                             _customerActivityService.InsertActivity(customer, "PublicStore.Login", _localizationService.GetResource("ActivityLog.PublicStore.Login"));
 
                             if (String.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
-                                return RedirectToRoute("HomePage");
+                            {
+                                if (customer.IsAdmin() || customer.IsManager())
+                                {
+                                    return RedirectToRoute("AdminHomePage");
+                                }
+                                else
+                                {
+                                    return RedirectToRoute("HomePage");
+                                }
+                            }
+                            else if (returnUrl == "/")
+                            {
+                                return RedirectToRoute("AdminHomePage");
+                            }
 
                             return Redirect(returnUrl);
                         }

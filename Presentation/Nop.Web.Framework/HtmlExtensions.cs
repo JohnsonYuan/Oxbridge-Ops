@@ -655,10 +655,10 @@ namespace Nop.Web.Framework
 
         }
 
-        public static MvcHtmlString Widget(this HtmlHelper helper, string widgetZone, object additionalData = null, string area = null)
-        {
-            return helper.Action("WidgetsByZone", "Widget", new { widgetZone = widgetZone, additionalData = additionalData, area = area });
-        }
+        //public static MvcHtmlString Widget(this HtmlHelper helper, string widgetZone, object additionalData = null, string area = null)
+        //{
+        //    return helper.Action("WidgetsByZone", "Widget", new { widgetZone = widgetZone, additionalData = additionalData, area = area });
+        //}
 
         /// <summary>
         /// Renders the standard label with a specified suffix added to label text

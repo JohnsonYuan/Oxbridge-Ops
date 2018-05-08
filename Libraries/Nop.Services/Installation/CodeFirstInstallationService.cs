@@ -659,6 +659,12 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = SystemZhiXiaoLogTypes.ReceiveProduct,
+                    Enabled = true,
+                    Name = "用户收货"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = SystemZhiXiaoLogTypes.Withdraw,
                     Enabled = true,
                     Name = "提现申请"

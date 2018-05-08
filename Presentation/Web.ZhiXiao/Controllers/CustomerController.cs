@@ -28,6 +28,7 @@ using Nop.Services.ZhiXiao;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Kendoui;
 using Nop.Web.Framework.Mvc;
+using Nop.Web.Models.Home;
 using Web.ZhiXiao.Factories;
 
 namespace Web.ZhiXiao.Controllers
@@ -164,6 +165,33 @@ namespace Web.ZhiXiao.Controllers
 
         #region Utilities
 
+        /// <summary>
+        /// 首页用户信息
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <returns></returns>
+        [NonAction]
+        protected virtual CustomerModel PrepareCustomerModelForIndex(Customer customer)
+        {
+            return new CustomerModel
+            {
+                Id = customer.Id,
+                //Email = customer.IsRegistered() ? customer.Email : _localizationService.GetResource("Admin.Customers.Guest"),
+                Username = customer.Username,
+                //FullName = customer.GetFullName(),
+                //Company = customer.GetAttribute<string>(SystemCustomerAttributeNames.Company),
+                Phone = customer.GetAttribute<string>(SystemCustomerAttributeNames.Phone),
+                Active = customer.Active,
+                CreatedOn = _dateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc),
+                LastActivityDate = _dateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
+                NickName = customer.GetNickName(),
+                ZhiXiao_MoneyNum = customer.GetMoneyNum(),
+                ZhiXiao_MoneyHistory = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_MoneyHistory),
+                ZhiXiao_LevelId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId),
+                //ProductStatusId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductStatus) // 发货状态
+            };
+        }
+
         [NonAction]
         protected virtual void PrepareCustomerModel(CustomerModel model)
         {
@@ -219,6 +247,11 @@ namespace Web.ZhiXiao.Controllers
             model.AllowReSendingOfActivationMessage = true;
         }
 
+        /// <summary>
+        /// 系谱图页面分为7个, 8个2组用户
+        /// </summary>
+        /// <param name="team"></param>
+        /// <returns></returns>
         [NonAction]
         protected virtual TeamDiagramModel PrepareTeamDiagarmModel(CustomerTeam team)
         {
@@ -254,8 +287,13 @@ namespace Web.ZhiXiao.Controllers
             };
         }
 
+        /// <summary>
+        /// 显示tree, 返回所有小组用户
+        /// </summary>
+        /// <param name="team"></param>
+        /// <returns></returns>
         [NonAction]
-        protected virtual IList<CustomerDiagramModel> GetDiagarmMdoelInTeam(CustomerTeam team)
+        protected virtual IList<CustomerDiagramModel> PrepareTeamDiagarmInfo(CustomerTeam team)
         {
             if (team == null)
                 throw new ArgumentNullException("team");
@@ -462,15 +500,31 @@ namespace Web.ZhiXiao.Controllers
         /// <returns></returns>
         public ActionResult Index()
         {
-            if (!_workContext.CurrentCustomer.IsRegistered())
+            var currentCustomer = _workContext.CurrentCustomer;
+
+            if (!currentCustomer.IsRegistered())
                 return new HttpUnauthorizedResult();
 
-            var team = _workContext.CurrentCustomer.CustomerTeam;
+            CustomerIndexModel model = new CustomerIndexModel();
+            model.CustomerInfo = PrepareCustomerModelForIndex(currentCustomer);
+            model.Children = new List<CustomerDiagramModel>();
+            var childs = _customerService.GetCustomerChildren(currentCustomer.Id);
 
-            var users = GetDiagarmMdoelInTeam(team);
-            return View(users);
+            foreach (var child in childs)
+            {
+                model.Children.Add(child.ToModel());
+            }
+
+            var team = _workContext.CurrentCustomer.CustomerTeam;
+            model.TeamUsers = PrepareTeamDiagarmInfo(team);
+
+            return View(model);
         }
 
+        /// <summary>
+        /// 个人信息
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Info()
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
@@ -481,7 +535,6 @@ namespace Web.ZhiXiao.Controllers
 
             return View(model);
         }
-
         [HttpPost]
         [ValidateInput(false)]
         public ActionResult Info(CustomerInfoModel model)
@@ -510,21 +563,21 @@ namespace Web.ZhiXiao.Controllers
                         }
                     }
                     //email
-                    if (!customer.Email.Equals(model.Email.Trim(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        //change email
-                        var requireValidation = _customerSettings.UserRegistrationType ==
-                                                UserRegistrationType.EmailValidation;
-                        _customerRegistrationService.SetEmail(customer, model.Email.Trim(), requireValidation);
+                    //if (!customer.Email.Equals(model.Email.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                    //{
+                    //    //change email
+                    //    var requireValidation = _customerSettings.UserRegistrationType ==
+                    //                            UserRegistrationType.EmailValidation;
+                    //    _customerRegistrationService.SetEmail(customer, model.Email.Trim(), requireValidation);
 
-                        //do not authenticate users in impersonation mode
-                        if (_workContext.OriginalCustomerIfImpersonated == null)
-                        {
-                            //re-authenticate (if usernames are disabled)
-                            if (!_customerSettings.UsernamesEnabled && !requireValidation)
-                                _authenticationService.SignIn(customer, true);
-                        }
-                    }
+                    //    //do not authenticate users in impersonation mode
+                    //    if (_workContext.OriginalCustomerIfImpersonated == null)
+                    //    {
+                    //        //re-authenticate (if usernames are disabled)
+                    //        if (!_customerSettings.UsernamesEnabled && !requireValidation)
+                    //            _authenticationService.SignIn(customer, true);
+                    //    }
+                    //}
 
                     //properties
                     if (_dateTimeSettings.AllowCustomersToSetTimeZone)
@@ -605,16 +658,17 @@ namespace Web.ZhiXiao.Controllers
                     _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuMing, model.ZhiXiao_KaiHuMing);  // 开户名
                     _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_BandNum, model.ZhiXiao_BandNum);      // 银行卡号
 
-                    return RedirectToRoute("CustomerInfo");
+                    SuccessNotification("更新信息成功");
                 }
             }
             catch (Exception exc)
             {
-                ModelState.AddModelError("", exc.Message);
+                ErrorNotification(exc.Message);
+                //ModelState.AddModelError("", exc.Message);
             }
 
             //If we got this far, something failed, redisplay form
-            model = _customerModelFactory.PrepareCustomerInfoModel(model, customer, true);
+            model = _customerModelFactory.PrepareCustomerInfoModel(model, customer, false);
             return View(model);
         }
 
@@ -860,14 +914,18 @@ namespace Web.ZhiXiao.Controllers
                 {
                     if (_zhiXiaoService.GetSendProductStatus(_workContext.CurrentCustomer) != SendProductStatus.Sended)
                         throw new Exception("还没有发货, 不能收货!");
+                    if (_zhiXiaoService.GetSendProductStatus(_workContext.CurrentCustomer) == SendProductStatus.Received)
+                        throw new Exception("已经收货, 不能重复确认!");
 
                     _zhiXiaoService.SetSendProductStatus(_workContext.CurrentCustomer,
                         SendProductStatus.Received);
 
                     // add log
-                    _customerActivityService.InsertActivity(
-                        SystemZhiXiaoLogTypes.SendProduct,
+                    var log = _customerActivityService.InsertActivity(
+                        SystemZhiXiaoLogTypes.ReceiveProduct,
                         "确认收货");
+
+                    _zhiXiaoService.SaveReceiveProductLog(_workContext.CurrentCustomer, log);
                 }
             }
             catch (Exception ex)
@@ -875,7 +933,7 @@ namespace Web.ZhiXiao.Controllers
                 ErrorNotification(ex.Message);
             }
 
-            return View();
+            return RedirectToAction("ProductInfo");
         }
 
         /// <summary>
@@ -893,7 +951,8 @@ namespace Web.ZhiXiao.Controllers
             var model = PrepareTeamDiagarmModel(team);
 
             ViewBag.ActiveMenuItemSystemName = "Customer teams diagarm";
-            return View("~/Views/CustomerTeam/Diagarm.cshtml", model);
+            ViewBag.HideReturnTip = true;
+            return View("TeamDiagarm", model);
         }
 
         public ActionResult DiagarmTreeTest()

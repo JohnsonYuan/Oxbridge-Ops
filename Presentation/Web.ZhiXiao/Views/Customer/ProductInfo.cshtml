@@ -5,6 +5,8 @@
     ViewBag.Title = "提货中心";
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Customer product");
+
+    var dateTimeHelper = EngineContext.Current.Resolve<Nop.Services.Helpers.IDateTimeHelper>();
 }
 
 @using (Html.BeginForm())
@@ -33,9 +35,9 @@
                             </div>
                             <div class="col-md-9">
                                 <div class="form-text-row">
-                                    @if (Model.Log != null)
+                                    @if (Model.SendLog != null)
                                     {
-                                        @Model.Log.Comment
+                                        @Model.SendLog.Comment
                                     }
                                     else
                                     {
@@ -56,14 +58,31 @@
                             </div>
                             <div class="col-md-9">
                                 <div class="form-text-row">
-                                    @if(Model.Log != null)
+                                    @if(Model.SendLog != null)
                                     {
-                                        var dateTimeHelper = EngineContext.Current.Resolve<Nop.Services.Helpers.IDateTimeHelper>();
-                                        @dateTimeHelper.ConvertToUserTime(Model.Log.CreatedOnUtc)
+                                        @dateTimeHelper.ConvertToUserTime(Model.SendLog.CreatedOnUtc)
                                     }
                                 </div>
                             </div>
                         </div>
+
+                        @if (Model.ReceiveLog != null)
+                        {
+                            <div class="form-group">
+                                <div class="col-md-3">
+                                    <div class="label-wrapper">
+                                        <label class="control-label" for="Name" title="">
+                                            收货时间
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="form-text-row">
+                                        @dateTimeHelper.ConvertToUserTime(Model.SendLog.CreatedOnUtc)
+                                    </div>
+                                </div>
+                            </div>
+                        }
 
                         <div class="form-group">
                             <div class="col-md-3">
@@ -98,7 +117,7 @@
                             </div>
                         </div>
 
-                        @if (!Model.IsRecevied)
+                        @if (Model.HasSent)
                         {
                             <div class="pull-right">
                                 @Html.Hidden("received", "true")

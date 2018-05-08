@@ -1,4 +1,4 @@
-﻿@model IList<CustomerDiagramModel>
+﻿@model CustomerIndexModel
 
 @{
     var newsGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.News.NewsSettings>().NewsArchivePageSize;
@@ -27,24 +27,23 @@
                 </div>
                 <div class="box-body">
                     <div class="widget-user-header bg-aqua-active">
-                        <p>您当前的等级是: 组长</p>
+                        <p>您当前的等级是: @Model.CustomerInfo.CustomerLevel.GetDescription()</p>
                         <p>您的下线成员有:</p>
                         <ul class="diagarm">
-                            <li>
-                                <button class="btn btn-success" type="button">组员A</button>
-                            </li>
-                            <li>
-                                <button class="btn btn-success" type="button">组员B</button>
-                            </li>
+                            @foreach (var child in Model.Children)
+                            {
+                                <li>
+                                    <button class="btn btn-success" type="button">@child.DisplayInfo</button>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>
                 <div class="box-footer no-padding">
                     <ul class="nav nav-stacked">
-                        <li><p class="margin">Projects <span class="pull-right badge bg-blue">31</span></p></li>
-                        <li><a href="#">Tasks <span class="pull-right badge bg-aqua">5</span></a></li>
-                        <li><a href="#">Completed Projects <span class="pull-right badge bg-green">12</span></a></li>
-                        <li><a href="#">Followers <span class="pull-right badge bg-red">842</span></a></li>
+                        <li><p class="margin">电子币余额 <span class="pull-right badge bg-blue">@Model.CustomerInfo.ZhiXiao_MoneyNum</span></p></li>
+                        <li><p class="margin">历史电子币 <span class="pull-right badge bg-blue">@Model.CustomerInfo.ZhiXiao_MoneyHistory</span></p></li>
+                        <li><p class="margin">注册时间<span class="pull-right">@Model.CustomerInfo.CreatedOn</span></p></li>
                     </ul>
                 </div>
             </div>
@@ -62,7 +61,7 @@
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
-                    @Html.Partial("_TeamTreeView", Model)
+                    @Html.Partial("_TeamTreeView", Model.TeamUsers)
                 </div>
                 <!-- /.box-body -->
             </div>
@@ -109,8 +108,8 @@
                                     serverSorting: true
                                 },
                                 pageable: {
-                                    refresh: true,
-                                    pageSizes: [@(gridPageSizes)],
+                                    //refresh: true,
+                                    //pageSizes: [@(gridPageSizes)],
                                     @Html.Partial("_GridPagerMessages")
                                 },
                                 scrollable: false,
@@ -118,18 +117,20 @@
                                     {
                                         field: "Title",
                                         title: "@T("Admin.ContentManagement.News.NewsItems.Fields.Title")",
-                                        width: 100
+                                        width: 150
                                     }, {
                                         field: "Short",
                                         title: "摘要",
                                         width: 300
-                                    }, {
+                                    }
+                                    @*{
                                         field: "CreatedOn",
                                         title: "@T("Admin.ContentManagement.News.NewsItems.Fields.CreatedOn")",
-                                        width: 200,
+                                        width: 100,
                                         type: "date",
                                         format: "{0:yyyy-MM-dd}"
-                                    }, {
+                                    },*@
+                                    ,{
                                         width: 100,
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },

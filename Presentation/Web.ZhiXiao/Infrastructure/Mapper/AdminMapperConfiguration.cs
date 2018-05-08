@@ -48,10 +48,13 @@ namespace Nop.Admin.Infrastructure.Mapper
                 //customer teams
                 cfg.CreateMap<CustomerTeam, CustomerTeamModel>()
                     .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
-                    .ForMember(dest => dest.Customers, mo => mo.Ignore());
+                    .ForMember(dest => dest.Customers, mo => mo.Ignore())
+                    .ForMember(dest => dest.TeamType, mo => mo.Ignore())
+                    .ForMember(dest => dest.TeamDescription, mo => mo.Ignore());
                 cfg.CreateMap<CustomerTeamModel, CustomerTeam>()
                     .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
-                    .ForMember(dest => dest.Customers, mo => mo.Ignore());
+                    .ForMember(dest => dest.Customers, mo => mo.Ignore())
+                    .ForMember(dest => dest.TeamType, mo => mo.Ignore());
 
                 //withdraw logs
                 cfg.CreateMap<WithdrawLog, WithdrawLogModel>()
@@ -79,6 +82,7 @@ namespace Nop.Admin.Infrastructure.Mapper
                 cfg.CreateMap<ActivityLog, ActivityLogModel>()
                     .ForMember(dest => dest.ActivityLogTypeName, mo => mo.MapFrom(src => src.ActivityLogType.Name))
                     .ForMember(dest => dest.CustomerEmail, mo => mo.MapFrom(src => src.Customer.Email))
+                    .ForMember(dest => dest.CustomerUserName, mo => mo.MapFrom(src => src.Customer.Username))
                     .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
                     .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
                 //language

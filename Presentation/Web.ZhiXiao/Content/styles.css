@@ -1382,7 +1382,7 @@ overflow: hidden;
 .diagarm li ul {
     margin: 0;
     padding: 0;
-    position: absolute;
+    /*position: absolute;*/
     border-top: 1px solid white;
 }
 .diagarm li ul li {

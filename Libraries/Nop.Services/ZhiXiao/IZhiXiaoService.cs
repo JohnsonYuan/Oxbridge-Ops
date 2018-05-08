@@ -78,12 +78,21 @@ namespace Nop.Services.ZhiXiao
         /// <param name="customer"></param>
         /// <returns></returns>
         SendProductStatus GetSendProductStatus(Customer customer);
-
         /// <summary>
         /// 给用户发货, 设置发货状态属性
         /// </summary>
         /// <param name="customerId"></param>
         void SetSendProductStatus(Customer customer, SendProductStatus status);
+        /// <summary>
+        /// 用户收货确认后的log
+        /// </summary>
+        /// <param name="log"></param>
+        ActivityLog GetReceiveProductLog(Customer customer);
+        /// <summary>
+        /// 用户收货, 记录对应logid
+        /// </summary>
+        /// <param name="log"></param>
+        void SaveReceiveProductLog(Customer customer, ActivityLog log);
 
         /// <summary>
         /// 用户二级密码是否正确

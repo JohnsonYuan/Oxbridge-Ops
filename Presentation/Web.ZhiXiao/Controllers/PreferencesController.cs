@@ -1,7 +1,8 @@
-﻿using Nop.Core;
-using Nop.Services.Common;
-using System;
+﻿using System;
 using System.Web.Mvc;
+using Nop.Core;
+using Nop.Services.Common;
+using Nop.Web.Framework.Controllers;
 
 namespace Web.ZhiXiao.Controllers
 {

@@ -1,0 +1,90 @@
+﻿@model TeamDiagramModel
+
+@{
+    //page title
+    ViewBag.Title = "小组系谱图";
+    //active menu item (system name) 用户和管理员共同使用一个view
+    if (!string.IsNullOrEmpty(ViewBag.ActiveMenuItemSystemName))
+    {
+        Html.SetActiveMenuItemSystemName(ViewBag.ActiveMenuItemSystemName as string);
+    }
+    else
+    {
+        Html.SetActiveMenuItemSystemName("Customer teams");
+    }
+    // Html.AppendCssFileParts("~/Content/lib/jquery.orgchart.css");
+    //  Html.AppendScriptParts("~/Scripts/kendo.dataviz.diagram.min.js");
+}
+
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        小组@(Model.Team.CustomNumber)
+        @if (!ViewBag.HideReturnTip)
+        {
+            <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink("返回小组列表", "List")</small>
+        }
+    </h1>
+</div>
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <p><i class="fa fa-users"></i>当前人数: @Model.Team.UserCount</p>
+
+            <div class="panel-group">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h4 class="box-title">树形图</h4>
+
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body"> 
+                        @Html.Partial("_TeamTreeView", Model.AllUsers)
+                    </div>
+                </div>
+            </div>
+
+            <div class="box box-info">
+                <div class="box-header with-border">
+                    <h4 class="box-title">七上八下图</h4>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                            <i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body" style="overflow-x: scroll">
+                    @TeamDiagarm_v1(Model.TopHalfUsers)
+                    
+                    @TeamDiagarm_v1(Model.LastHalfUsers)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+@helper TeamDiagarm_v1(IList<CustomerDiagramModel> models, int level = 0)
+{
+    if (models.Count > 0)
+    {
+        var levelAttr = "";
+        if (level == 0)
+        {
+            levelAttr = "class=\"diagarm\" style=\"width: 1000px;\"";
+        }
+
+        <ul @(Html.Raw(levelAttr))>
+            @foreach (var item in models)
+            {
+                <li>
+                    <a>@item.DisplayInfo</a>
+                    @TeamDiagarm_v1(item.Child, level + 1)
+                </li>
+            }
+        </ul>
+    }
+}
