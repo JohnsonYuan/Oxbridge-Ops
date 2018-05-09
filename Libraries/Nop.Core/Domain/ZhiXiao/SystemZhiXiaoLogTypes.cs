@@ -44,5 +44,9 @@
         /// 管理员处理提现申请
         /// </summary>
         public static string ProcessWithdraw { get { return "ZhiXiao_ProcessWithdraw"; } }
+        /// <summary>
+        /// 注册新用户
+        /// </summary>
+        public static string RegisterNewUser { get { return "ZhiXiao_RegisterNewUser"; } }
     }
 }

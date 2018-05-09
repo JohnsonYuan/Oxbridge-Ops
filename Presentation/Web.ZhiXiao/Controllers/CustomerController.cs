@@ -326,8 +326,6 @@ namespace Web.ZhiXiao.Controllers
         [ParameterBasedOnQueryString("advanced", "registerAdvanceUser")]
         public virtual ActionResult Register(bool registerAdvanceUser)
         {
-            _zhiXiaoService.ValidateCustomerRegister(_workContext.CurrentCustomer);
-
             var model = new CustomerModel();
             PrepareCustomerModel(model);
             //default value
@@ -359,7 +357,7 @@ namespace Web.ZhiXiao.Controllers
             }
 
             if (ModelState.IsValid)
-            {
+            {parentUser = _workContext.CurrentCustomer;
                 var errors = _registerZhiXiaoUserHelper.RegisterNewUser(model, validateResult);
 
                 foreach (var error in errors)
@@ -860,6 +858,7 @@ namespace Web.ZhiXiao.Controllers
                 SystemZhiXiaoLogTypes.RechargeMoney,
                 SystemZhiXiaoLogTypes.Withdraw,
                 SystemZhiXiaoLogTypes.ProcessWithdraw,
+                SystemZhiXiaoLogTypes.RegisterNewUser,
             },
             _workContext.CurrentCustomer.Id,
             command.Page - 1,

@@ -675,6 +675,12 @@ namespace Nop.Services.Installation
                     Enabled = true,
                     Name = "管理员处理提现申请"
                 },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.RegisterNewUser,
+                    Enabled = true,
+                    Name = "管理员处理提现申请"
+                },
 
                 //admin area activities
                 new ActivityLogType
@@ -685,39 +691,15 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "AddNewCustomerAttribute",
-                    Enabled = true,
-                    Name = "Add a new customer attribute"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewCustomerAttributeValue",
-                    Enabled = true,
-                    Name = "Add a new customer attribute value"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "AddNewCustomerRole",
                     Enabled = true,
                     Name = "Add a new customer role"
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "AddNewDiscount",
-                    Enabled = true,
-                    Name = "Add a new discount"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "AddNewEmailAccount",
                     Enabled = true,
                     Name = "Add a new email account"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewGiftCard",
-                    Enabled = true,
-                    Name = "Add a new gift card"
                 },
                 new ActivityLogType
                 {
@@ -733,33 +715,9 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "AddNewProduct",
-                    Enabled = true,
-                    Name = "Add a new product"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewProductAttribute",
-                    Enabled = true,
-                    Name = "Add a new product attribute"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "AddNewSetting",
                     Enabled = true,
                     Name = "Add a new setting"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewSpecAttribute",
-                    Enabled = true,
-                    Name = "Add a new specification attribute"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "AddNewStateProvince",
-                    Enabled = true,
-                    Name = "Add a new state or province"
                 },
                 new ActivityLogType
                 {
@@ -817,21 +775,9 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "DeleteDiscount",
-                    Enabled = true,
-                    Name = "Delete a discount"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "DeleteEmailAccount",
                     Enabled = true,
                     Name = "Delete an email account"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "DeleteGiftCard",
-                    Enabled = true,
-                    Name = "Delete a gift card"
                 },
                 new ActivityLogType
                 {
@@ -841,17 +787,11 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "DeleteMessageTemplate",
-                    Enabled = true,
-                    Name = "Delete a message template"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "DeleteNews",
                     Enabled = true,
                     Name = "Delete a news"
                 },
-                 new ActivityLogType
+                new ActivityLogType
                 {
                     SystemKeyword = "DeleteNewsComment",
                     Enabled = true,
@@ -1015,12 +955,6 @@ namespace Nop.Services.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "EditReturnRequest",
-                    Enabled = true,
-                    Name = "Edit a return request"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "EditSettings",
                     Enabled = true,
                     Name = "Edit setting(s)"
@@ -1036,12 +970,6 @@ namespace Nop.Services.Installation
                     SystemKeyword = "EditStore",
                     Enabled = true,
                     Name = "Edit a store"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "EditVendor",
-                    Enabled = true,
-                    Name = "Edit a vendor"
                 },
                 new ActivityLogType
                 {

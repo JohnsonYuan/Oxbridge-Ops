@@ -280,7 +280,6 @@ namespace Nop.Services.Customers
             return result;
         }
 
-
         /// <summary>
         /// Change password
         /// </summary>

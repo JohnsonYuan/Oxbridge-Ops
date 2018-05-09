@@ -491,6 +491,13 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                Customer parentUser;
+            if (isManager)
+            {
+                parentUser = _customerService.GetCustomerById(model.ZhiXiao_ParentId);
+                if (parentUser == null)
+                    result.AddError("推荐人不存在, 请重新输入!");
+
                 var errors = _registerZhiXiaoUserHelper.RegisterNewUser(model, validateResult);
 
                 foreach (var error in errors)
@@ -1136,6 +1143,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 SystemZhiXiaoLogTypes.RechargeMoney,
                 SystemZhiXiaoLogTypes.Withdraw,
                 SystemZhiXiaoLogTypes.ProcessWithdraw,
+                SystemZhiXiaoLogTypes.RegisterNewUser,
             }, customerId, command.Page - 1, command.PageSize);
 
             var gridModel = new DataSourceResult
@@ -1559,12 +1567,18 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 //    Enabled = true,
                 //    Name = "管理员处理提现申请"
                 //},
+                //new ActivityLogType
+                //{
+                //    SystemKeyword = SystemZhiXiaoLogTypes.ReceiveProduct,
+                //    Enabled = true,
+                //    Name = "用户收货"
+                //},
                 new ActivityLogType
                 {
-                    SystemKeyword = SystemZhiXiaoLogTypes.ReceiveProduct,
+                    SystemKeyword = SystemZhiXiaoLogTypes.RegisterNewUser,
                     Enabled = true,
-                    Name = "用户收货"
-                },
+                    Name = "管理员处理提现申请"
+                }
             };
 
             // 用属性来关联是否收货

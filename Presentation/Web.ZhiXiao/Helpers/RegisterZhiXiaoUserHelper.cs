@@ -20,9 +20,9 @@ using Web.ZhiXiao.Factories;
 
 namespace Nop.Admin.Helpers
 {
-    public class ValidateCustomerModelResult
+    public class RegisterCustomerRequest
     {
-        public ValidateCustomerModelResult()
+        public RegisterCustomerRequest()
         {
             this.Errors = new List<string>();
         }
@@ -57,12 +57,29 @@ namespace Nop.Admin.Helpers
         /// 注册新用户需要的钱, 高级普通用户不同
         /// </summary>
         public int RequiredMoney { get; set; }
+
+        /// <summary>
+        /// Add error
+        /// </summary>
+        /// <param name="error">Error</param>
+        public void AddError(string error)
+        {
+            this.Errors.Add(error);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether request has been completed successfully
+        /// </summary>
+        public bool Success
+        {
+            get { return !this.Errors.Any(); }
+        }
     }
 
     public interface IRegisterZhiXiaoUserHelper
     {
-        ValidateCustomerModelResult ValidateCustomerModel(CustomerModel model, bool registerAdvanceUser, bool isManager);
-        IList<string> RegisterNewUser(CustomerModel model, ValidateCustomerModelResult validateResult);
+        RegisterCustomerRequest ValidateCustomerModel(CustomerModel model, bool registerAdvanceUser, bool isManager);
+        CustomerRegistrationResult RegisterNewUser(CustomerModel model, RegisterCustomerRequest validateResult);
         void SaveCustomerAttriubteValues(Customer customer, CustomerModel model);
     }
 
@@ -78,9 +95,7 @@ namespace Nop.Admin.Helpers
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ICustomerService _customerService;
-        private readonly IZhiXiaoService _customerTeamService;
-        //private readonly ICustomerAttributeParser _customerAttributeParser;
-        //private readonly ICustomerAttributeService _customerAttributeService;
+        private readonly IZhiXiaoService _zhiXiaoService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly ICustomerRegistrationService _customerRegistrationService;
 
@@ -94,7 +109,7 @@ namespace Nop.Admin.Helpers
         private readonly LocalizationSettings _localizationSettings;
         private readonly StoreInformationSettings _storeInformationSettings;
 
-        private readonly IPermissionService _permissionService; 
+        private readonly IPermissionService _permissionService;
         private readonly IRegisterZhiXiaoUserHelper _registerZhiXiaoUserHelper;
 
         #endregion
@@ -120,8 +135,7 @@ namespace Nop.Admin.Helpers
             LocalizationSettings localizationSettings,
             ZhiXiaoSettings zhiXiaoSettings,
             StoreInformationSettings storeInformationSettings,
-            IPermissionService permissionService,
-            IRegisterZhiXiaoUserHelper registerZhiXiaoUserHelper)
+            IPermissionService permissionService)
         {
             //this._addressModelFactory = addressModelFactory;
             this._customerModelFactory = customerModelFactory;
@@ -134,7 +148,7 @@ namespace Nop.Admin.Helpers
             this._workContext = workContext;
             this._storeContext = storeContext;
             this._customerService = customerService;
-            this._customerTeamService = customerTeamService;
+            this._zhiXiaoService = customerTeamService;
             //this._customerAttributeParser = customerAttributeParser;
             //this._customerAttributeService = customerAttributeService;
             this._genericAttributeService = genericAttributeService;
@@ -163,8 +177,60 @@ namespace Nop.Admin.Helpers
             //this._captchaSettings = captchaSettings;
             this._storeInformationSettings = storeInformationSettings;
 
-            this._permissionService = permissionService;
-            this._registerZhiXiaoUserHelper = registerZhiXiaoUserHelper;
+            this._permissionService = permissionService; ;
+        }
+
+        #endregion
+
+        #region Utilities
+
+        /// <summary>
+        /// 验证CustomerModel
+        /// </summary>
+        /// <param name="model">Customer model</param>
+        /// <param name="registerAdvanceUser">注册高级用户</param>
+        /// <param name="isAdmin">管理员模式添加, 可以指定推荐人</param>
+        /// <returns>Errors</returns>
+        protected RegisterCustomerRequest ValidateRegisterModel(CustomerModel model, Customer parentCustomer, bool isAdmin)
+        {
+            if (model == null)
+                throw new ArgumentNullException("model");
+            if (parentCustomer == null)
+                throw new ArgumentNullException("parentCustomer");
+
+            RegisterCustomerRequest requestResult = ValidateCustomerCanAddNewUser(parentCustomer, isAdmin);
+
+            if (!requestResult.Success)
+            {
+                return requestResult;
+            }
+
+            if (!String.IsNullOrWhiteSpace(model.Username) & _customerSettings.UsernamesEnabled)
+            {
+                var cust2 = _customerService.GetCustomerByUsername(model.Username);
+                if (cust2 != null)
+                    requestResult.AddError("用户名已经使用");
+            }
+
+            {
+                var cust2 = _customerService.GetCustomerByNickName(model.NickName);
+                if (cust2 != null)
+                    requestResult.AddError("昵称已经使用");
+            }
+
+            if (!String.IsNullOrWhiteSpace(model.Phone) && _customerSettings.PhoneEnabled)
+            {
+                var cust2 = _customerService.GetCustomerByPhoneNumber(model.Username);
+                if (cust2 != null)
+                    requestResult.AddError("手机号已经使用");
+            }
+
+            if (!requestResult.Success)
+            {
+                return requestResult;
+            }
+
+            return requestResult;
         }
 
         #endregion
@@ -172,103 +238,76 @@ namespace Nop.Admin.Helpers
         #region Methods
 
         /// <summary>
-        /// 验证CustomerModel
+        /// 检查用户是否可以注册新用户
         /// </summary>
-        /// <param name="model">Customer model</param>
-        /// <param name="registerAdvanceUser">注册高级用户</param>
-        /// <param name="isManager">管理员模式添加, 可以指定推荐人</param>
-        /// <returns>Errors</returns>
-        public ValidateCustomerModelResult ValidateCustomerModel(CustomerModel model, bool registerAdvanceUser, bool isManager)
+        /// <param name="customer">parent</param>
+        /// <param name="isManager">当前操作是否是管理员, 管理员注册不需要扣钱</param>
+        /// <returns></returns>
+        public RegisterCustomerRequest ValidateCustomerCanAddNewUser(Customer customer, bool isManager)
         {
-            IList<string> errors = new List<string>();
+            if (customer == null)
+                throw new ArgumentNullException("customer");
 
-            //if (!String.IsNullOrWhiteSpace(model.Email))
-            //{
-            //    var cust2 = _customerService.GetCustomerByEmail(model.Email);
-            //    if (cust2 != null)
-            //        errors.Add("Email is already registered");
-            //}
+            RegisterCustomerRequest result = new RegisterCustomerRequest();
 
-            if (!String.IsNullOrWhiteSpace(model.Username) & _customerSettings.UsernamesEnabled)
-            {
-                var cust2 = _customerService.GetCustomerByUsername(model.Username);
-                if (cust2 != null)
-                    errors.Add("用户名已经使用");
-            }
-
-            {
-                var cust2 = _customerService.GetCustomerByNickName(model.NickName);
-                if (cust2 != null)
-                    errors.Add("昵称已经使用");
-            }
-
-            if (!String.IsNullOrWhiteSpace(model.Phone) && _customerSettings.PhoneEnabled)
-            {
-                var cust2 = _customerService.GetCustomerByPhoneNumber(model.Username);
-                if (cust2 != null)
-                    errors.Add("手机号已经使用");
-            }
-
-            // 检查推荐人
             // 如果是管理员注册用户, 需要填写推荐人
-            // 如果饰普通用户注册用户, 推荐人就是该用户
+            // 如果是普通用户注册用户, 推荐人就是该用户
             if (isManager && !_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
-                errors.Add("用户没有添加推荐人权限");
+                result.AddError("用户没有添加推荐人权限");
 
-            Customer parentUser;
-            if (isManager)
+            //CustomerRegisterStatus resultStatus;
+
+            bool isAdvancedUser = customer.IsRegistered_Advanced();
+
+            // 是否已经出盘
+            if (customer.CustomerTeam == null)
             {
-                parentUser = _customerService.GetCustomerById(model.ZhiXiao_ParentId);
-                if (parentUser == null)
-                    errors.Add("推荐人不存在, 请重新输入!");
-            }
-            else
-            {
-                parentUser = _workContext.CurrentCustomer;
-            }
-
-            // 推荐人下线个数不能超过_zhiXiaoSettings.MaxChildCount
-            int parentChildCount = parentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount);
-            if (parentChildCount >= _zhiXiaoSettings.MaxChildCount)
-                errors.Add(string.Format("该推荐人已达到{0}个下线， 不能添加!", _zhiXiaoSettings.MaxChildCount));
-
-            // 添加用户所需钱
-            int requiredMoney = _zhiXiaoSettings.Register_Money_NormalUser;
-            if (registerAdvanceUser)
-            {
-                requiredMoney = _zhiXiaoSettings.Register_Money_AdvancedUser;
-            }
-
-            var parentUserMoney = parentUser.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyNum);
-
-            if (!isManager)
-            {
-                if (parentUserMoney < requiredMoney)
+                if (isAdvancedUser)
                 {
-                    errors.Add("电子币不足" + requiredMoney + ", 不能注册会员, 请充值!");
+                    // team == null, 高级用户 => 出盘
+                    //resultStatus = CustomerRegisterStatus.OutOfTeam;
+                    result.AddError("已进入董事级别, 不能添加!");
+                    return result;
+                }
+                else if (customer.IsRegistered())
+                {
+                    // team == null, 普通用户 => 出盘, 可以充值进入高级组
+                    // resultStatus = CustomerRegisterStatus.OutOfTeam_Temp;
+                    result.AddError("已不在小组中, 请联系管理员充值进入26800小组!");
+                    return result;
                 }
             }
 
-            //custom customer attributes
-            //var customerAttributesXml = ParseCustomCustomerAttributes(form);
-            //if (newCustomerRoles.Any() && newCustomerRoles.FirstOrDefault(c => c.SystemName == SystemCustomerRoleNames.Registered) != null)
-            //{
-            //    var customerAttributeWarnings = _customerAttributeParser.GetAttributeWarnings(customerAttributesXml);
-            //    foreach (var error in customerAttributeWarnings)
-            //    {
-            //        errors.Add(error);
-            //    }
-            //}
-            return new ValidateCustomerModelResult
+            // 推荐人下线个数不能超过_zhiXiaoSettings.MaxChildCount
+            int childCount = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount);
+            if (childCount >= _zhiXiaoSettings.MaxChildCount)
             {
-                Errors = errors,
-                ParentUser = parentUser,
-                ParentChildCount = parentChildCount,
-                ParentUserMoney = parentUserMoney,
-                RequiredMoney = requiredMoney,
-                IsManager = isManager,
-                RegisterAdvanceUser = registerAdvanceUser
-            };
+                result.AddError(string.Format("该推荐人已达到{0}个下线， 不能添加!", _zhiXiaoSettings.MaxChildCount));
+                return result;
+                //resultStatus = CustomerRegisterStatus.ChildFull;    
+            }
+
+            // 添加用户所需钱
+            if (!isManager)
+            {
+                int requiredMoney = isAdvancedUser ?
+                    _zhiXiaoSettings.Register_Money_AdvancedUser : _zhiXiaoSettings.Register_Money_NormalUser;
+
+                var userMoney = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyNum);
+
+                if (userMoney < requiredMoney)
+                {
+                    //resultStatus = CustomerRegisterStatus.MoneyNotEnough;
+                    result.AddError("电子币不足" + requiredMoney + ", 不能注册会员, 请充值!");
+                    return result;
+                }
+
+                result.RequiredMoney = requiredMoney;
+                result.ParentUserMoney = userMoney;
+            }
+
+            result.IsManager = isManager;
+            return result;
         }
 
         /// <summary>
@@ -277,15 +316,15 @@ namespace Nop.Admin.Helpers
         /// <param name="model"></param>
         /// <param name="validateResult"></param>
         /// <returns>Errors, 仅返回生成密码时错误</returns>
-        public IList<string> RegisterNewUser(CustomerModel model, ValidateCustomerModelResult validateResult)
+        public RegisterCustomerRequest RegisterNewUser(CustomerModel model, Customer parentCustomer, bool isManager = false)
         {
-            if (validateResult == null)
-                throw new ArgumentNullException("validateResult");
+            if (model == null)
+                throw new ArgumentNullException("model");
 
-            if (validateResult.Errors.Count > 0)
-                throw new ArgumentException("validateResult");
+            RegisterCustomerRequest registerRequest = ValidateRegisterModel(model, parentCustomer, isManager);
 
-            validateResult.Errors.Clear();
+            if (!registerRequest.Success)
+                return registerRequest;
 
             // 1. 新增用户
             var customer = new Customer
@@ -316,28 +355,50 @@ namespace Nop.Admin.Helpers
                 if (!changePassResult.Success)
                 {
                     foreach (var changePassError in changePassResult.Errors)
-                        validateResult.Errors.Add(changePassError);
+                        registerRequest.Errors.Add(changePassError);
                 }
             }
 
-            if (!validateResult.IsManager)
+            
+            if (!isManager)
             {
                 // 扣钱
-                if (validateResult.ParentUserMoney < validateResult.RequiredMoney)
-                    throw new Exception("所需电子币不足");
-                _genericAttributeService.SaveAttribute(validateResult.ParentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyNum, validateResult.ParentUserMoney - validateResult.RequiredMoney);
-                _customerActivityService.InsertActivity(validateResult.ParentUser, SystemZhiXiaoLogTypes.AddNewUser,
-                    "注册会员{0}, 电子币-{1}",
-                    customer.GetNickName(),
-                    validateResult.RequiredMoney);
+                //if (registerRequest.ParentUserMoney < registerRequest.RequiredMoney)
+                //    throw new Exception("所需电子币不足");
+
+                _zhiXiaoService.UpdateMoneyForUserAndLog(_workContext.CurrentCustomer,
+                    registerRequest.RequiredMoney * -1,
+                    SystemZhiXiaoLogTypes.RegisterNewUser,
+                    "注册新用户{0}, 用户级别{1}, 扣除金币{2}",
+                    customer.GetNickNameAndUserName(),
+                    parentCustomer.GetNickNameAndUserName(),
+                    registerRequest.RequiredMoney);
             }
             else
             {
-                _customerActivityService.InsertActivity(validateResult.ParentUser, SystemZhiXiaoLogTypes.AddNewUser,
+                //activity log
+                _customerActivityService.InsertActivity(SystemZhiXiaoLogTypes.RegisterNewUser,
+                    "注册新用户{0}, 推荐人{1}, 用户级别{2}",
+                    customer.GetNickNameAndUserName(),
+                    parentCustomer.GetNickNameAndUserName(),
+                    registerRequest.RequiredMoney);
+            }
+
+            if (!registerRequest.IsManager)
+            {
+                _genericAttributeService.SaveAttribute(registerRequest.ParentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyNum, registerRequest.ParentUserMoney - registerRequest.RequiredMoney);
+                _customerActivityService.InsertActivity(registerRequest.ParentUser, SystemZhiXiaoLogTypes.AddNewUser,
+                    "注册会员{0}, 电子币-{1}",
+                    customer.GetNickName(),
+                    registerRequest.RequiredMoney);
+            }
+            else
+            {
+                _customerActivityService.InsertActivity(registerRequest.ParentUser, SystemZhiXiaoLogTypes.AddNewUser,
                     "管理员{0}注册会员{1}, 推荐人为{2}",
                     _workContext.CurrentCustomer.GetNickName(), // 当前用户是管理员
                     customer.GetNickName(),
-                    validateResult.ParentUser.GetNickName());
+                    registerRequest.ParentUser.GetNickName());
             }
 
             var zhiXiaoRoles = _customerService.GetAllCustomerRoles(true)
@@ -348,7 +409,7 @@ namespace Nop.Admin.Helpers
 
             // user roles
             newCustomerRoles.Add(zhiXiaoRoles.Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered).First());
-            if (validateResult.RegisterAdvanceUser)
+            if (registerRequest.RegisterAdvanceUser)
                 newCustomerRoles.Add(zhiXiaoRoles.Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered_Advanced).First());
 
             //customer roles
@@ -364,33 +425,30 @@ namespace Nop.Admin.Helpers
             _customerService.UpdateCustomer(customer);
 
             // 直销用户分组信息
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_ParentId, validateResult.ParentUser.Id);
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_ParentId, registerRequest.ParentUser.Id);
 
             // var teamId = parentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_TeamId);
-            var parentTeam = validateResult.ParentUser.CustomerTeam;
+            var parentTeam = registerRequest.ParentUser.CustomerTeam;
 
             customer.CustomerTeam = parentTeam;
             // _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_TeamId, teamId);
 
-            var sortId = _customerTeamService.GetNewUserSortId(parentTeam);
+            var sortId = _zhiXiaoService.GetNewUserSortId(parentTeam);
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, sortId);
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, DateTime.UtcNow);
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_LevelId, (int)CustomerLevel.ZuYuan);
 
             // 2. Update Parent Info
-            _genericAttributeService.SaveAttribute(validateResult.ParentUser, SystemCustomerAttributeNames.ZhiXiao_ChildCount, validateResult.ParentChildCount + 1);
+            _genericAttributeService.SaveAttribute(registerRequest.ParentUser, SystemCustomerAttributeNames.ZhiXiao_ChildCount, registerRequest.ParentChildCount + 1);
 
             // 3. 更新小组人数
             parentTeam.UserCount += 1;
-            _customerTeamService.UpdateCustomerTeam(parentTeam);
+            _zhiXiaoService.UpdateCustomerTeam(parentTeam);
 
             // 1. 给组长， 副组长分钱, 2. 如果人数满足, 重新分组
-            _customerTeamService.AddNewUserToTeam(parentTeam, customer);
+            _zhiXiaoService.AddNewUserToTeam(parentTeam, customer);
 
-            //activity log
-            _customerActivityService.InsertActivity("AddNewCustomer", _localizationService.GetResource("ActivityLog.AddNewCustomer"), customer.Id);
-
-            return validateResult.Errors;
+            return registerRequest;
         }
 
         /// <summary>
