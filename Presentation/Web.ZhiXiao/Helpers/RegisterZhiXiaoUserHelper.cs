@@ -7,16 +7,12 @@ using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.ZhiXiao;
 using Nop.Models.Customers;
-using Nop.Services.Authentication;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Helpers;
-using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Security;
-using Nop.Services.Stores;
 using Nop.Services.ZhiXiao;
-using Web.ZhiXiao.Factories;
 
 namespace Nop.Admin.Helpers
 {
@@ -44,7 +40,7 @@ namespace Nop.Admin.Helpers
         /// <summary>
         /// 推荐人(当前用户或者选中的推荐人)
         /// </summary>
-        public Customer ParentUser { get; set; }
+        //public Customer ParentUser { get; set; }
         /// <summary>
         /// 推荐人下线个数<=2
         /// </summary>
@@ -78,8 +74,8 @@ namespace Nop.Admin.Helpers
 
     public interface IRegisterZhiXiaoUserHelper
     {
-        RegisterCustomerRequest ValidateCustomerModel(CustomerModel model, bool registerAdvanceUser, bool isManager);
-        CustomerRegistrationResult RegisterNewUser(CustomerModel model, RegisterCustomerRequest validateResult);
+        RegisterCustomerRequest ValidateParentCustomer(Customer customer, bool isManager = false);
+        CustomerRegistrationResult RegisterNewUser(CustomerModel model, Customer parentCustomer, bool isManager = false);
         void SaveCustomerAttriubteValues(Customer customer, CustomerModel model);
     }
 
@@ -87,11 +83,7 @@ namespace Nop.Admin.Helpers
     {
         #region Fields
 
-        private readonly ICustomerModelFactory _customerModelFactory;
-        private readonly IAuthenticationService _authenticationService;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly ILocalizationService _localizationService;
-        private readonly DateTimeSettings _dateTimeSettings;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ICustomerService _customerService;
@@ -99,52 +91,40 @@ namespace Nop.Admin.Helpers
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly ICustomerRegistrationService _customerRegistrationService;
 
-        private readonly CustomerSettings _customerSettings;
         private readonly IWebHelper _webHelper;
 
         private readonly ICustomerActivityService _customerActivityService;
-        private readonly IStoreService _storeService;
+        private readonly IPermissionService _permissionService;
 
+        private readonly CustomerSettings _customerSettings;
+        private readonly DateTimeSettings _dateTimeSettings;
         private readonly ZhiXiaoSettings _zhiXiaoSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly StoreInformationSettings _storeInformationSettings;
 
-        private readonly IPermissionService _permissionService;
-        private readonly IRegisterZhiXiaoUserHelper _registerZhiXiaoUserHelper;
 
         #endregion
 
         #region Ctor
 
         public RegisterZhiXiaoUserHelper(
-            ICustomerModelFactory customerModelFactory,
-            IAuthenticationService authenticationService,
             IDateTimeHelper dateTimeHelper,
-            ILocalizationService localizationService,
-            DateTimeSettings dateTimeSettings,
             IWorkContext workContext,
             IStoreContext storeContext,
             ICustomerService customerService,
             IZhiXiaoService customerTeamService,
             IGenericAttributeService genericAttributeService,
             ICustomerRegistrationService customerRegistrationService,
-            CustomerSettings customerSettings,
             IWebHelper webHelper,
             ICustomerActivityService customerActivityService,
-            IStoreService storeService,
+            IPermissionService permissionService,
+            DateTimeSettings dateTimeSettings,
+            CustomerSettings customerSettings,
             LocalizationSettings localizationSettings,
             ZhiXiaoSettings zhiXiaoSettings,
-            StoreInformationSettings storeInformationSettings,
-            IPermissionService permissionService)
+            StoreInformationSettings storeInformationSettings)
         {
-            //this._addressModelFactory = addressModelFactory;
-            this._customerModelFactory = customerModelFactory;
-            this._authenticationService = authenticationService;
             this._dateTimeHelper = dateTimeHelper;
-            this._localizationService = localizationService;
-            this._dateTimeSettings = dateTimeSettings;
-            //this._taxSettings = taxSettings;
-            this._localizationService = localizationService;
             this._workContext = workContext;
             this._storeContext = storeContext;
             this._customerService = customerService;
@@ -154,83 +134,16 @@ namespace Nop.Admin.Helpers
             this._genericAttributeService = genericAttributeService;
             this._customerRegistrationService = customerRegistrationService;
             //this._taxService = taxService;
-            this._customerSettings = customerSettings;
-            //this._addressSettings = addressSettings;
-            //this._forumSettings = forumSettings;
-            //this._addressService = addressService;
-            //this._countryService = countryService;
-            //this._orderService = orderService;
-            //this._pictureService = pictureService;
-            //this._newsLetterSubscriptionService = newsLetterSubscriptionService;
-            //this._shoppingCartService = shoppingCartService;
-            //this._openAuthenticationService = openAuthenticationService;
             this._webHelper = webHelper;
             this._customerActivityService = customerActivityService;
-            //this._addressAttributeParser = addressAttributeParser;
-            //this._addressAttributeService = addressAttributeService;
-            this._storeService = storeService;
-            //this._eventPublisher = eventPublisher;
-            //this._mediaSettings = mediaSettings;
-            //this._workflowMessageService = workflowMessageService;
+            this._permissionService = permissionService;
+
+            this._dateTimeSettings = dateTimeSettings;
+            this._customerSettings = customerSettings;
             this._zhiXiaoSettings = zhiXiaoSettings;
             this._localizationSettings = localizationSettings;
             //this._captchaSettings = captchaSettings;
             this._storeInformationSettings = storeInformationSettings;
-
-            this._permissionService = permissionService; ;
-        }
-
-        #endregion
-
-        #region Utilities
-
-        /// <summary>
-        /// 验证CustomerModel
-        /// </summary>
-        /// <param name="model">Customer model</param>
-        /// <param name="registerAdvanceUser">注册高级用户</param>
-        /// <param name="isAdmin">管理员模式添加, 可以指定推荐人</param>
-        /// <returns>Errors</returns>
-        protected RegisterCustomerRequest ValidateRegisterModel(CustomerModel model, Customer parentCustomer, bool isAdmin)
-        {
-            if (model == null)
-                throw new ArgumentNullException("model");
-            if (parentCustomer == null)
-                throw new ArgumentNullException("parentCustomer");
-
-            RegisterCustomerRequest requestResult = ValidateCustomerCanAddNewUser(parentCustomer, isAdmin);
-
-            if (!requestResult.Success)
-            {
-                return requestResult;
-            }
-
-            if (!String.IsNullOrWhiteSpace(model.Username) & _customerSettings.UsernamesEnabled)
-            {
-                var cust2 = _customerService.GetCustomerByUsername(model.Username);
-                if (cust2 != null)
-                    requestResult.AddError("用户名已经使用");
-            }
-
-            {
-                var cust2 = _customerService.GetCustomerByNickName(model.NickName);
-                if (cust2 != null)
-                    requestResult.AddError("昵称已经使用");
-            }
-
-            if (!String.IsNullOrWhiteSpace(model.Phone) && _customerSettings.PhoneEnabled)
-            {
-                var cust2 = _customerService.GetCustomerByPhoneNumber(model.Username);
-                if (cust2 != null)
-                    requestResult.AddError("手机号已经使用");
-            }
-
-            if (!requestResult.Success)
-            {
-                return requestResult;
-            }
-
-            return requestResult;
         }
 
         #endregion
@@ -238,22 +151,75 @@ namespace Nop.Admin.Helpers
         #region Methods
 
         /// <summary>
+        /// 验证新用户(CustomerModel)的是否重复
+        /// </summary>
+        /// <param name="model">Customer model</param>
+        /// <returns>Errors</returns>
+        protected List<string> ValidateCustomerRepeat(CustomerModel model)
+        {
+            if (model == null)
+                throw new ArgumentNullException("model");
+
+            List<string> errors = new List<string>();
+
+            if (!String.IsNullOrWhiteSpace(model.Username) & _customerSettings.UsernamesEnabled)
+            {
+                var cust2 = _customerService.GetCustomerByUsername(model.Username);
+                if (cust2 != null)
+                    errors.Add("用户名已经使用");
+            }
+
+            {
+                var cust2 = _customerService.GetCustomerByNickName(model.NickName);
+                if (cust2 != null)
+                    errors.Add("昵称已经使用");
+            }
+
+            if (!String.IsNullOrWhiteSpace(model.Phone) && _customerSettings.PhoneEnabled)
+            {
+                var cust2 = _customerService.GetCustomerByPhoneNumber(model.Username);
+                if (cust2 != null)
+                    errors.Add("手机号已经使用");
+            }
+
+            return errors;
+        }
+
+        /// <summary>
         /// 检查用户是否可以注册新用户
         /// </summary>
         /// <param name="customer">parent</param>
         /// <param name="isManager">当前操作是否是管理员, 管理员注册不需要扣钱</param>
         /// <returns></returns>
-        public RegisterCustomerRequest ValidateCustomerCanAddNewUser(Customer customer, bool isManager)
+        public RegisterCustomerRequest ValidateParentCustomer(Customer customer, bool isManager = false)
         {
-            if (customer == null)
-                throw new ArgumentNullException("customer");
-
             RegisterCustomerRequest result = new RegisterCustomerRequest();
+
+            if (customer == null)
+            {
+                result.AddError("推荐人不存在");
+                return result;
+            }
+
+            if (!customer.Active)
+            {
+                result.AddError("推荐人被禁用");
+                return result;
+            }
+
+            if (customer.Deleted)
+            {
+                result.AddError("推荐人被删除");
+                return result;
+            }
 
             // 如果是管理员注册用户, 需要填写推荐人
             // 如果是普通用户注册用户, 推荐人就是该用户
             if (isManager && !_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+            {
                 result.AddError("用户没有添加推荐人权限");
+                return result;
+            }
 
             //CustomerRegisterStatus resultStatus;
 
@@ -293,7 +259,7 @@ namespace Nop.Admin.Helpers
                 int requiredMoney = isAdvancedUser ?
                     _zhiXiaoSettings.Register_Money_AdvancedUser : _zhiXiaoSettings.Register_Money_NormalUser;
 
-                var userMoney = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyNum);
+                var userMoney = customer.GetMoneyNum();
 
                 if (userMoney < requiredMoney)
                 {
@@ -306,6 +272,8 @@ namespace Nop.Admin.Helpers
                 result.ParentUserMoney = userMoney;
             }
 
+            result.RegisterAdvanceUser = isAdvancedUser;
+            result.ParentChildCount = childCount;
             result.IsManager = isManager;
             return result;
         }
@@ -316,17 +284,32 @@ namespace Nop.Admin.Helpers
         /// <param name="model"></param>
         /// <param name="validateResult"></param>
         /// <returns>Errors, 仅返回生成密码时错误</returns>
-        public RegisterCustomerRequest RegisterNewUser(CustomerModel model, Customer parentCustomer, bool isManager = false)
+        public CustomerRegistrationResult RegisterNewUser(CustomerModel model, Customer parentCustomer, bool isManager = false)
         {
             if (model == null)
                 throw new ArgumentNullException("model");
 
-            RegisterCustomerRequest registerRequest = ValidateRegisterModel(model, parentCustomer, isManager);
+            var result = new CustomerRegistrationResult();
+            // 1. validate parent customer whether can add child
+            RegisterCustomerRequest registerRequest = ValidateParentCustomer(parentCustomer, isManager);
 
             if (!registerRequest.Success)
-                return registerRequest;
+                return new CustomerRegistrationResult
+                {
+                    Errors = registerRequest.Errors
+                };
 
-            // 1. 新增用户
+            // 2. validate model
+            var modelErrors = ValidateCustomerRepeat(model);
+            if (modelErrors.Any())
+            {
+                return new CustomerRegistrationResult
+                {
+                    Errors = modelErrors
+                };
+            }
+
+            // 3. add new user
             var customer = new Customer
             {
                 CustomerGuid = Guid.NewGuid(),
@@ -344,10 +327,7 @@ namespace Nop.Admin.Helpers
 
             _customerService.InsertCustomer(customer);
 
-            //form fields
-            _registerZhiXiaoUserHelper.SaveCustomerAttriubteValues(customer, model);
-
-            //password
+            // password
             if (!String.IsNullOrWhiteSpace(model.Password))
             {
                 var changePassRequest = new ChangePasswordRequest(model.Email, false, _customerSettings.DefaultPasswordFormat, model.Password);
@@ -355,21 +335,33 @@ namespace Nop.Admin.Helpers
                 if (!changePassResult.Success)
                 {
                     foreach (var changePassError in changePassResult.Errors)
-                        registerRequest.Errors.Add(changePassError);
+                        result.AddError(changePassError);
                 }
             }
 
-            
+            // 4. save form fields
+            SaveCustomerAttriubteValues(customer, model);
+
+            // 5. save customer's parnet id
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_ParentId, parentCustomer.Id);
+
+            // 6. Update Parent child count, 
+            _genericAttributeService.SaveAttribute(parentCustomer, SystemCustomerAttributeNames.ZhiXiao_ChildCount, registerRequest.ParentChildCount + 1);
+
             if (!isManager)
             {
                 // 扣钱
                 //if (registerRequest.ParentUserMoney < registerRequest.RequiredMoney)
                 //    throw new Exception("所需电子币不足");
+                _genericAttributeService.SaveAttribute(
+                    customer,
+                    SystemCustomerAttributeNames.ZhiXiao_MoneyNum,
+                    registerRequest.ParentUserMoney - registerRequest.RequiredMoney);
 
-                _zhiXiaoService.UpdateMoneyForUserAndLog(_workContext.CurrentCustomer,
-                    registerRequest.RequiredMoney * -1,
+                // add log
+                _customerActivityService.InsertActivity(parentCustomer,
                     SystemZhiXiaoLogTypes.RegisterNewUser,
-                    "注册新用户{0}, 用户级别{1}, 扣除金币{2}",
+                    "注册新用户{0}, 用户级别{1}, 扣除电子币{2}",
                     customer.GetNickNameAndUserName(),
                     parentCustomer.GetNickNameAndUserName(),
                     registerRequest.RequiredMoney);
@@ -384,62 +376,33 @@ namespace Nop.Admin.Helpers
                     registerRequest.RequiredMoney);
             }
 
-            if (!registerRequest.IsManager)
-            {
-                _genericAttributeService.SaveAttribute(registerRequest.ParentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyNum, registerRequest.ParentUserMoney - registerRequest.RequiredMoney);
-                _customerActivityService.InsertActivity(registerRequest.ParentUser, SystemZhiXiaoLogTypes.AddNewUser,
-                    "注册会员{0}, 电子币-{1}",
-                    customer.GetNickName(),
-                    registerRequest.RequiredMoney);
-            }
-            else
-            {
-                _customerActivityService.InsertActivity(registerRequest.ParentUser, SystemZhiXiaoLogTypes.AddNewUser,
-                    "管理员{0}注册会员{1}, 推荐人为{2}",
-                    _workContext.CurrentCustomer.GetNickName(), // 当前用户是管理员
-                    customer.GetNickName(),
-                    registerRequest.ParentUser.GetNickName());
-            }
+            // 7. add roles
+            var registeredRole = _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered);
+            if (registeredRole == null)
+                throw new NopException("'Registered' role could not be loaded");
 
-            var zhiXiaoRoles = _customerService.GetAllCustomerRoles(true)
-                                 .Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered
-                                 || cr.SystemName == SystemCustomerRoleNames.Registered_Advanced);
+            customer.CustomerRoles.Add(registeredRole);
 
-            var newCustomerRoles = new List<CustomerRole>();
-
-            // user roles
-            newCustomerRoles.Add(zhiXiaoRoles.Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered).First());
             if (registerRequest.RegisterAdvanceUser)
-                newCustomerRoles.Add(zhiXiaoRoles.Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered_Advanced).First());
-
-            //customer roles
-            foreach (var customerRole in newCustomerRoles)
             {
-                //ensure that the current customer cannot add to "Administrators" system role if he's not an admin himself
-                if (customerRole.SystemName == SystemCustomerRoleNames.Administrators &&
-                    !_workContext.CurrentCustomer.IsAdmin())
-                    continue;
-
-                customer.CustomerRoles.Add(customerRole);
+                var registered_advancedRole = _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered_Advanced);
+                if (registered_advancedRole == null)
+                    throw new NopException("'Registered_Advanced' role could not be loaded");
+                customer.CustomerRoles.Add(registered_advancedRole);
             }
+
             _customerService.UpdateCustomer(customer);
 
-            // 直销用户分组信息
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_ParentId, registerRequest.ParentUser.Id);
-
-            // var teamId = parentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_TeamId);
-            var parentTeam = registerRequest.ParentUser.CustomerTeam;
+            // 8. update customer team
+            var parentTeam = parentCustomer.CustomerTeam;
 
             customer.CustomerTeam = parentTeam;
-            // _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_TeamId, teamId);
 
+            // 9. save team related info
             var sortId = _zhiXiaoService.GetNewUserSortId(parentTeam);
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, sortId);
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, DateTime.UtcNow);
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_LevelId, (int)CustomerLevel.ZuYuan);
-
-            // 2. Update Parent Info
-            _genericAttributeService.SaveAttribute(registerRequest.ParentUser, SystemCustomerAttributeNames.ZhiXiao_ChildCount, registerRequest.ParentChildCount + 1);
 
             // 3. 更新小组人数
             parentTeam.UserCount += 1;
@@ -448,7 +411,7 @@ namespace Nop.Admin.Helpers
             // 1. 给组长， 副组长分钱, 2. 如果人数满足, 重新分组
             _zhiXiaoService.AddNewUserToTeam(parentTeam, customer);
 
-            return registerRequest;
+            return result;
         }
 
         /// <summary>

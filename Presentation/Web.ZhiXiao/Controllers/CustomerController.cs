@@ -323,15 +323,27 @@ namespace Web.ZhiXiao.Controllers
 
         #region Register
 
-        [ParameterBasedOnQueryString("advanced", "registerAdvanceUser")]
-        public virtual ActionResult Register(bool registerAdvanceUser)
+        public virtual ActionResult Register()
         {
+            var validateParentResult = _registerZhiXiaoUserHelper.ValidateParentCustomer(_workContext.CurrentCustomer, false);
+
+            if (!validateParentResult.Success)
+            {
+                foreach (var error in validateParentResult.Errors)
+                {
+                    ErrorNotification(error);
+                }
+
+                ViewBag.CanRegiser = false;
+                return View();
+            }
+
+            ViewBag.CanRegiser = true;
+
             var model = new CustomerModel();
             PrepareCustomerModel(model);
-            //default value
-            model.Active = true;
 
-            if (registerAdvanceUser)
+            if (_workContext.CurrentCustomer.IsRegistered_Advanced())
             {
                 ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
             }
@@ -342,45 +354,42 @@ namespace Web.ZhiXiao.Controllers
             return View(model);
         }
 
-        [HttpPost, ParameterBasedOnQueryString("advanced", "registerAdvanceUser")]
+        [HttpPost]
         [FormValueRequired("save", "save-continue")]
         [ValidateInput(false)]
-        public virtual ActionResult Register(CustomerModel model, bool registerAdvanceUser)
+        public virtual ActionResult Register(CustomerModel model)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.AccessAdminPanel))
-                return AccessDeniedView();
+            var validateParentResult = _registerZhiXiaoUserHelper.ValidateParentCustomer(_workContext.CurrentCustomer, false);
 
-            var validateResult = _registerZhiXiaoUserHelper.ValidateCustomerModel(model, registerAdvanceUser, false);
-            foreach (var error in validateResult.Errors)
+            if (!validateParentResult.Success)
             {
-                ModelState.AddModelError("", error);
+                foreach (var error in validateParentResult.Errors)
+                {
+                    ModelState.AddModelError("", error);
+                }
             }
 
             if (ModelState.IsValid)
-            {parentUser = _workContext.CurrentCustomer;
-                var errors = _registerZhiXiaoUserHelper.RegisterNewUser(model, validateResult);
+            {
+                // set to true by default
+                model.Active = true;
+                var registerResult = _registerZhiXiaoUserHelper.RegisterNewUser(model, _workContext.CurrentCustomer, false);
 
-                foreach (var error in errors)
+                if (registerResult.Success)
                 {
-                    ErrorNotification(error);
+                    SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
+                    return RedirectToAction("List");
                 }
-
-                SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
-                return RedirectToAction("List");
+                else
+                {
+                    foreach (var error in registerResult.Errors)
+                    {
+                        ErrorNotification(error);
+                    }
+                }
             }
 
-            //If we got this far, something failed, redisplay form
-            PrepareCustomerModel(model);
-
-            if (registerAdvanceUser)
-            {
-                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
-            }
-            else
-            {
-                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
-            }
-            return View(model);
+            return RedirectToAction("Register");
         }
 
         /// <summary>
@@ -727,7 +736,7 @@ namespace Web.ZhiXiao.Controllers
                 //errors
                 foreach (var error in changePasswordResult.Errors)
                     ErrorNotification(error);
-                    //ModelState.AddModelError("", error);
+                //ModelState.AddModelError("", error);
             }
 
             //If we got this far, something failed, redisplay form
@@ -775,7 +784,7 @@ namespace Web.ZhiXiao.Controllers
                     ErrorNotification(exc.Message);
                 }
             }
-            
+
             model.MaxAmount = _workContext.CurrentCustomer.GetMoneyNum();
             return View(model);
         }

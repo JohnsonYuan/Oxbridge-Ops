@@ -460,8 +460,6 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
             var model = new CustomerModel();
             PrepareCustomerModel(model, null, true);
-            //default value
-            model.Active = true;
 
             if (registerAdvanceUser)
             {
@@ -483,44 +481,38 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.AccessAdminPanel))
                 return AccessDeniedView();
 
-            var validateResult = _registerZhiXiaoUserHelper.ValidateCustomerModel(model, registerAdvanceUser, true);
-            foreach (var error in validateResult.Errors)
-            {
-                ModelState.AddModelError("", error);
-            }
+            var parentUser = _customerService.GetCustomerById(model.ZhiXiao_ParentId);
+            var validateParentResult = _registerZhiXiaoUserHelper.ValidateParentCustomer(_workContext.CurrentCustomer, false);
 
-            if (ModelState.IsValid)
+            if (!validateParentResult.Success)
             {
-                Customer parentUser;
-            if (isManager)
-            {
-                parentUser = _customerService.GetCustomerById(model.ZhiXiao_ParentId);
-                if (parentUser == null)
-                    result.AddError("推荐人不存在, 请重新输入!");
-
-                var errors = _registerZhiXiaoUserHelper.RegisterNewUser(model, validateResult);
-
-                foreach (var error in errors)
+                foreach (var error in validateParentResult.Errors)
                 {
                     ErrorNotification(error);
                 }
 
-                SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
-                return RedirectToAction("List");
+                return View();
             }
 
-            //If we got this far, something failed, redisplay form
-            PrepareCustomerModel(model, null, true);
+            if (ModelState.IsValid)
+            {
+                var registerResult = _registerZhiXiaoUserHelper.RegisterNewUser(model, parentUser, true);
 
-            if (registerAdvanceUser)
-            {
-                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
+                if (registerResult.Success)
+                {
+                    SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
+                    return RedirectToAction("List");
+                }
+                else
+                {
+                    foreach (var error in registerResult.Errors)
+                    {
+                        ErrorNotification(error);
+                    }
+                }
             }
-            else
-            {
-                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
-            }
-            return View(model);
+
+            return RedirectToAction("RegisterZhiXiaoUser");
         }
 
         #endregion
