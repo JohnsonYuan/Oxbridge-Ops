@@ -146,7 +146,6 @@ namespace Nop.Services.ZhiXiao
                 logCommentParams);
         }
 
-
         /// <summary>
         /// Inserts an activity log type item
         /// </summary>
@@ -783,6 +782,23 @@ namespace Nop.Services.ZhiXiao
                 actualAmount);
 
             return actualAmount;
+        }
+
+        #endregion
+
+        #region register
+
+        /// <summary>
+        /// 当前用户是否可以发展下线
+        /// </summary>
+        public virtual CustomerRegisterResult ValidateCustomerRegister(Customer customer)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            // TODO
+
+            return CustomerRegisterResult.Successful;
         }
 
         #endregion

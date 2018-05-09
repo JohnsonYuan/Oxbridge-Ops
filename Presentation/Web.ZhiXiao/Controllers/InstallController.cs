@@ -1,17 +1,17 @@
-﻿using Nop.Core;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Threading;
+using System.Web.Mvc;
+using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Configuration;
 using Nop.Core.Data;
 using Nop.Core.Infrastructure;
 using Nop.Services.Installation;
 using Nop.Services.Security;
-using Nop.Web.Models.Install;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Threading;
-using System.Web.Mvc;
 using Nop.Web.Framework.Controllers;
+using Nop.Web.Models.Install;
 
 namespace Web.ZhiXiao.Controllers
 {

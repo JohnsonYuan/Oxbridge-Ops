@@ -108,5 +108,10 @@ namespace Nop.Services.ZhiXiao
         /// <param name="customer"></param>
         /// <param name="amount"></param>
         int WithdrawMoney(Customer customer, int amount);
+
+        /// <summary>
+        /// 当前用户是否可以发展下线
+        /// </summary>
+        CustomerRegisterResult ValidateCustomerRegister(Customer customer);
     }
 }

@@ -293,21 +293,6 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             return Redirect(returnUrl);
         }
 
-        public virtual ActionResult AccessDenied(string pageUrl)
-        {
-            var currentCustomer = _workContext.CurrentCustomer;
-            if (currentCustomer == null || currentCustomer.IsGuest())
-            {
-                _logger.Information(string.Format("Access denied to anonymous request on {0}", pageUrl));
-                return View();
-            }
-
-            _logger.Information(string.Format("Access denied to user #{0} '{1}' on {2}", currentCustomer.Email, currentCustomer.Email, pageUrl));
-
-
-            return View();
-        }
-
         #endregion
     }
 }

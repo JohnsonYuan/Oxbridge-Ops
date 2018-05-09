@@ -35,11 +35,11 @@ namespace Nop.Admin.Helpers
         /// <summary>
         /// 注册高级用户?
         /// </summary>
-        public bool RegisterAdvanceUser{ get; set; }
+        public bool RegisterAdvanceUser { get; set; }
         /// <summary>
         /// 注册人是管理员?
         /// </summary>
-        public bool IsManager{ get; set; }
+        public bool IsManager { get; set; }
 
         /// <summary>
         /// 推荐人(当前用户或者选中的推荐人)
@@ -63,6 +63,7 @@ namespace Nop.Admin.Helpers
     {
         ValidateCustomerModelResult ValidateCustomerModel(CustomerModel model, bool registerAdvanceUser, bool isManager);
         IList<string> RegisterNewUser(CustomerModel model, ValidateCustomerModelResult validateResult);
+        void SaveCustomerAttriubteValues(Customer customer, CustomerModel model);
     }
 
     public class RegisterZhiXiaoUserHelper : IRegisterZhiXiaoUserHelper
@@ -79,7 +80,7 @@ namespace Nop.Admin.Helpers
         private readonly ICustomerService _customerService;
         private readonly IZhiXiaoService _customerTeamService;
         //private readonly ICustomerAttributeParser _customerAttributeParser;
-        private readonly ICustomerAttributeService _customerAttributeService;
+        //private readonly ICustomerAttributeService _customerAttributeService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly ICustomerRegistrationService _customerRegistrationService;
 
@@ -93,7 +94,8 @@ namespace Nop.Admin.Helpers
         private readonly LocalizationSettings _localizationSettings;
         private readonly StoreInformationSettings _storeInformationSettings;
 
-        private readonly IPermissionService _permissionService;
+        private readonly IPermissionService _permissionService; 
+        private readonly IRegisterZhiXiaoUserHelper _registerZhiXiaoUserHelper;
 
         #endregion
 
@@ -118,7 +120,8 @@ namespace Nop.Admin.Helpers
             LocalizationSettings localizationSettings,
             ZhiXiaoSettings zhiXiaoSettings,
             StoreInformationSettings storeInformationSettings,
-            IPermissionService permissionService)
+            IPermissionService permissionService,
+            IRegisterZhiXiaoUserHelper registerZhiXiaoUserHelper)
         {
             //this._addressModelFactory = addressModelFactory;
             this._customerModelFactory = customerModelFactory;
@@ -161,6 +164,7 @@ namespace Nop.Admin.Helpers
             this._storeInformationSettings = storeInformationSettings;
 
             this._permissionService = permissionService;
+            this._registerZhiXiaoUserHelper = registerZhiXiaoUserHelper;
         }
 
         #endregion
@@ -301,6 +305,21 @@ namespace Nop.Admin.Helpers
 
             _customerService.InsertCustomer(customer);
 
+            //form fields
+            _registerZhiXiaoUserHelper.SaveCustomerAttriubteValues(customer, model);
+
+            //password
+            if (!String.IsNullOrWhiteSpace(model.Password))
+            {
+                var changePassRequest = new ChangePasswordRequest(model.Email, false, _customerSettings.DefaultPasswordFormat, model.Password);
+                var changePassResult = _customerRegistrationService.ChangePassword(changePassRequest);
+                if (!changePassResult.Success)
+                {
+                    foreach (var changePassError in changePassResult.Errors)
+                        validateResult.Errors.Add(changePassError);
+                }
+            }
+
             if (!validateResult.IsManager)
             {
                 // 扣钱
@@ -331,61 +350,6 @@ namespace Nop.Admin.Helpers
             newCustomerRoles.Add(zhiXiaoRoles.Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered).First());
             if (validateResult.RegisterAdvanceUser)
                 newCustomerRoles.Add(zhiXiaoRoles.Where(cr => cr.SystemName == SystemCustomerRoleNames.Registered_Advanced).First());
-
-            //form fields
-            if (_dateTimeSettings.AllowCustomersToSetTimeZone)
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.TimeZoneId, model.TimeZoneId);
-            if (_customerSettings.GenderEnabled)
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Gender, model.Gender);
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.FirstName, model.FirstName);
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.LastName, model.LastName);
-            if (_customerSettings.DateOfBirthEnabled)
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.DateOfBirth, model.DateOfBirth);
-            if (_customerSettings.CompanyEnabled)
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Company, model.Company);
-            if (_customerSettings.StreetAddressEnabled)
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StreetAddress, model.StreetAddress);
-            //if (_customerSettings.StreetAddress2Enabled)
-            //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StreetAddress2, model.StreetAddress2);
-            //if (_customerSettings.ZipPostalCodeEnabled)
-            //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZipPostalCode, model.ZipPostalCode);
-            if (_customerSettings.CityEnabled)
-            {
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.City, model.City);
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.District, model.District);
-            }
-            //if (_customerSettings.CountryEnabled)
-            //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.CountryId, model.CountryId);
-            if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StateProvince, model.StateProvince);
-            if (_customerSettings.PhoneEnabled)
-                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Phone, model.Phone);
-            //if (_customerSettings.FaxEnabled)
-            //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Fax, model.Fax);
-
-            //custom customer attributes
-            //_genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.CustomCustomerAttributes, customerAttributesXml);
-
-            // 直销用户个人信息
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_NickName, model.NickName);
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_Password2, model.Password2);          // 二级密码
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_IdCardNum, model.ZhiXiao_IdCardNum);
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_YinHang, model.ZhiXiao_YinHang);      // 银行
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuHang, model.ZhiXiao_KaiHuHang);  // 开户行
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuMing, model.ZhiXiao_KaiHuMing);  // 开户名
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_BandNum, model.ZhiXiao_BandNum);      // 银行卡号
-
-            //password
-            if (!String.IsNullOrWhiteSpace(model.Password))
-            {
-                var changePassRequest = new ChangePasswordRequest(model.Email, false, _customerSettings.DefaultPasswordFormat, model.Password);
-                var changePassResult = _customerRegistrationService.ChangePassword(changePassRequest);
-                if (!changePassResult.Success)
-                {
-                    foreach (var changePassError in changePassResult.Errors)
-                        validateResult.Errors.Add(changePassError);
-                }
-            }
 
             //customer roles
             foreach (var customerRole in newCustomerRoles)
@@ -427,6 +391,62 @@ namespace Nop.Admin.Helpers
             _customerActivityService.InsertActivity("AddNewCustomer", _localizationService.GetResource("ActivityLog.AddNewCustomer"), customer.Id);
 
             return validateResult.Errors;
+        }
+
+        /// <summary>
+        /// 保存用户的generic attribute 值
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <param name="model"></param>
+        public void SaveCustomerAttriubteValues(Customer customer, CustomerModel model)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+            if (model == null)
+                throw new ArgumentNullException("model");
+
+            //form fields
+            if (_dateTimeSettings.AllowCustomersToSetTimeZone)
+                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.TimeZoneId, model.TimeZoneId);
+            if (_customerSettings.GenderEnabled)
+                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Gender, model.Gender);
+            //_genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.FirstName, model.FirstName);
+            //_genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.LastName, model.LastName);
+            if (_customerSettings.DateOfBirthEnabled)
+                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.DateOfBirth, model.DateOfBirth);
+            if (_customerSettings.CompanyEnabled)
+                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Company, model.Company);
+            if (_customerSettings.StreetAddressEnabled)
+                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StreetAddress, model.StreetAddress);
+            //if (_customerSettings.StreetAddress2Enabled)
+            //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StreetAddress2, model.StreetAddress2);
+            //if (_customerSettings.ZipPostalCodeEnabled)
+            //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZipPostalCode, model.ZipPostalCode);
+            if (_customerSettings.CityEnabled)
+            {
+                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.City, model.City);
+                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.District, model.District);
+            }
+            //if (_customerSettings.CountryEnabled)
+            //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.CountryId, model.CountryId);
+            if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
+                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.StateProvince, model.StateProvince);
+            if (_customerSettings.PhoneEnabled)
+                _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Phone, model.Phone);
+            //if (_customerSettings.FaxEnabled)
+            //    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Fax, model.Fax);
+
+            //custom customer attributes
+            //_genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.CustomCustomerAttributes, customerAttributesXml);
+
+            // 直销用户个人信息 (只在编辑时更新, Create时不显示这些信息)
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_NickName, model.NickName);
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_Password2, model.Password2);          // 二级密码
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_IdCardNum, model.ZhiXiao_IdCardNum);
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_YinHang, model.ZhiXiao_YinHang);      // 银行
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuHang, model.ZhiXiao_KaiHuHang);  // 开户行
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuMing, model.ZhiXiao_KaiHuMing);  // 开户名
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_BandNum, model.ZhiXiao_BandNum);      // 银行卡号
         }
 
         #endregion

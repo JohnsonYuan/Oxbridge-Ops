@@ -43,7 +43,7 @@ namespace Nop.Web.Framework.Controllers
         protected virtual ActionResult AccessDeniedView()
         {
             //return new HttpUnauthorizedResult();
-            return RedirectToAction("AccessDenied", "Common", new { pageUrl = this.Request.RawUrl});
+            return RedirectToAction("AccessDenied", "Common", new { pageUrl = this.Request.RawUrl, Area = ""});
         }
 
         /// <summary>

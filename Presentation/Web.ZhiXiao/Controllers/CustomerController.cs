@@ -33,7 +33,7 @@ using Web.ZhiXiao.Factories;
 
 namespace Web.ZhiXiao.Controllers
 {
-    public class CustomerController : BaseAdminController
+    public class CustomerController : BaseCustomerController
     {
         #region Fields
 
@@ -326,8 +326,7 @@ namespace Web.ZhiXiao.Controllers
         [ParameterBasedOnQueryString("advanced", "registerAdvanceUser")]
         public virtual ActionResult Register(bool registerAdvanceUser)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.AccessAdminPanel))
-                return AccessDeniedView();
+            _zhiXiaoService.ValidateCustomerRegister(_workContext.CurrentCustomer);
 
             var model = new CustomerModel();
             PrepareCustomerModel(model);
@@ -502,8 +501,8 @@ namespace Web.ZhiXiao.Controllers
         {
             var currentCustomer = _workContext.CurrentCustomer;
 
-            if (!currentCustomer.IsRegistered())
-                return new HttpUnauthorizedResult();
+            if (!currentCustomer.IsAdmin())
+                return RedirectToRoute("AdminHomePage");
 
             CustomerIndexModel model = new CustomerIndexModel();
             model.CustomerInfo = PrepareCustomerModelForIndex(currentCustomer);

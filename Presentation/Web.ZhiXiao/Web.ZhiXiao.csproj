@@ -1321,7 +1321,6 @@
     <Compile Include="Areas\Admin\Controllers\CustomerManageController.cs" />
     <Compile Include="Areas\Admin\Controllers\CustomerRoleController.cs" />
     <Compile Include="Areas\Admin\Controllers\CustomerTeamController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InstallController.cs" />
     <Compile Include="Areas\Admin\Controllers\LanguageController.cs" />
     <Compile Include="Areas\Admin\Controllers\LogController.cs" />
@@ -1560,8 +1559,6 @@
     <Folder Include="Content\lib\Roxy_Fileman\tmp\" />
     <Folder Include="Content\uploaded\" />
     <Folder Include="db_backups\" />
-    <Folder Include="Views\Home\" />
-    <Folder Include="Views\Preferences\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Libraries\Nop.Core\Nop.Core.csproj">

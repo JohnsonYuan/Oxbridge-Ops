@@ -1,16 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Web;
 using System.Web.Mvc;
-using Nop.Admin.Models.Common;
 using Nop.Core;
-using Nop.Core.Caching;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Customers;
-using Nop.Core.Infrastructure;
 using Nop.Models.Customers;
 using Nop.Services.Authentication;
 using Nop.Services.Common;
@@ -20,7 +15,6 @@ using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Security;
 using Nop.Web.Framework.Controllers;
-using Nop.Web.Framework.Kendoui;
 using Web.ZhiXiao.Factories;
 
 namespace Web.ZhiXiao.Controllers
