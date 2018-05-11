@@ -276,8 +276,8 @@ namespace Web.ZhiXiao.Controllers
                 diagarmModel.Add(model);
             }
 
-            var group1Users = diagarmModel.Where(x => x.InTeamOrder < teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
-            var group2Users = diagarmModel.Where(x => x.InTeamOrder >= teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
+            var group1Users = diagarmModel.Where(x => x.InTeamOrder <= teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
+            var group2Users = diagarmModel.Where(x => x.InTeamOrder > teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
 
             return new TeamDiagramModel
             {
@@ -389,7 +389,19 @@ namespace Web.ZhiXiao.Controllers
                 }
             }
 
-            return RedirectToAction("Register");
+            ViewBag.CanRegiser = true;
+
+            PrepareCustomerModel(model);
+
+            if (_workContext.CurrentCustomer.IsRegistered_Advanced())
+            {
+                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
+            }
+            else
+            {
+                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
+            }
+            return View(model);
         }
 
         /// <summary>
@@ -508,7 +520,7 @@ namespace Web.ZhiXiao.Controllers
         {
             var currentCustomer = _workContext.CurrentCustomer;
 
-            if (!currentCustomer.IsAdmin())
+            if (currentCustomer.IsAdmin())
                 return RedirectToRoute("AdminHomePage");
 
             CustomerIndexModel model = new CustomerIndexModel();

@@ -248,7 +248,7 @@ namespace Nop.Admin.Helpers
             int childCount = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount);
             if (childCount >= _zhiXiaoSettings.MaxChildCount)
             {
-                result.AddError(string.Format("该推荐人已达到{0}个下线， 不能添加!", _zhiXiaoSettings.MaxChildCount));
+                result.AddError(string.Format("已达到{0}个下线， 不能添加!", _zhiXiaoSettings.MaxChildCount));
                 return result;
                 //resultStatus = CustomerRegisterStatus.ChildFull;    
             }

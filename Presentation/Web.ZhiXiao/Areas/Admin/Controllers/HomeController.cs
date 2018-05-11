@@ -8,7 +8,6 @@ using Nop.Services.Customers;
 using Nop.Services.Security;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Models.Home;
-using Web.ZhiXiao.Controllers;
 
 namespace Web.ZhiXiao.Areas.Admin.Controllers
 {

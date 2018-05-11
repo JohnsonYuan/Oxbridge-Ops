@@ -124,8 +124,8 @@ namespace Nop.Services.Customers
             if (!customer.Active)
                 return CustomerLoginResults.NotActive;
             //only registered can login
-            if (!customer.IsRegistered())
-                return CustomerLoginResults.NotRegistered;
+            //if (!customer.IsRegistered())
+            //  return CustomerLoginResults.NotRegistered;
             //check whether a customer is locked out
             if (customer.CannotLoginUntilDateUtc.HasValue && customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow)
                 return CustomerLoginResults.LockedOut;

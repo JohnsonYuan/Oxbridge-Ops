@@ -786,23 +786,6 @@ namespace Nop.Services.ZhiXiao
 
         #endregion
 
-        #region register
-
-        /// <summary>
-        /// 当前用户是否可以发展下线
-        /// </summary>
-        public virtual CustomerRegisterResult ValidateCustomerRegister(Customer customer)
-        {
-            if (customer == null)
-                throw new ArgumentNullException("customer");
-
-            // TODO
-
-            return CustomerRegisterResult.Successful;
-        }
-
-        #endregion
-
         #endregion
 
         /// <summary>

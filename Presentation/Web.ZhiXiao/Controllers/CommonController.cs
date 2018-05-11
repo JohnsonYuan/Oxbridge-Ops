@@ -298,7 +298,7 @@ namespace Web.ZhiXiao.Controllers
                 TempData["nop.IgnoreEuCookieLawWarning"] = true;
             }
 
-            return RedirectToRoute("HomePage");
+            return RedirectToRoute("login");
         }
 
         #endregion

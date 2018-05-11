@@ -25,6 +25,8 @@ namespace Nop.Validators.Customers
             RuleFor(x => x.Username).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Username.Required"));
             //}
 
+            RuleFor(x => x.NickName).NotEmpty().WithMessage(localizationService.GetResource("Admin.Customers.Customers.Fields.NickName.Required"));
+
             // 当编辑用户时不需要输入密码
             RuleFor(x => x.Password).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Password.Required"))
                 .When(x => x.Id == 0);
