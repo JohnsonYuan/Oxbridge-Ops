@@ -76,6 +76,8 @@ namespace Nop.Admin.Helpers
     {
         RegisterCustomerRequest ValidateParentCustomer(Customer customer, bool isManager = false);
         CustomerRegistrationResult RegisterNewUser(CustomerModel model, Customer parentCustomer, bool isManager = false);
+        void AddChildToCustomer(Customer customer, Customer parentCustomer, RegisterCustomerRequest registerRequest, bool isManager = false);
+        void UpgradeCustomerToAdanced(Customer customer, Customer parentCustomer);
         void SaveCustomerAttriubteValues(Customer customer, CustomerModel model);
     }
 
@@ -330,7 +332,7 @@ namespace Nop.Admin.Helpers
             // password
             if (!String.IsNullOrWhiteSpace(model.Password))
             {
-                var changePassRequest = new ChangePasswordRequest(model.Email, false, _customerSettings.DefaultPasswordFormat, model.Password);
+                var changePassRequest = new ChangePasswordRequest(customer.Email, false, _customerSettings.DefaultPasswordFormat, model.Password);
                 var changePassResult = _customerRegistrationService.ChangePassword(changePassRequest);
                 if (!changePassResult.Success)
                 {
@@ -338,10 +340,20 @@ namespace Nop.Admin.Helpers
                         result.AddError(changePassError);
                 }
             }
-
+            
             // 4. save form fields
             SaveCustomerAttriubteValues(customer, model);
 
+            // 添加用户为下线
+            AddChildToCustomer(customer, parentCustomer, registerRequest, isManager);
+            return result;
+        }
+
+        /// <summary>
+        /// 添加用户为下线
+        /// </summary>
+        public void AddChildToCustomer(Customer customer, Customer parentCustomer, RegisterCustomerRequest registerRequest, bool isManager = false)
+        {
             // 5. save customer's parnet id
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_ParentId, parentCustomer.Id);
 
@@ -354,16 +366,16 @@ namespace Nop.Admin.Helpers
                 //if (registerRequest.ParentUserMoney < registerRequest.RequiredMoney)
                 //    throw new Exception("所需电子币不足");
                 _genericAttributeService.SaveAttribute(
-                    customer,
+                    parentCustomer,
                     SystemCustomerAttributeNames.ZhiXiao_MoneyNum,
                     registerRequest.ParentUserMoney - registerRequest.RequiredMoney);
 
                 // add log
                 _customerActivityService.InsertActivity(parentCustomer,
                     SystemZhiXiaoLogTypes.RegisterNewUser,
-                    "注册新用户{0}, 用户级别{1}, 扣除电子币{2}",
+                    "注册新用户: {0}, 用户级别: {1}, 扣除电子币 {2}",
                     customer.GetNickNameAndUserName(),
-                    parentCustomer.GetNickNameAndUserName(),
+                    customer.GetLevelDescription(),
                     registerRequest.RequiredMoney);
             }
             else
@@ -391,13 +403,12 @@ namespace Nop.Admin.Helpers
                 customer.CustomerRoles.Add(registered_advancedRole);
             }
 
-            _customerService.UpdateCustomer(customer);
-
             // 8. update customer team
             var parentTeam = parentCustomer.CustomerTeam;
 
             customer.CustomerTeam = parentTeam;
 
+            _customerService.UpdateCustomer(customer);
             // 9. save team related info
             var sortId = _zhiXiaoService.GetNewUserSortId(parentTeam);
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, sortId);
@@ -410,8 +421,25 @@ namespace Nop.Admin.Helpers
 
             // 1. 给组长， 副组长分钱, 2. 如果人数满足, 重新分组
             _zhiXiaoService.AddNewUserToTeam(parentTeam, customer);
+        }
 
-            return result;
+        /// <summary>
+        /// 升级普通用户为高级用户, 设置RegisterCustomerRequest需要的参数
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <param name="parentCustomer"></param>
+        public void UpgradeCustomerToAdanced(Customer customer, Customer parentCustomer)
+        {
+            // 设置RegisterCustomerRequest需要的参数
+            AddChildToCustomer(customer,
+                parentCustomer, 
+                new RegisterCustomerRequest() {
+                    ParentChildCount = parentCustomer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount),
+                    ParentUserMoney = parentCustomer.GetMoneyNum(),
+                    RequiredMoney = _zhiXiaoSettings.Register_Money_AdvancedUser,
+                    RegisterAdvanceUser = true,
+                }, 
+                true);
         }
 
         /// <summary>

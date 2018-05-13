@@ -15,6 +15,8 @@ namespace Nop.Core.Domain.ZhiXiao
         FuZuZhang,
         [Description("组长")]
         ZuZhang,
+        [Description("不在小组中, 充值3万继续")]
+        PreDongShi,
         [Description("董事级别")]
         DongShi0,
         [Description("一星董事")]

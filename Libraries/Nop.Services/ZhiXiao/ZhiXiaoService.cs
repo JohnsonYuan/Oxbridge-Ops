@@ -209,12 +209,14 @@ namespace Nop.Services.ZhiXiao
         /// <param name="createdOnFrom">Log item creation from; null to load all activities</param>
         /// <param name="createdOnTo">Log item creation to; null to load all activities</param>
         /// <returns>Customer team items items</returns>
-        public virtual IPagedList<CustomerTeam> GetAllCustomerTeams(string teamNumber, DateTime? createdOnFrom = null,
+        public virtual IPagedList<CustomerTeam> GetAllCustomerTeams(string teamNumber = null, int? teamTypeId = null, DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null, int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = _customerTeamRepository.Table;
             if (!String.IsNullOrEmpty(teamNumber))
                 query = query.Where(al => al.CustomNumber.Contains(teamNumber));
+            if (teamTypeId.HasValue)
+                query = query.Where(al => al.TypeId == teamTypeId.Value);
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
@@ -294,7 +296,7 @@ namespace Nop.Services.ZhiXiao
                 : _zhiXiaoSettings.NewUserMoney_FuZuZhang_Normal;
 
                 // 记录组长奖金钱数
-                UpdateMoneyForUserAndLog(zuZhang,
+                UpdateMoneyForUserAndLog(user,
                     addMoney,
                     SystemZhiXiaoLogTypes.AddNewUser,
                     "小组新加入会员{0}, 奖金+{1}",
@@ -342,24 +344,47 @@ namespace Nop.Services.ZhiXiao
             //    null);
             zuZhang.CustomerTeam = null;
 
-            // 组长进入董事级别
-            _genericAttributeService.SaveAttribute(zuZhang,
-                SystemCustomerAttributeNames.ZhiXiao_LevelId,
-                (int)CustomerLevel.DongShi0);
+            if (zuZhang.IsRegistered_Advanced())
+            {
+                // 当是高级小组是才向上检查升级
+                // 组长进入董事级别
+                _genericAttributeService.SaveAttribute(zuZhang,
+                    SystemCustomerAttributeNames.ZhiXiao_LevelId,
+                    (int)CustomerLevel.DongShi0);
 
-            _customerActivityService.InsertActivity(zuZhang,
-                SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
-                "小组{0}重新分组, 由{1}升级为{2}",
-                oldTeam.CustomNumber,
-                CustomerLevel.ZuZhang.GetDescription(),
-                CustomerLevel.DongShi0.GetDescription());
+                _customerActivityService.InsertActivity(zuZhang,
+                    SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
+                    "小组{0}重新分组, 由{1}升级为{2}",
+                    oldTeam.CustomNumber,
+                    CustomerLevel.ZuZhang.GetDescription(),
+                    CustomerLevel.DongShi0.GetDescription());
 
-            // 2. 组长升级为董事级别, 递归升级组长上线的钱
-            ReGroup_UpdateZuZhangParentMoney(zuZhang);
+                // 2. 组长升级为董事级别, 递归升级组长上线的钱
+                ReGroup_UpdateZuZhangParentMoney(zuZhang);
 
-            // 3. 判断该组长的上线是否满足升级资格 => 看该上线的另一个下线是否满足
-            ReGroup_UpdateZuZhangParentClass(zuZhang);
+                // 3. 判断该组长的上线是否满足升级资格 => 看该上线的另一个下线是否满足
+                ReGroup_UpdateZuZhangParentClass(zuZhang);
+            }
+            else
+            {
+                // 当是普通小组清空child parent
+                var childs = _customerService.GetCustomerChildren(zuZhang);
+                foreach (var child in childs)
+                {
+                    _genericAttributeService.SaveAttribute<string>(child, SystemCustomerAttributeNames.ZhiXiao_ParentId, null);
+                }
 
+                // 当是高级小组是才向上检查升级
+                // 组长进入董事级别
+                _genericAttributeService.SaveAttribute(zuZhang,
+                    SystemCustomerAttributeNames.ZhiXiao_LevelId,
+                    (int)CustomerLevel.PreDongShi);
+
+                _customerActivityService.InsertActivity(zuZhang,
+                    SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
+                    "小组{0}重新分组, 离开小组",
+                    oldTeam.CustomNumber);
+            }
             // 4.原来小组的组员(SortId < 7)每人1600
             ReGroup_UpdateZuYuanMoney(oldTeam);
 
@@ -369,15 +394,20 @@ namespace Nop.Services.ZhiXiao
             var newTeam = new CustomerTeam
             {
                 //CustomNumber = DateTime.UtcNow.ToString("yyyymmdd"),
-                UserCount = 0,
+                UserCount = _zhiXiaoSettings.TeamInitUserCount,
                 CreatedOnUtc = DateTime.UtcNow
             };
-            
-            // 更新编号
-            newTeam.CustomNumber = customNumberFormatter.GenerateTeamNumber(newTeam);
-            _customerTeamRepository.Update(newTeam);
 
             _customerTeamRepository.Insert(newTeam);
+
+            // 更新编号
+            newTeam.CustomNumber = customNumberFormatter.GenerateTeamNumber(newTeam);
+            newTeam.TeamType = oldTeam.TeamType;
+            _customerTeamRepository.Update(newTeam);
+
+            // 重新分组, 小组人数都是7人
+            oldTeam.UserCount = _zhiXiaoSettings.TeamInitUserCount;
+            _customerTeamRepository.Update(oldTeam);
 
             //var oldTeamid = oldTeam.Id;
             //var newTeamId = newTeam.Id;
@@ -385,7 +415,7 @@ namespace Nop.Services.ZhiXiao
             // 按照下线个数(desc), 时间(asc) 排序, 来决定加入哪个小组
             var sortedUsers = oldTeam.Customers
                             .OrderByDescending(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount))
-                            .ThenBy(x => x.GetAttribute<DateTime>(SystemCustomerAttributeNames.ZhiXiao_InTeamTime))
+                            .ThenBy(x => x.GetAttribute<DateTime>(SystemCustomerAttributeNames.ZhiXiao_InTeamOrder))
                             .ToList();
 
             if (sortedUsers.Count != _zhiXiaoSettings.TeamReGroupUserCount - 1)
@@ -419,7 +449,7 @@ namespace Nop.Services.ZhiXiao
                 //var currentUserOldTeam = currentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_TeamId);
 
                 var currentUserOldLevel = currentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId);
-                _customerActivityService.InsertActivity(zuZhang,
+                _customerActivityService.InsertActivity(currentUser,
                         SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
                         "{0} 小组重新分组, 原先级别为{1}, 当前级别为{2}, 分至小组{3}",
                         oldTeam.CustomNumber,
@@ -432,7 +462,7 @@ namespace Nop.Services.ZhiXiao
                 currentUser.CustomerTeam = currentUserTeam;
                 //_genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_TeamId, currentUserTeamId);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_LevelId, (int)currentUserLevel);
-                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder + 1, (int)sortId);
+                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, (int)sortId + 1); // 排序从1开始
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, DateTime.UtcNow);
             }
         }
@@ -517,11 +547,7 @@ namespace Nop.Services.ZhiXiao
             }
 
             var childs = _customerRepository.Table
-                .Join(_gaRepository.Table, x => x.Id, y => y.EntityId, (x, y) => new { Customer = x, Attribute = y })
-                .Where((z => z.Attribute.KeyGroup == "Customer" &&
-                        z.Attribute.Key == SystemCustomerAttributeNames.ZhiXiao_ParentId &&
-                        CommonHelper.To<int>(z.Attribute.Value) == parentUser.Id))
-                 .Select(x => x.Customer);
+                .Where(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ParentId, 0) == parentUser.Id);
 
             // 找到另一个下线(最多两个下线)
             var otherChild = childs.Where(x => x.Id != zuZhang.Id).FirstOrDefault();
@@ -543,7 +569,7 @@ namespace Nop.Services.ZhiXiao
                     // 已经出盘 不需要计算
                     return;
                 }
-                else if (parentLevel == CustomerLevel.DongShi5)
+                else if (parentLevel == CustomerLevel.DongShi2)
                 {
                     //该上线已经达到5星董事 => 该出盘了！！
                     _genericAttributeService.SaveAttribute(parentUser,
@@ -558,15 +584,15 @@ namespace Nop.Services.ZhiXiao
                     UpdateMoneyForUserAndLog(parentUser,
                         addMoney,
                         SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
-                        "{0} 下小组重新分组, 五星董事升级, 奖金+{0}",
+                        "{0} 下小组重新分组, 出盘, 奖金+{0}",
                         zuZhang.GetNickName(),
                         addMoney);
 
                     // update level log
-                    _customerActivityService.InsertActivity(zuZhang,
-                        SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
-                        "{0} 下小组重新分组, 五星董事升级, 出盘",
-                        zuZhang.GetNickName());
+                    //_customerActivityService.InsertActivity(zuZhang,
+                    //    SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
+                    //    "{0} 下小组重新分组, 五星董事升级, 出盘",
+                    //    zuZhang.GetNickName());
 
                     //两个下线的parent清空
                     //_genericAttributeService.SaveAttribute<string>(zuZhang,
@@ -716,7 +742,7 @@ namespace Nop.Services.ZhiXiao
         {
             if (customer == null)
                 throw new ArgumentException("customer");
-            
+
             if (log == null)
                 throw new ArgumentException("log");
 

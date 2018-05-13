@@ -1,8 +1,12 @@
 ﻿@model CustomerIndexModel
 
+@using Nop.Core.Domain.Customers
+@using Nop.Services.Customers
+
 @{
     var newsGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.News.NewsSettings>().NewsArchivePageSize;
     var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+    var userInTeam = Model.CustomerInfo.CustomerTeam != null;
 
     //page title
     ViewBag.Title = "个人中心";
@@ -27,20 +31,42 @@
                 </div>
                 <div class="box-body">
                     <div class="widget-user-header bg-aqua-active">
-                        <p>您当前的等级是: @Model.CustomerInfo.CustomerLevel.GetDescription()</p>
-                        <p>您的下线成员有:</p>
-                        <ul class="diagarm">
-                            @foreach (var child in Model.Children)
-                            {
-                                <li>
-                                    <button class="btn btn-success" type="button">@child.DisplayInfo</button>
-                                </li>
-                            }
-                        </ul>
+                        @if (ViewBag.ShowRegisterAdvancedTip)
+                        {
+                            <p>暂时出盘, 充值26800继续</p>
+                        }
+                        else
+                        {
+                            <p>您当前的等级是: @Model.CustomerInfo.CustomerLevel.GetDescription()</p>
+                            <p>您的下线成员有:</p>
+                            <ul class="diagarm">
+                                @foreach (var child in Model.Children)
+                                {
+                                    var teamNum = "";
+                                    if (Model.CustomerInfo.CustomerTeam == null || child.CustomerTeam.Id != Model.CustomerInfo.CustomerTeam.Id)
+                                    {
+                                        teamNum = child.CustomerTeam == null ? "" : child.CustomerTeam.CustomNumber;
+                                    }
+                                    <li>
+                                        <button class="btn btn-success" type="button">@child.GetNickName() (@teamNum @child.GetLevelDescription())</button>
+                                    </li>
+                                }
+                            </ul>
+                        }
                     </div>
                 </div>
                 <div class="box-footer no-padding">
                     <ul class="nav nav-stacked">
+                        
+                        <li><p class="margin">昵称 <span class="pull-right">@Model.CustomerInfo.NickName</span></p></li>
+                        @if (Model.CustomerInfo.CustomerTeam != null)
+                        {
+                            <li><p class="margin">小组编号<span class="pull-right badge bg-blue">@Model.CustomerInfo.CustomerTeam.CustomNumber</span></p></li>
+                        }
+                        else
+                        {
+                            <li><p class="margin">小组编号<span class="pull-right">无小组</span></p></li>
+                        }
                         <li><p class="margin">电子币余额 <span class="pull-right badge bg-blue">@Model.CustomerInfo.ZhiXiao_MoneyNum</span></p></li>
                         <li><p class="margin">历史电子币 <span class="pull-right badge bg-blue">@Model.CustomerInfo.ZhiXiao_MoneyHistory</span></p></li>
                         <li><p class="margin">注册时间<span class="pull-right">@Model.CustomerInfo.CreatedOn</span></p></li>
@@ -48,25 +74,28 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="box box-success">
-                <div class="box-header with-border">
-                    <h3 class="box-title">小组信息</h3>
-                    <div class="box-tools pull-right">
-                        <button class="btn btn-box-tool" type="button" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
-                        </button>
+        @if (userInTeam)
+        {
+            <div class="col-md-6">
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">小组@(Model.CustomerInfo.CustomerTeam.CustomNumber)(@(Model.TeamUsers.Count)人)</h3>
+                        <div class="box-tools pull-right">
+                            <button class="btn btn-box-tool" type="button" data-widget="collapse">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                        <!-- /.box-tools -->
                     </div>
-                    <!-- /.box-tools -->
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        @Html.Partial("_TeamTreeView", Model.TeamUsers)
+                    </div>
+                    <!-- /.box-body -->
                 </div>
-                <!-- /.box-header -->
-                <div class="box-body">
-                    @Html.Partial("_TeamTreeView", Model.TeamUsers)
-                </div>
-                <!-- /.box-body -->
+                <!-- /.col -->
             </div>
-            <!-- /.col -->
-        </div>
+        }
     </div>
 
     <div class="row">

@@ -178,6 +178,7 @@ namespace Web.ZhiXiao.Controllers
                 Id = customer.Id,
                 //Email = customer.IsRegistered() ? customer.Email : _localizationService.GetResource("Admin.Customers.Guest"),
                 Username = customer.Username,
+                CustomerTeam = customer.CustomerTeam,
                 //FullName = customer.GetFullName(),
                 //Company = customer.GetAttribute<string>(SystemCustomerAttributeNames.Company),
                 Phone = customer.GetAttribute<string>(SystemCustomerAttributeNames.Phone),
@@ -266,7 +267,7 @@ namespace Web.ZhiXiao.Controllers
             {
                 var model = customer.ToModel();
 
-                var childs = _customerService.GetCustomerChildren(customer.Id);
+                var childs = _customerService.GetCustomerChildren(customer);
 
                 foreach (var child in childs)
                 {
@@ -276,8 +277,8 @@ namespace Web.ZhiXiao.Controllers
                 diagarmModel.Add(model);
             }
 
-            var group1Users = diagarmModel.Where(x => x.InTeamOrder <= teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
-            var group2Users = diagarmModel.Where(x => x.InTeamOrder > teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
+            var group1Users = diagarmModel.Where(x => x.InTeamOrder <= teamUnitCount).OrderBy(x => x.InTeamOrder).ToList();
+            var group2Users = diagarmModel.Where(x => x.InTeamOrder > teamUnitCount).OrderBy(x => x.InTeamOrder).ToList();
 
             return new TeamDiagramModel
             {
@@ -306,7 +307,7 @@ namespace Web.ZhiXiao.Controllers
             {
                 var model = customer.ToModel();
 
-                var childs = _customerService.GetCustomerChildren(customer.Id);
+                var childs = _customerService.GetCustomerChildren(customer);
 
                 foreach (var child in childs)
                 {
@@ -378,7 +379,7 @@ namespace Web.ZhiXiao.Controllers
                 if (registerResult.Success)
                 {
                     SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
-                    return RedirectToAction("List");
+                    return RedirectToAction("Register");
                 }
                 else
                 {
@@ -525,16 +526,14 @@ namespace Web.ZhiXiao.Controllers
 
             CustomerIndexModel model = new CustomerIndexModel();
             model.CustomerInfo = PrepareCustomerModelForIndex(currentCustomer);
-            model.Children = new List<CustomerDiagramModel>();
-            var childs = _customerService.GetCustomerChildren(currentCustomer.Id);
-
-            foreach (var child in childs)
-            {
-                model.Children.Add(child.ToModel());
-            }
+            model.Children =  _customerService.GetCustomerChildren(currentCustomer, false).OrderBy(x => x.GetInTeamOrder()).ToList();
 
             var team = _workContext.CurrentCustomer.CustomerTeam;
-            model.TeamUsers = PrepareTeamDiagarmInfo(team);
+            model.TeamUsers = team == null ? new List<CustomerDiagramModel>()
+                : PrepareTeamDiagarmInfo(team);
+
+            // 如果是普通用户出盘, 提示继续3万注册信息
+            ViewBag.ShowRegisterAdvancedTip = currentCustomer.CustomerTeam == null && currentCustomer.IsRegistered();
 
             return View(model);
         }
@@ -977,6 +976,17 @@ namespace Web.ZhiXiao.Controllers
         public ActionResult DiagarmTreeTest()
         {
             return View();
+        }
+
+        public ActionResult GetTeam()
+        {
+            var team = _zhiXiaoService.GetCustomerTeamById(1);
+            foreach (var item in team.Customers)
+            {
+                Response.Write(item.Username + "<br/>");
+            }
+
+            return Content("");
         }
 
         #endregion

@@ -388,7 +388,8 @@ namespace Nop.Services.Installation
             #region Registered user
             
             // 组长(*1) 副组长(*2) 组员 (*8)
-            for (int i = 1; i <= 11; i++)
+            //for (int i = 1; i <= 11; i++)
+            for (int i = 1; i <= 7; i++)
             {
                 var currentUserName = "user_" + i;
                 var currentUserEmail = currentUserName + "@yourStore.com";
@@ -447,8 +448,8 @@ namespace Nop.Services.Installation
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, i);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, addToTeamTime.AddMinutes(i + 5));
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_LevelId, currentLevel);
-                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyNum, CommonHelper.GenerateRandomInteger(2000, 50000));
-                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyHistory, CommonHelper.GenerateRandomInteger(5000, 50000));
+                //_genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyNum, CommonHelper.GenerateRandomInteger(2000, 50000));
+                //_genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyHistory, CommonHelper.GenerateRandomInteger(5000, 50000));
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_IdCardNum, CommonHelper.GenerateRandomDigitCode(18));
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_YinHang, "中国银行");
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_KaiHuHang, "太原支行");
@@ -467,8 +468,10 @@ namespace Nop.Services.Installation
                 });
             }
 
-            defaultTeam.UserCount = 11;
+            defaultTeam.UserCount = 7;
             _customerTeamRepository.Update(defaultTeam);
+
+            return;
 
             // 设置下线
             var firstUser = _customerRepository.Table.Where(x => x.Username == "user_1").First();
@@ -584,8 +587,8 @@ namespace Nop.Services.Installation
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, i);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, addToTeamTime.AddMinutes(i + 5));
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_LevelId, currentLevel);
-                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyNum, CommonHelper.GenerateRandomInteger(2000, 50000));
-                _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyHistory, CommonHelper.GenerateRandomInteger(5000, 50000));
+                //_genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyNum, CommonHelper.GenerateRandomInteger(2000, 50000));
+                //_genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_MoneyHistory, CommonHelper.GenerateRandomInteger(5000, 50000));
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_IdCardNum, CommonHelper.GenerateRandomDigitCode(18));
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_YinHang, "中国银行");
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_KaiHuHang, "太原支行");
@@ -679,7 +682,7 @@ namespace Nop.Services.Installation
                 {
                     SystemKeyword = SystemZhiXiaoLogTypes.RegisterNewUser,
                     Enabled = true,
-                    Name = "管理员处理提现申请"
+                    Name = "注册新用户"
                 },
 
                 //admin area activities
@@ -1495,7 +1498,7 @@ namespace Nop.Services.Installation
             if (installSampleData)
             {
                 // no data
-                InstallActivityLog(defaultUserEmail);
+                //InstallActivityLog(defaultUserEmail);
 
                 InstallZhiXiaoActivityLog("user_1@yourStore.com");
             }

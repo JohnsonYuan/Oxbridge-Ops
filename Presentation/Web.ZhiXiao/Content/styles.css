@@ -1367,6 +1367,7 @@ margin-right: 10px;
 overflow: hidden;
 }
 .diagarm li a {
+    width: 130px;
     display: block;
     background: #324143;
     padding: 5px 12px;
@@ -1380,7 +1381,7 @@ overflow: hidden;
     background: #24313C;
 }
 .diagarm li ul {
-    margin: 0;
+    margin-top: 5px;
     padding: 0;
     /*position: absolute;*/
     border-top: 1px solid white;

@@ -41,6 +41,7 @@ namespace Nop.Admin.Infrastructure.Mapper
                 //customer diagarm
                 cfg.CreateMap<Customer, CustomerDiagramModel>()
                     .ForMember(dest => dest.Child, mo => mo.Ignore())
+                    .ForMember(dest => dest.MoneyNum, mo => mo.Ignore())
                     .ForMember(dest => dest.NickName, mo => mo.MapFrom(src => src.GetNickName()))
                     .ForMember(dest => dest.InTeamOrder, mo => mo.MapFrom(src => src.GetInTeamOrder()))
                     .ForMember(dest => dest.LevelDesription, mo => mo.MapFrom(src => src.GetLevelDescription()));

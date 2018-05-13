@@ -7,6 +7,8 @@ namespace Nop.Models.Customers
 {
     public partial class TeamDiagramModel
     {
+        public bool IsAdmin { get; set; }
+
         public CustomerTeam Team { get; set; }
 
         /// <summary>
@@ -35,6 +37,7 @@ namespace Nop.Models.Customers
         }
 
         public string NickName { get; set; }
+        public long MoneyNum { get; set; }
         public string LevelDesription { get; set; }
         public int InTeamOrder { get; set; }
         public DateTime CreatedOnUtc { get; set; }

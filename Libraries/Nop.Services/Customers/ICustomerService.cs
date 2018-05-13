@@ -78,9 +78,9 @@ namespace Nop.Services.Customers
         /// <summary>
         /// Get customers children.
         /// </summary>
-        /// <param name="customerIds">Customer parent id</param>
+        /// <param name="customerIds">parent customer</param>
         /// <returns>Customers</returns>
-        IList<Customer> GetCustomerChildren(int parentId);
+        IList<Customer> GetCustomerChildren(Customer parentCustomer, bool checkTeam = true);
 
         /// <summary>
         /// Gets a customer by GUID

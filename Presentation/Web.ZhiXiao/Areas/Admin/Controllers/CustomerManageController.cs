@@ -472,7 +472,6 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             return View(model);
         }
 
-
         [HttpPost, ParameterBasedOnQueryString("advanced", "registerAdvanceUser")]
         [FormValueRequired("save", "save-continue")]
         [ValidateInput(false)]
@@ -513,6 +512,137 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             }
 
             return RedirectToAction("RegisterZhiXiaoUser");
+        }
+
+        /// <summary>
+        /// 普通用户升级为高级用户
+        /// </summary>
+        /// <returns></returns>
+        public virtual ActionResult UpgradeNormalUser(int id)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedView();
+
+            var customer = _customerService.GetCustomerById(id);
+            if (customer == null || customer.Deleted)
+                //No customer found with the specified id
+                return RedirectToAction("List");
+
+            if (customer.CustomerTeam != null)
+            {
+                ModelState.AddModelError("", "用户有推荐人, 不能添加");
+                return RedirectToAction("List");
+            }
+
+            if (customer.IsRegistered_Advanced())
+            {
+                ModelState.AddModelError("", "用户在26800小组, 不能添加");
+                return RedirectToAction("List");
+            }
+
+            if (customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ParentId) > 0)
+            {
+                ModelState.AddModelError("", "用户有推荐人, 不能添加");
+                return RedirectToAction("List");
+            }
+
+            UpgradeCustomerModel model = new UpgradeCustomerModel();
+            var advancedTeams = _zhiXiaoService.GetAllCustomerTeams(teamTypeId: (int)CustomerTeamType.Advanced);
+            foreach (var team in advancedTeams)
+            {
+                model.AvailableTeams.Add(new SelectListItem
+                {
+                    Text = string.Format("{0} (人数: {1})", team.CustomNumber, team.UserCount),
+                    Value = team.Id.ToString()
+                });
+            }
+
+            return View(model);
+        }
+        [HttpPost]
+        public virtual ActionResult UpgradeNormalUser(int id, UpgradeCustomerModel model)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedView();
+
+            var customer = _customerService.GetCustomerById(id);
+            if (customer == null || customer.Deleted)
+                //No customer found with the specified id
+                return RedirectToAction("List");
+
+            if (customer.CustomerTeam != null)
+            {
+                ModelState.AddModelError("", "用户有推荐人, 不能添加");
+                return RedirectToAction("List");
+            }
+
+            if (customer.IsRegistered_Advanced())
+            {
+                ModelState.AddModelError("", "用户在26800小组, 不能添加");
+                return RedirectToAction("List");
+            }
+
+            if (customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ParentId) > 0)
+            {
+                ModelState.AddModelError("", "用户有推荐人, 不能添加");
+                return RedirectToAction("List");
+            }
+
+            var parentCustomer = _customerService.GetCustomerById(model.ParentId);
+
+            if (parentCustomer.CustomerTeam.Id != model.SelectedTeamId)
+            {
+                ModelState.AddModelError("", "推荐人和选中小组不一致, 不能添加");
+                return RedirectToAction("List");
+            }
+
+            // validate parent
+            var validateParentresult = _registerZhiXiaoUserHelper.ValidateParentCustomer(parentCustomer, true);
+            if (!validateParentresult.Success)
+            {
+                foreach (var error in validateParentresult.Errors)
+                {
+                    ModelState.AddModelError("", error);
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+                _registerZhiXiaoUserHelper.UpgradeCustomerToAdanced(customer, parentCustomer);
+                SuccessNotification("添加用户成功");
+                return RedirectToAction("List");
+            }
+
+            return View(model);
+        }
+
+        /// <summary>
+        /// Get user's in team
+        /// </summary>
+        /// <param name="teamId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public virtual ActionResult GetUsersInTeam(int teamId)
+        {
+            var team = _zhiXiaoService.GetCustomerTeamById(teamId);
+
+            if (team == null)
+                return new NullJsonResult();
+
+            var customers = _customerService.GetAllCustomers()
+                .Where(x => x.CustomerTeam != null
+                        && x.CustomerTeam.Id == teamId
+                        && x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount) < _zhiXiaoSettings.MaxChildCount
+                         )
+                .OrderBy(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_InTeamOrder)).ToList();
+
+            return Json(customers.Select(x =>
+                new
+                {
+                    Text = x.GetNickName() + " " + x.Username,
+                    Value = x.Id
+                }
+            ), JsonRequestBehavior.AllowGet);
         }
 
         #endregion
@@ -751,7 +881,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = customers.Select(PrepareCustomerModelForList),
-                Total = customers.Count
+                Total = customers.TotalCount
             };
 
             return Json(gridModel);
@@ -1057,8 +1187,20 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                     return RedirectToAction("Edit", new { id = customer.Id });
                 }
 
+                if (customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount) != 0)
+                {
+                    ErrorNotification("该会员有下线成员, 不能删除!");
+                    return RedirectToAction("Edit", new { id = customer.Id });
+                }
+
                 //delete
                 _customerService.DeleteCustomer(customer);
+
+                // update customer team
+                var customerTeam = customer.CustomerTeam;
+                if (customerTeam != null && customerTeam.UserCount > 0)
+                    customerTeam.UserCount = customerTeam.UserCount - 1;
+                _zhiXiaoService.UpdateCustomerTeam(customerTeam);
 
                 //remove newsletter subscription (if exists)
                 //foreach (var store in _storeService.GetAllStores())

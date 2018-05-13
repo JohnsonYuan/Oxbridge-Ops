@@ -194,11 +194,12 @@ namespace Nop.Validators.Customers
             // 管理员不需要验证这些信息
             if (isManager)
                 return false;
-
-            bool isInRegisteredRole = newCustomerRoles.FirstOrDefault(cr => 
-                cr.SystemName == SystemCustomerRoleNames.Registered ||
-                cr.SystemName == SystemCustomerRoleNames.Registered_Advanced ) != null;
-            return isInRegisteredRole;
+            else
+                return true;
+            //bool isInRegisteredRole = newCustomerRoles.FirstOrDefault(cr => 
+            //    cr.SystemName == SystemCustomerRoleNames.Registered ||
+            //    cr.SystemName == SystemCustomerRoleNames.Registered_Advanced ) != null;
+            //return isInRegisteredRole;
         }
     }
 }

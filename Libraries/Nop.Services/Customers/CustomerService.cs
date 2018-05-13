@@ -302,6 +302,7 @@ namespace Nop.Services.Customers
                 throw new NopException(string.Format("System customer account ({0}) could not be deleted", customer.SystemName));
 
             customer.Deleted = true;
+            customer.CustomerTeam = null;
 
             if (_customerSettings.SuffixDeletedCustomers)
             {
@@ -360,17 +361,17 @@ namespace Nop.Services.Customers
         /// </summary>
         /// <param name="customerIds">Customer parent id</param>
         /// <returns>Customers</returns>
-        public virtual IList<Customer> GetCustomerChildren(int parentId)
+        public virtual IList<Customer> GetCustomerChildren(Customer parentCustomer, bool checkTeam = true)
         {
-            if (parentId == 0)
+            if (parentCustomer == null)
                 return new List<Customer>();
-
             var query = _customerRepository.Table
-                        .Join(_gaRepository.Table, x => x.Id, y => y.EntityId, (x, y) => new { Customer = x, Attribute = y })
-                        .Where((z => z.Attribute.KeyGroup == "Customer" &&
-                            z.Attribute.Key == SystemCustomerAttributeNames.ZhiXiao_ParentId &&
-                            z.Attribute.Value == parentId.ToString()))
-                        .Select(z => z.Customer);
+                .ToList()
+                .Where(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ParentId) == parentCustomer.Id);
+            if (checkTeam)
+            {
+                query = query.Where(x => x.CustomerTeam.Id == parentCustomer.CustomerTeam.Id);
+            }
             return query.ToList();
         }
 

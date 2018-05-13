@@ -9,33 +9,38 @@
 }
 
 @helper RenderCategoryLine(CustomerDiagramModel customer, int level)
-{
-    <li data-expanded="true">
-        @if (level == 0)
-        {
-            <i class="fa fa-user"></i>@customer.DisplayInfo
-        }
-        else
-        {
-            <i class="fa fa-child"></i>@customer.DisplayInfo
-        }
-             
-        @if (customer.Child.Count > 0)
-        {
-            var levelClass = "";
-            if (level == 0)
+    {
+        <li data-expanded="true">
+            @if (level == 0)
             {
-                levelClass = "first-level";
+                <i class="fa fa-user"></i>@customer.DisplayInfo
+            }
+            else
+            {
+                <i class="fa fa-child"></i>@customer.DisplayInfo
             }
 
-            <ul class="sublist @levelClass">
-                @foreach (var child in customer.Child)
+            @if (ViewBag.IsAdmin != null && ViewBag.IsAdmin)
+            {
+                <text>(@customer.MoneyNum)</text>
+            }
+
+            @if (customer.Child.Count > 0)
+            {
+                var levelClass = "";
+                if (level == 0)
                 {
-                    @RenderCategoryLine(child, level + 1)
+                    levelClass = "first-level";
                 }
-            </ul>
-        }
-    </li>
+
+                <ul class="sublist @levelClass">
+                    @foreach (var child in customer.Child)
+                    {
+                        @RenderCategoryLine(child, level + 1)
+                    }
+                </ul>
+            }
+        </li>
 }
 
 @if (Model != null && Model.Count > 0)

@@ -76,8 +76,9 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             foreach (var customer in team.Customers)
             {
                 var model = customer.ToModel();
+                model.MoneyNum = customer.GetMoneyNum();
 
-                var childs = _customerService.GetCustomerChildren(customer.Id);
+                var childs = _customerService.GetCustomerChildren(customer);
 
                 foreach (var child in childs)
                 {
@@ -87,8 +88,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 diagarmModel.Add(model);
             }
 
-            var group1Users = diagarmModel.Where(x => x.InTeamOrder <= teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
-            var group2Users = diagarmModel.Where(x => x.InTeamOrder > teamUnitCount).OrderBy(x => x.CreatedOnUtc).ToList();
+            var group1Users = diagarmModel.Where(x => x.InTeamOrder <= teamUnitCount).OrderBy(x => x.InTeamOrder).ToList();
+            var group2Users = diagarmModel.Where(x => x.InTeamOrder > teamUnitCount).OrderBy(x => x.InTeamOrder).ToList();
 
             return new TeamDiagramModel
             {
@@ -166,7 +167,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 return RedirectToRoute("HomePage");
 
             var model = PrepareTeamDiagarmModel(team);
-            
+
+            ViewBag.IsAdmin = true;
             return View("TeamDiagarm", model);
         }
 

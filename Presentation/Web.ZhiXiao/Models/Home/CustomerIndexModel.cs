@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using Nop.Core.Domain.Customers;
 using Nop.Models.Customers;
-using Nop.Web.Framework.Mvc;
 
 namespace Nop.Web.Models.Home
 {
@@ -19,6 +19,6 @@ namespace Nop.Web.Models.Home
         /// <summary>
         /// 下线
         /// </summary>
-        public List<CustomerDiagramModel> Children { get; set; }
+        public IList<Customer> Children { get; set; }
     }
 }
