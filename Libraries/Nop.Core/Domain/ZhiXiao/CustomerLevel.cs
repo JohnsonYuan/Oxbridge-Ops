@@ -23,12 +23,12 @@ namespace Nop.Core.Domain.ZhiXiao
         DongShi1,
         [Description("二星董事")]
         DongShi2,
-        [Description("三星董事")]
-        DongShi3,
-        [Description("四星董事")]
-        DongShi4,
-        [Description("五星董事")]
-        DongShi5,
+        //[Description("三星董事")]
+        //DongShi3,
+        //[Description("四星董事")]
+        //DongShi4,
+        //[Description("五星董事")]
+        //DongShi5,
         [Description("出盘")]
         ChuPan
     }

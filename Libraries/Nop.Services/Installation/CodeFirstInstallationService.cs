@@ -684,6 +684,12 @@ namespace Nop.Services.Installation
                     Enabled = true,
                     Name = "注册新用户"
                 },
+                new ActivityLogType
+                {
+                    SystemKeyword = SystemZhiXiaoLogTypes.UpgradeUser,
+                    Enabled = true,
+                    Name = "用户分至26800小组"
+                },
 
                 //admin area activities
                 new ActivityLogType

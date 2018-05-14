@@ -75,6 +75,16 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="col-md-4">
+                                        @Html.NopLabelFor(model => model.SearchTeamType)
+                                    </div>
+                                    <div class="col-md-8">
+                                        @Html.NopDropDownListFor(model => model.SearchTeamType, Model.AvailableTeamTypes)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="col-md-4">
                                         @Html.NopLabelFor(model => model.CreatedOnFrom)
                                     </div>
                                     <div class="col-md-8">
@@ -200,6 +210,7 @@
                             function additionalData() {
                                 var data = {
                                     SearchTeamNumber: $('#@Html.FieldIdFor(model => model.SearchTeamNumber)').val(),
+                                    SearchTeamType: $('#@Html.FieldIdFor(model => model.SearchTeamType)').val(),
                                     CreatedOnFrom: $('#@Html.FieldIdFor(model => model.CreatedOnFrom)').val(),
                                     CreatedOnTo: $('#@Html.FieldIdFor(model => model.CreatedOnTo)').val()
                                 };

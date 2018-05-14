@@ -48,5 +48,10 @@
         /// 注册新用户
         /// </summary>
         public static string RegisterNewUser { get { return "ZhiXiao_RegisterNewUser"; } }
+
+        /// <summary>
+        /// 用户分至26800小组
+        /// </summary>
+        public static string UpgradeUser { get { return "ZhiXiao_UpgradeUser"; } }
     }
 }

@@ -209,14 +209,17 @@ namespace Nop.Services.ZhiXiao
         /// <param name="createdOnFrom">Log item creation from; null to load all activities</param>
         /// <param name="createdOnTo">Log item creation to; null to load all activities</param>
         /// <returns>Customer team items items</returns>
-        public virtual IPagedList<CustomerTeam> GetAllCustomerTeams(string teamNumber = null, int? teamTypeId = null, DateTime? createdOnFrom = null,
+        public virtual IPagedList<CustomerTeam> GetAllCustomerTeams(string teamNumber = null, CustomerTeamType? teamType = null, DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null, int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = _customerTeamRepository.Table;
             if (!String.IsNullOrEmpty(teamNumber))
                 query = query.Where(al => al.CustomNumber.Contains(teamNumber));
-            if (teamTypeId.HasValue)
-                query = query.Where(al => al.TypeId == teamTypeId.Value);
+            if (teamType.HasValue)
+            {
+                var teamTypeId = (int)teamType.Value;
+                query = query.Where(al => teamTypeId == al.TypeId);
+            }
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
@@ -275,7 +278,7 @@ namespace Nop.Services.ZhiXiao
             var zuZhang = FindTeamZuZhang(team);
 
             // 增加的钱数
-            var addMoney = zuZhang.IsRegistered_Advanced() ?
+            var addMoney = team.TypeId == (int)CustomerTeamType.Advanced ?
                 _zhiXiaoSettings.NewUserMoney_ZuZhang_Advanced
                 : _zhiXiaoSettings.NewUserMoney_ZuZhang_Normal;
 
@@ -289,12 +292,12 @@ namespace Nop.Services.ZhiXiao
 
             var fuZuZhangs = FindTeamFuZuZhang(team);
 
-            foreach (var user in fuZuZhangs)
-            {
-                addMoney = user.IsRegistered_Advanced() ?
+            addMoney = team.TypeId == (int)CustomerTeamType.Advanced ?
                 _zhiXiaoSettings.NewUserMoney_FuZuZhang_Advanced
                 : _zhiXiaoSettings.NewUserMoney_FuZuZhang_Normal;
 
+            foreach (var user in fuZuZhangs)
+            {
                 // 记录组长奖金钱数
                 UpdateMoneyForUserAndLog(user,
                     addMoney,
@@ -338,12 +341,6 @@ namespace Nop.Services.ZhiXiao
                 oldTeam.CustomNumber,
                 addMoney);
 
-            // 组长进入董事级别, 删除teamId 属性
-            //_genericAttributeService.SaveAttribute<string>(zuZhang,
-            //    SystemCustomerAttributeNames.ZhiXiao_TeamId,
-            //    null);
-            zuZhang.CustomerTeam = null;
-
             if (zuZhang.IsRegistered_Advanced())
             {
                 // 当是高级小组是才向上检查升级
@@ -385,6 +382,14 @@ namespace Nop.Services.ZhiXiao
                     "小组{0}重新分组, 离开小组",
                     oldTeam.CustomNumber);
             }
+
+            // 组长进入董事级别, 删除teamId 属性
+            //_genericAttributeService.SaveAttribute<string>(zuZhang,
+            //    SystemCustomerAttributeNames.ZhiXiao_TeamId,
+            //    null);
+            zuZhang.CustomerTeam = null;
+            _customerService.UpdateCustomer(zuZhang);
+
             // 4.原来小组的组员(SortId < 7)每人1600
             ReGroup_UpdateZuYuanMoney(oldTeam);
 
@@ -415,7 +420,7 @@ namespace Nop.Services.ZhiXiao
             // 按照下线个数(desc), 时间(asc) 排序, 来决定加入哪个小组
             var sortedUsers = oldTeam.Customers
                             .OrderByDescending(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount))
-                            .ThenBy(x => x.GetAttribute<DateTime>(SystemCustomerAttributeNames.ZhiXiao_InTeamOrder))
+                            .ThenBy(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_InTeamOrder))
                             .ToList();
 
             if (sortedUsers.Count != _zhiXiaoSettings.TeamReGroupUserCount - 1)
@@ -502,15 +507,15 @@ namespace Nop.Services.ZhiXiao
                 case CustomerLevel.DongShi2:
                     addMoney = (int)(baseMoney * _zhiXiaoSettings.ReGroupMoney_Rate_DongShi2);
                     break;
-                case CustomerLevel.DongShi3:
-                    addMoney = (int)(baseMoney * _zhiXiaoSettings.ReGroupMoney_Rate_DongShi3);
-                    break;
-                case CustomerLevel.DongShi4:
-                    addMoney = (int)(baseMoney * _zhiXiaoSettings.ReGroupMoney_Rate_DongShi4);
-                    break;
-                case CustomerLevel.DongShi5:
-                    addMoney = (int)(baseMoney * _zhiXiaoSettings.ReGroupMoney_Rate_DongShi5);
-                    break;
+                //case CustomerLevel.DongShi3:
+                //    addMoney = (int)(baseMoney * _zhiXiaoSettings.ReGroupMoney_Rate_DongShi3);
+                //    break;
+                //case CustomerLevel.DongShi4:
+                //    addMoney = (int)(baseMoney * _zhiXiaoSettings.ReGroupMoney_Rate_DongShi4);
+                //    break;
+                //case CustomerLevel.DongShi5:
+                //    addMoney = (int)(baseMoney * _zhiXiaoSettings.ReGroupMoney_Rate_DongShi5);
+                //    break;
             }
 
             UpdateMoneyForUserAndLog(parentUser,
@@ -638,13 +643,13 @@ namespace Nop.Services.ZhiXiao
                              .Take(_zhiXiaoSettings.ReGroupMoney_ZuYuan_Count)
                              .ToList();
 
+            // 增加的钱数
+            var addMoney = team.TypeId == (int)CustomerTeamType.Advanced ?
+                _zhiXiaoSettings.ReGroupMoney_ZuYuan_Advanced
+                : _zhiXiaoSettings.ReGroupMoney_ZuYuan_Normal;
+
             foreach (var member in team_zuYuans)
             {
-                // 增加的钱数
-                var addMoney = member.IsRegistered_Advanced() ?
-                    _zhiXiaoSettings.ReGroupMoney_ZuYuan_Advanced
-                    : _zhiXiaoSettings.ReGroupMoney_ZuYuan_Normal;
-
                 UpdateMoneyForUserAndLog(member,
                     addMoney,
                     SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,

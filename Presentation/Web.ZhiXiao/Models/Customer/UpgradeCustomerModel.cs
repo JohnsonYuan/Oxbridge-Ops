@@ -9,7 +9,9 @@ namespace Nop.Models.Customers
         {
             AvailableTeams = new List<SelectListItem>();
         }
-        
+
+        public CustomerModel CustomerInfo { get; set; }
+
         /// <summary>
         /// 26800的小组
         /// </summary>
@@ -19,7 +21,7 @@ namespace Nop.Models.Customers
         /// <summary>
         /// 推荐人
         /// </summary>
-        public int ParentId { get; set; }
+        public int SelectedParentId { get; set; }
         /// <summary>
         /// 下组可供选择的parent
         /// </summary>

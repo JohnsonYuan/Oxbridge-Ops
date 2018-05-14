@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
@@ -299,6 +300,17 @@ namespace Web.ZhiXiao.Controllers
             }
 
             return RedirectToRoute("login");
+        }
+
+        #endregion
+
+        #region Test
+
+        public ActionResult TestLevel()
+        {
+            var levels = Enum.GetValues(typeof(Nop.Core.Domain.ZhiXiao.CustomerLevel)).OfType<Nop.Core.Domain.ZhiXiao.CustomerLevel>().Select(x => (int)x).ToList();
+
+            return Json(levels, JsonRequestBehavior.AllowGet);
         }
 
         #endregion

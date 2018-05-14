@@ -199,7 +199,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 ZhiXiao_YinHang = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_YinHang),        // 银行
                 ZhiXiao_KaiHuHang = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_KaiHuHang),      // 开户行
                 ZhiXiao_KaiHuMing = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_KaiHuMing),     // 开户名
-                ZhiXiao_BandNum = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_BandNum),      // 银行卡号
+                ZhiXiao_BankNum = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_BandNum),      // 银行卡号
 
                 ZhiXiao_LevelId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId),
                 ZhiXiao_MoneyHistory = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyHistory),
@@ -223,6 +223,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 CreatedOn = _dateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc),
                 LastActivityDate = _dateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
 
+                CanUpgrade = customer.GetLevel() == CustomerLevel.PreDongShi,
                 NickName = customer.GetNickName(),
                 ZhiXiao_MoneyNum = customer.GetMoneyNum(),
                 ProductStatusId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_SendProductStatus) // 发货状态
@@ -307,7 +308,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                     model.ZhiXiao_YinHang = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_YinHang);        // 银行
                     model.ZhiXiao_KaiHuHang = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_KaiHuHang);      // 开户行
                     model.ZhiXiao_KaiHuMing = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_KaiHuMing);      // 开户名
-                    model.ZhiXiao_BandNum = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_BandNum);        // 银行卡号
+                    model.ZhiXiao_BankNum = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_BandNum);        // 银行卡号
 
                     //var teamId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_TeamId);
                     model.CustomerTeam = customer.CustomerTeam;
@@ -547,7 +548,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             }
 
             UpgradeCustomerModel model = new UpgradeCustomerModel();
-            var advancedTeams = _zhiXiaoService.GetAllCustomerTeams(teamTypeId: (int)CustomerTeamType.Advanced);
+            var advancedTeams = _zhiXiaoService.GetAllCustomerTeams(teamTypeId: CustomerTeamType.Advanced);
             foreach (var team in advancedTeams)
             {
                 model.AvailableTeams.Add(new SelectListItem
@@ -556,6 +557,12 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                     Value = team.Id.ToString()
                 });
             }
+            model.CustomerInfo = new CustomerModel
+            {
+                NickName = customer.GetNickName(),
+                Username = customer.Username,
+                ZhiXiao_MoneyNum = customer.GetMoneyNum()
+            };
 
             return View(model);
         }
@@ -588,7 +595,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 return RedirectToAction("List");
             }
 
-            var parentCustomer = _customerService.GetCustomerById(model.ParentId);
+            var parentCustomer = _customerService.GetCustomerById(model.SelectedParentId);
 
             if (parentCustomer.CustomerTeam.Id != model.SelectedTeamId)
             {
@@ -639,8 +646,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             return Json(customers.Select(x =>
                 new
                 {
-                    Text = x.GetNickName() + " " + x.Username,
-                    Value = x.Id
+                    name = x.GetNickName() + " (" + x.Username + ") "+ x.GetLevelDescription(),
+                    id = x.Id
                 }
             ), JsonRequestBehavior.AllowGet);
         }
@@ -672,6 +679,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered).Id,
                 _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered_Advanced).Id
             };
+            // load all customer roles
+            //var defaultLevelids = Enum.GetValues(typeof(CustomerLevel)).OfType<CustomerLevel>().Select(x => (int)x).ToList();
             var model = new CustomerListModel
             {
                 UsernamesEnabled = _customerSettings.UsernamesEnabled,
@@ -679,9 +688,18 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 CompanyEnabled = _customerSettings.CompanyEnabled,
                 PhoneEnabled = _customerSettings.PhoneEnabled,
                 ZipPostalCodeEnabled = _customerSettings.ZipPostalCodeEnabled,
+                SearchCustomerLevelId = -1,
                 SearchCustomerRoleIds = defaultRoleIds,
             };
 
+            // levels
+            var allLevels = from CustomerLevel enumValue in Enum.GetValues(typeof(CustomerLevel))
+                         select new { ID = Convert.ToInt32(enumValue), Name = enumValue.GetDescription() };
+
+            model.AvailableCustomerLevels = new SelectList(allLevels, "ID", "Name", null).ToList();
+            model.AvailableCustomerLevels.Insert(0, new SelectListItem { Text = _localizationService.GetResource("Admin.Common.All"), Value = "-1", Selected=true});
+
+            // roles
             var allRoles = _customerService.GetAllCustomerRoles(true);
             foreach (var role in allRoles)
             {
@@ -850,7 +868,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
         [HttpPost]
         public virtual ActionResult CustomerList(DataSourceRequest command, CustomerListModel model,
-        [ModelBinder(typeof(CommaSeparatedModelBinder))]int[] searchCustomerRoleIds)
+            [ModelBinder(typeof(CommaSeparatedModelBinder))]int[] searchCustomerRoleIds)
         {
             //we use own own binder for searchCustomerRoleIds property 
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
@@ -863,7 +881,10 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             if (!String.IsNullOrWhiteSpace(model.SearchMonthOfBirth))
                 searchMonthOfBirth = Convert.ToInt32(model.SearchMonthOfBirth);
 
+            CustomerLevel? customerLevel = model.SearchCustomerLevelId >= 0 ? (CustomerLevel?)(model.SearchCustomerLevelId) : null;
+
             var customers = _customerService.GetAllCustomers(
+                customerLevel: customerLevel,
                 customerRoleIds: searchCustomerRoleIds,
                 email: model.SearchEmail,
                 username: model.SearchUsername,

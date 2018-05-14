@@ -440,6 +440,15 @@ namespace Nop.Admin.Helpers
                     RegisterAdvanceUser = true,
                 }, 
                 true);
+
+            _customerActivityService.InsertActivity(customer, SystemZhiXiaoLogTypes.UpgradeUser,
+                        "管理员分至小组{0}(26800级别)",
+                        parentCustomer.CustomerTeam.CustomNumber);
+
+            _customerActivityService.InsertActivity(SystemZhiXiaoLogTypes.UpgradeUser,
+                        "把用户{0}分至小组{1}(26800级别)",
+                        customer.GetNickNameAndUserName(),
+                        parentCustomer.CustomerTeam.CustomNumber);
         }
 
         /// <summary>
@@ -495,7 +504,7 @@ namespace Nop.Admin.Helpers
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_YinHang, model.ZhiXiao_YinHang);      // 银行
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuHang, model.ZhiXiao_KaiHuHang);  // 开户行
             _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuMing, model.ZhiXiao_KaiHuMing);  // 开户名
-            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_BandNum, model.ZhiXiao_BandNum);      // 银行卡号
+            _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_BandNum, model.ZhiXiao_BankNum);      // 银行卡号
         }
 
         #endregion

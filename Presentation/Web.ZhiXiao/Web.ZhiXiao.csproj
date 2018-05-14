@@ -864,6 +864,7 @@
     <Content Include="Areas\Admin\Views\Common\Login.cshtml" />
     <Content Include="Areas\Admin\Views\Common\Maintenance.cshtml" />
     <Content Include="Areas\Admin\Views\Common\SystemInfo.cshtml" />
+    <Content Include="Areas\Admin\Views\CustomerManage\UpgradeNormalUser.cshtml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap\bootstrap.js" />
@@ -1547,6 +1548,7 @@
     <Content Include="Views\Customer\DiagarmTreeTest.cshtml" />
     <Content Include="Views\Shared\_TeamTreeView.cshtml" />
     <Content Include="Views\Common\AccessDenied.cshtml" />
+    <Content Include="Views\Customer\RegisterTest.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1555,8 +1557,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Areas\Admin\Views\Default\" />
-    <Folder Include="Areas\Admin\Views\Shared\" />
     <Folder Include="Content\lib\Roxy_Fileman\tmp\" />
     <Folder Include="Content\uploaded\" />
     <Folder Include="db_backups\" />

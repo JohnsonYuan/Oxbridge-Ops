@@ -59,7 +59,7 @@ namespace Nop.Validators.Customers
                 .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
             RuleFor(x => x.ZhiXiao_KaiHuMing).NotEmpty()
                 .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
-            RuleFor(x => x.ZhiXiao_BandNum).NotEmpty()
+            RuleFor(x => x.ZhiXiao_BankNum).NotEmpty()
                 .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
 
             #endregion

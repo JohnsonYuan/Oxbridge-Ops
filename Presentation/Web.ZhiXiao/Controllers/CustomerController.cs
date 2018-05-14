@@ -47,7 +47,6 @@ namespace Web.ZhiXiao.Controllers
         private readonly ICustomerService _customerService;
         private readonly IZhiXiaoService _zhiXiaoService;
         //private readonly ICustomerAttributeParser _customerAttributeParser;
-        private readonly ICustomerAttributeService _customerAttributeService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly ICustomerRegistrationService _customerRegistrationService;
 
@@ -74,7 +73,6 @@ namespace Web.ZhiXiao.Controllers
             //IAddressModelFactory addressModelFactory,
             ICustomerModelFactory customerModelFactory,
             IAuthenticationService authenticationService,
-            //TaxSettings taxSettings,
             IDateTimeHelper dateTimeHelper,
             ILocalizationService localizationService,
             DateTimeSettings dateTimeSettings,
@@ -82,29 +80,13 @@ namespace Web.ZhiXiao.Controllers
             IStoreContext storeContext,
             ICustomerService customerService,
             IZhiXiaoService customerTeamService,
-            //ICustomerAttributeParser customerAttributeParser,
-            //ICustomerAttributeService customerAttributeService,
             IGenericAttributeService genericAttributeService,
             ICustomerRegistrationService customerRegistrationService,
             //ITaxService taxService,
             CustomerSettings customerSettings,
-            //AddressSettings addressSettings,
-            //ForumSettings forumSettings,
-            //IAddressService addressService,
-            //ICountryService countryService,
-            //IOrderService orderService,
-            //IPictureService pictureService,
-            //INewsLetterSubscriptionService newsLetterSubscriptionService,
-            //IShoppingCartService shoppingCartService,
-            //IOpenAuthenticationService openAuthenticationService,
             IWebHelper webHelper,
             ICustomerActivityService customerActivityService,
-            //IAddressAttributeParser addressAttributeParser,
-            //IAddressAttributeService addressAttributeService,
             IStoreService storeService,
-            //IEventPublisher eventPublisher,
-            //MediaSettings mediaSettings,
-            //IWorkflowMessageService workflowMessageService,
             LocalizationSettings localizationSettings,
             //CaptchaSettings captchaSettings,
             ZhiXiaoSettings zhiXiaoSettings,
@@ -131,24 +113,9 @@ namespace Web.ZhiXiao.Controllers
             this._genericAttributeService = genericAttributeService;
             this._customerRegistrationService = customerRegistrationService;
             //this._taxService = taxService;
-            this._customerSettings = customerSettings;
-            //this._addressSettings = addressSettings;
-            //this._forumSettings = forumSettings;
-            //this._addressService = addressService;
-            //this._countryService = countryService;
-            //this._orderService = orderService;
-            //this._pictureService = pictureService;
-            //this._newsLetterSubscriptionService = newsLetterSubscriptionService;
-            //this._shoppingCartService = shoppingCartService;
-            //this._openAuthenticationService = openAuthenticationService;
-            this._webHelper = webHelper;
+            this._customerSettings = customerSettings;this._webHelper = webHelper;
             this._customerActivityService = customerActivityService;
-            //this._addressAttributeParser = addressAttributeParser;
-            //this._addressAttributeService = addressAttributeService;
             this._storeService = storeService;
-            //this._eventPublisher = eventPublisher;
-            //this._mediaSettings = mediaSettings;
-            //this._workflowMessageService = workflowMessageService;
             this._zhiXiaoSettings = zhiXiaoSettings;
             this._newsSettings = newsSettings;
             this._localizationSettings = localizationSettings;
@@ -355,10 +322,7 @@ namespace Web.ZhiXiao.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        [FormValueRequired("save", "save-continue")]
-        [ValidateInput(false)]
-        public virtual ActionResult Register(CustomerModel model)
+        public virtual ActionResult RegisterTest()
         {
             var validateParentResult = _registerZhiXiaoUserHelper.ValidateParentCustomer(_workContext.CurrentCustomer, false);
 
@@ -366,10 +330,46 @@ namespace Web.ZhiXiao.Controllers
             {
                 foreach (var error in validateParentResult.Errors)
                 {
-                    ModelState.AddModelError("", error);
+                    ErrorNotification(error);
                 }
+
+                ViewBag.CanRegiser = false;
+                return View();
             }
 
+            ViewBag.CanRegiser = true;
+
+            var model = new CustomerModel();
+            PrepareCustomerModel(model);
+            model.Username = "user_";
+            model.NickName = "user_";
+            model.Password = "123456";
+            model.ConfirmPassword = "123456";
+            model.Password2 = "123456";
+            model.ConfirmPassword2 = "123456";
+            model.Gender = "M";
+            model.ZhiXiao_IdCardNum = CommonHelper.GenerateRandomDigitCode(18);
+            model.ZhiXiao_YinHang = "开户银行" + CommonHelper.GenerateRandomInteger(1, 200);
+            model.ZhiXiao_KaiHuHang = "开户行"+ CommonHelper.GenerateRandomInteger(1, 200);
+            model.ZhiXiao_KaiHuMing = "开户名" + CommonHelper.GenerateRandomInteger(1, 200);
+            model.ZhiXiao_BankNum = CommonHelper.GenerateRandomDigitCode(16);
+
+            if (_workContext.CurrentCustomer.IsRegistered_Advanced())
+            {
+                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
+            }
+            else
+            {
+                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [FormValueRequired("save", "save-continue")]
+        [ValidateInput(false)]
+        public virtual ActionResult Register(CustomerModel model)
+        {
             if (ModelState.IsValid)
             {
                 // set to true by default
@@ -390,19 +390,7 @@ namespace Web.ZhiXiao.Controllers
                 }
             }
 
-            ViewBag.CanRegiser = true;
-
-            PrepareCustomerModel(model);
-
-            if (_workContext.CurrentCustomer.IsRegistered_Advanced())
-            {
-                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
-            }
-            else
-            {
-                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
-            }
-            return View(model);
+            return RedirectToAction("Register");
         }
 
         /// <summary>
@@ -673,7 +661,7 @@ namespace Web.ZhiXiao.Controllers
                     _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_YinHang, model.ZhiXiao_YinHang);      // 银行
                     _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuHang, model.ZhiXiao_KaiHuHang);  // 开户行
                     _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_KaiHuMing, model.ZhiXiao_KaiHuMing);  // 开户名
-                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_BandNum, model.ZhiXiao_BandNum);      // 银行卡号
+                    _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.ZhiXiao_BandNum, model.ZhiXiao_BankNum);      // 银行卡号
 
                     SuccessNotification("更新信息成功");
                 }

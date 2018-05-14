@@ -206,7 +206,7 @@ namespace Nop.Models.Customers
         [Display(Name = "开户名")]
         public string ZhiXiao_KaiHuMing { get; set; }       // 开户名
         [Display(Name = "银行卡号")]
-        public string ZhiXiao_BandNum { get; set; }         // 银行卡号
+        public string ZhiXiao_BankNum { get; set; }         // 银行卡号
         [Display(Name = "发货状态")]
         public int ProductStatusId { get; set; }
 

@@ -24,7 +24,7 @@
             $(document).ready(function() {
                 $("#advanced-settings-mode").click(function() {
                     checkAdvancedSettingsMode($(this).is(':checked'));
-                    saveUserPreferences('@(Url.Action("SavePreference", "Preferences"))', '@Model.ModeName', $(this).is(':checked'));
+                    saveUserPreferences('@(Url.Action("SavePreference", "Preferences", new { Area = "" }))', '@Model.ModeName', $(this).is(':checked'));
                 });
             });
         </script>

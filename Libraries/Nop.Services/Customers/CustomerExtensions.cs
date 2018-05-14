@@ -30,19 +30,30 @@ namespace Nop.Services.Customers
         }
 
         /// <summary>
-        ///  Get nickname
+        ///  Get level
         ///  {nickName}
         /// </summary>
         /// <param name="customer">Customer</param>
         /// <returns>nickname</returns>
-        public static string GetLevelDescription(this Customer customer)
+        public static CustomerLevel GetLevel(this Customer customer)
         {
             if (customer == null)
                 throw new ArgumentNullException("customer");
 
             var level = customer.GetAttribute<CustomerLevel>(SystemCustomerAttributeNames.ZhiXiao_LevelId);
 
-            return level.GetDescription();
+            return level;
+        }
+
+        /// <summary>
+        ///  Get level description
+        ///  {nickName}
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <returns>nickname</returns>
+        public static string GetLevelDescription(this Customer customer)
+        {
+            return customer.GetLevel().GetDescription();
         }
 
         /// <summary>

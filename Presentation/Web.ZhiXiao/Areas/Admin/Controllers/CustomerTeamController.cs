@@ -8,6 +8,7 @@ using Nop.Core.Domain.ZhiXiao;
 using Nop.Extensions;
 //using Nop.Admin.Helpers;
 using Nop.Models.Customers;
+using Nop.Services;
 //using Nop.Services.Catalog;
 using Nop.Services.Customers;
 using Nop.Services.Helpers;
@@ -62,7 +63,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
         #endregion
 
         #region Utilities
-        
+
         [NonAction]
         protected virtual TeamDiagramModel PrepareTeamDiagarmModel(CustomerTeam team)
         {
@@ -117,7 +118,14 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedView();
 
-            return View();
+            CustomerTeamSearchModel searchModel = new CustomerTeamSearchModel();
+
+            var values = from CustomerTeamType enumValue in Enum.GetValues(typeof(CustomerTeamType))
+                         select new { ID = Convert.ToInt32(enumValue), Name = enumValue.GetDescription() };
+
+            searchModel.AvailableTeamTypes = new SelectList(values, "ID", "Name", null).ToList();
+            searchModel.AvailableTeamTypes.Insert(0, new SelectListItem { Text = _localizationService.GetResource("Admin.Common.All"), Value = "0" });
+            return View(searchModel);
         }
         [HttpPost]
         public virtual ActionResult List(DataSourceRequest command, CustomerTeamSearchModel searchModel)
@@ -131,8 +139,11 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             DateTime? endDateValue = (searchModel.CreatedOnTo == null) ? null
                             : (DateTime?)_dateTimeHelper.ConvertToUtcTime(searchModel.CreatedOnTo.Value, _dateTimeHelper.CurrentTimeZone).AddDays(1);
 
+            CustomerTeamType? teamType = searchModel.SearchTeamType > 0 ? (CustomerTeamType?)(searchModel.SearchTeamType) : null;
+
             var customerTeams = _customerTeamService.GetAllCustomerTeams(searchModel.
                 SearchTeamNumber,
+                teamType,
                 searchModel.CreatedOnFrom,
                 searchModel.CreatedOnTo,
                 command.Page - 1,
@@ -151,7 +162,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
             return Json(gridModel);
         }
-        
+
         #endregion
 
         #region Team diagarm

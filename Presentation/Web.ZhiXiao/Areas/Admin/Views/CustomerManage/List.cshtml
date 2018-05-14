@@ -70,15 +70,7 @@
                 <div class="panel panel-default panel-search">
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-md-5">
-                                <div class="form-group">
-                                    <div class="col-md-4">
-                                        @Html.NopLabelFor(model => model.SearchEmail)
-                                    </div>
-                                    <div class="col-md-8">
-                                        @Html.NopEditorFor(model => model.SearchEmail)
-                                    </div>
-                                </div>
+                            <div class="col-md-7">
                                 @if (Model.UsernamesEnabled)
                                 {
                                     <div class="form-group">
@@ -92,18 +84,38 @@
                                 }
                                 <div class="form-group">
                                     <div class="col-md-4">
-                                        @Html.NopLabelFor(model => model.SearchFirstName)
+                                        @Html.NopLabelFor(model => model.SearchCustomerLevelId)
                                     </div>
                                     <div class="col-md-8">
-                                        @Html.NopEditorFor(model => model.SearchFirstName)
+                                        @Html.NopDropDownListFor(model => model.SearchCustomerLevelId, Model.AvailableCustomerLevels )
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-md-4">
-                                        @Html.NopLabelFor(model => model.SearchLastName)
+                                        @Html.NopLabelFor(model => model.SearchCustomerRoleIds)
                                     </div>
                                     <div class="col-md-8">
-                                        @Html.NopEditorFor(model => model.SearchLastName)
+                                        @Html.EditorFor(model => model.SearchCustomerRoleIds, new { SelectList = Model.AvailableCustomerRoles })
+                                        <script>
+                                            $(document).ready(function() {
+                                                var rolesIdsInput = $('#@Html.FieldIdFor(model => model.SearchCustomerRoleIds)').data("kendoMultiSelect");
+                                                rolesIdsInput.setOptions({
+                                                    autoClose: false
+                                                });
+
+                                                @if (Model.AvailableCustomerRoles.Count == 0)
+                                                {
+                                                    <text>
+                                                rolesIdsInput.setOptions({
+                                                    enable: false,
+                                                    placeholder: '@T("Admin.Catalog.Products.CustomerRoles.NoCustomerRolesAvailable")'
+                                                });
+                                                rolesIdsInput._placeholder();
+                                                rolesIdsInput._enable();
+                                                </text>
+                                                }
+                                            });
+                                        </script>
                                     </div>
                                 </div>
                                 @if (Model.DateOfBirthEnabled)
@@ -139,7 +151,7 @@
                                     </div>
                                 }
                             </div>
-                            <div class="col-md-7">
+                            <div class="col-md-5">
                                 @if (Model.CompanyEnabled)
                                 {
                                     <div class="form-group">
@@ -179,34 +191,6 @@
                                     </div>
                                     <div class="col-md-8">
                                         @Html.NopEditorFor(model => model.SearchIpAddress)
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-md-4">
-                                        @Html.NopLabelFor(model => model.SearchCustomerRoleIds)
-                                    </div>
-                                    <div class="col-md-8">
-                                        @Html.EditorFor(model => model.SearchCustomerRoleIds, new { SelectList = Model.AvailableCustomerRoles })
-                                        <script>
-                                            $(document).ready(function() {
-                                                var rolesIdsInput = $('#@Html.FieldIdFor(model => model.SearchCustomerRoleIds)').data("kendoMultiSelect");
-                                                rolesIdsInput.setOptions({
-                                                    autoClose: false
-                                                });
-
-                                                @if (Model.AvailableCustomerRoles.Count == 0)
-                                                {
-                                                    <text>
-                                                rolesIdsInput.setOptions({
-                                                    enable: false,
-                                                    placeholder: '@T("Admin.Catalog.Products.CustomerRoles.NoCustomerRolesAvailable")'
-                                                });
-                                                rolesIdsInput._placeholder();
-                                                rolesIdsInput._enable();
-                                                </text>
-                                                }
-                                            });
-                                        </script>
                                     </div>
                                 </div>
                             </div>
@@ -408,6 +392,7 @@
 
                             function additionalData() {
                                 var data = {
+                                    SearchCustomerLevelId: $('#@Html.FieldIdFor(model => model.SearchCustomerLevelId)').val(),
                                     SearchCustomerRoleIds: $('#@Html.FieldIdFor(model => model.SearchCustomerRoleIds)').val(),
                                     SearchEmail: $('#@Html.FieldIdFor(model => model.SearchEmail)').val(),
                                     SearchUsername: $('#@Html.FieldIdFor(model => model.SearchUsername)').val(),
@@ -434,6 +419,9 @@
 <script type="text/x-kendo-template" id="editTemplate">
     <a class="btn btn-default" href="Edit/#=Id#"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</a>
     <a class="btn btn-primary" href="Recharge/#=Id#"><i class="fa fa-cny"></i>充值</a>
+    #if(CanUpgrade){#
+    <a class="btn btn-info" href="UpgradeNormalUser/#=Id#"><i class="fa fa-level-up"></i>升级</a>
+    #}#
     #if(ProductStatusId == 0){#
         <a class="btn btn-warning" data-toggle="modal" data-target="\\#sendProduct-window" data-id="#=Id#" data-name="#=Username#"><i class="fa fa-paper-plane" aria-hidden="true"></i>发货</a>
     #}else if(ProductStatusId == 1){#

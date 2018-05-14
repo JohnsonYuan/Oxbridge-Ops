@@ -10,12 +10,17 @@ namespace Nop.Models.Customers
     {
         public CustomerListModel()
         {
+            AvailableCustomerLevels = new List<SelectListItem>();
             SearchCustomerRoleIds = new List<int>();
             AvailableCustomerRoles = new List<SelectListItem>();
 
             this.SendProduct = new SendProductModel() { };
         }
 
+        [UIHint("MultiSelect")]
+        [Display(Name = "用户级别")]
+        public int SearchCustomerLevelId { get; set; }
+        public IList<SelectListItem> AvailableCustomerLevels { get; set; }
 
         [UIHint("MultiSelect")]
         [NopResourceDisplayName("Admin.Customers.Customers.List.CustomerRoles")]

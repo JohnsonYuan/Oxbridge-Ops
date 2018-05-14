@@ -47,7 +47,7 @@ namespace Nop.Services.ZhiXiao
         /// <summary>
         /// Gets all customer team items
         /// </summary>
-        IPagedList<CustomerTeam> GetAllCustomerTeams(string teamNumber = null, int? teamTypeId = null, DateTime? createdOnFrom = null,
+        IPagedList<CustomerTeam> GetAllCustomerTeams(string teamNumber = null, CustomerTeamType? teamTypeId = null, DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null, int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>

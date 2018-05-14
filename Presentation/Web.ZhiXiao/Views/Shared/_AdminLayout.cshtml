@@ -128,17 +128,14 @@
                                 @*<li>
                                     @Html.Action("LanguageSelector", "Common", new { area = "Admin" })
                                 </li>*@
-                                @if (currentCustomer.IsRegistered())
-                                {
-                                    <li class="account-info">
-                                        @currentCustomer.GetDisplayName()
-                                    </li>
-                                    <li>
-                                        <a href="@Url.RouteUrl("logout")">
-                                            @T("Admin.Header.Logout")
-                                        </a>
-                                    </li>
-                                }
+                                <li class="account-info">
+                                    @currentCustomer.GetDisplayName()
+                                </li>
+                                <li>
+                                    <a href="@Url.RouteUrl("logout")">
+                                        @T("Admin.Header.Logout")
+                                    </a>
+                                </li>
                                 @if (canManageMaintenance)
                                 {
                                     <li class="dropdown">
@@ -248,7 +245,7 @@
 
                 $('a.sidebar-toggle').on('click', function () {
                     var collapsed = $('body').hasClass('sidebar-collapse');
-                    saveUserPreferences('@(Url.Action("SavePreference", "Preferences"))', '@hideSidebarAttributeName', collapsed);
+                    saveUserPreferences('@(Url.Action("SavePreference", "Preferences", new { Area = "" }))', '@hideSidebarAttributeName', collapsed);
                 });
             });
         </script>

@@ -160,9 +160,6 @@ namespace Nop.Models.Customers
         public IList<SelectListItem> AvailableTimeZones { get; set; }
 
 
-
-
-
         //EU VAT
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.VatNumber")]
         [AllowHtml]
@@ -234,6 +231,11 @@ namespace Nop.Models.Customers
 
         #region 直销系统需要的字段
 
+        /// <summary>
+        /// 用户是否可以升级（1. 普通小组 2. CustomerTeam == null）
+        /// </summary>
+        public bool CanUpgrade { get; set; }
+
         [Display(Name = "推荐人")]
         [AllowHtml]
         [UIHint("MultiSelect")]
@@ -264,7 +266,7 @@ namespace Nop.Models.Customers
         [Display(Name = "开户名")]
         public string ZhiXiao_KaiHuMing { get; set; }       // 开户名
         [Display(Name = "银行卡号")]
-        public string ZhiXiao_BandNum { get; set; }         // 银行卡号
+        public string ZhiXiao_BankNum { get; set; }         // 银行卡号
         [Display(Name = "发货状态")]
         public int ProductStatusId { get; set; }
 

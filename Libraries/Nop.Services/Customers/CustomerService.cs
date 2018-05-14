@@ -12,6 +12,7 @@ using Nop.Core.Domain.Customers;
 using Nop.Data;
 using Nop.Services.Events;
 using Nop.Services.Common;
+using Nop.Core.Domain.ZhiXiao;
 
 namespace Nop.Services.Customers
 {
@@ -135,7 +136,7 @@ namespace Nop.Services.Customers
         /// <returns>Customers</returns>
         public virtual IPagedList<Customer> GetAllCustomers(DateTime? createdFromUtc = null,
             DateTime? createdToUtc = null, int affiliateId = 0, int vendorId = 0,
-            int[] customerRoleIds = null, string email = null, string username = null,
+            CustomerLevel? customerLevel = null, int[] customerRoleIds = null, string email = null, string username = null,
             string firstName = null, string lastName = null,
             int dayOfBirth = 0, int monthOfBirth = 0,
             string company = null, string phone = null, string zipPostalCode = null,
@@ -154,6 +155,17 @@ namespace Nop.Services.Customers
             query = query.Where(c => !c.Deleted);
             if (customerRoleIds != null && customerRoleIds.Length > 0)
                 query = query.Where(c => c.CustomerRoles.Select(cr => cr.Id).Intersect(customerRoleIds).Any());
+            if (customerLevel.HasValue)
+            {
+                // 不能在linq中调用convert.ToInt32,所以把参数转str
+                var levelIdStr = ((int)customerLevel).ToString();
+                query = query
+                    .Join(_gaRepository.Table, x => x.Id, y => y.EntityId, (x, y) => new { Customer = x, Attribute = y })
+                    .Where((z => z.Attribute.KeyGroup == "Customer" &&
+                        z.Attribute.Key == SystemCustomerAttributeNames.ZhiXiao_LevelId &&
+                        levelIdStr == z.Attribute.Value))
+                    .Select(z => z.Customer);
+            }
             if (!String.IsNullOrWhiteSpace(email))
                 query = query.Where(c => c.Email.Contains(email));
             if (!String.IsNullOrWhiteSpace(username))
@@ -807,7 +819,7 @@ namespace Nop.Services.Customers
         /// </summary>
         /// <param name="showHidden"></param>
         /// <returns></returns>
-        public virtual IList<CustomerRole> GetRolesExcept_ZhiXiao(bool showHidden =false)
+        public virtual IList<CustomerRole> GetRolesExcept_ZhiXiao(bool showHidden = false)
         {
             string key = string.Format(CUSTOMERROLES_ZHIXIAO_KEY, showHidden);
             return _cacheManager.Get(key, () =>

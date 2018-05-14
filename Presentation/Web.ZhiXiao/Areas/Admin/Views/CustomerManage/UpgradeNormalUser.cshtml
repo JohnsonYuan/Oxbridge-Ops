@@ -1,0 +1,109 @@
+﻿@model UpgradeCustomerModel
+
+@{
+    //page title
+    ViewBag.Title = "普通用户升级";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Customers list");
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            普通用户升级
+            <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(T("Admin.Customers.CustomerRoles.BackToList").Text, "List")</small>
+        </h1>
+        <div class="pull-right">
+            <button type="submit" name="save" class="btn bg-blue">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </div>
+    </div>
+
+    @Html.ValidationSummary(false)
+
+    <div class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                <div class="label-wrapper">
+                                    <label class="control-label" for="Name" title="">
+                                        用户
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="form-text-row">
+                                    @Model.CustomerInfo.NickName (@Model.CustomerInfo.Username), 当前电子币@(Model.CustomerInfo.ZhiXiao_MoneyNum)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                <div class="label-wrapper">
+                                    <label class="control-label" for="amount"
+                                           title="">小组</label>
+                                    <div class="ico-help" title="选择要加入的小组。">
+                                        <i class="fa fa-question-circle"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopDropDownListFor(model => model.SelectedTeamId, Model.AvailableTeams)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                <div class="label-wrapper">
+                                    <label class="control-label" for="amount"
+                                           title="">推荐人</label>
+                                    <div class="ico-help" title="选择推荐人">
+                                        <i class="fa fa-question-circle"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopDropDownListFor(model => model.SelectedParentId, Enumerable.Empty<SelectListItem>())
+                                <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait...")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#@Html.FieldIdFor(model => model.SelectedTeamId)').change(function () {
+            var selectedItem = $(this).val();
+            var ddlUsers = $('#@Html.FieldIdFor(model => model.SelectedParentId)');
+            var statesProgress = $("#states-loading-progress");
+            statesProgress.show();
+
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '@Url.Action("GetUsersInTeam", "CustomerManage")',
+                data: { "teamId": selectedItem },
+                success: function (data) {
+                    ddlUsers.html('');
+                    $.each(data, function (id, option) {
+                        ddlUsers.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                    statesProgress.hide();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve states.');
+                    statesProgress.hide();
+                }
+            });
+        }).trigger('change');
+    });
+</script>
