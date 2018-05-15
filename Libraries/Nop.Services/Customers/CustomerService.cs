@@ -70,6 +70,7 @@ namespace Nop.Services.Customers
         private readonly IDbContext _dbContext;
         private readonly ICacheManager _cacheManager;
         private readonly IEventPublisher _eventPublisher;
+        private readonly ZhiXiaoSettings _zhiXiaoSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly CommonSettings _commonSettings;
 
@@ -87,6 +88,7 @@ namespace Nop.Services.Customers
             IDataProvider dataProvider,
             IDbContext dbContext,
             IEventPublisher eventPublisher,
+            ZhiXiaoSettings zhiXiaoSettings,
             CustomerSettings customerSettings,
             CommonSettings commonSettings)
         {
@@ -101,6 +103,7 @@ namespace Nop.Services.Customers
             this._dataProvider = dataProvider;
             this._dbContext = dbContext;
             this._eventPublisher = eventPublisher;
+            this._zhiXiaoSettings = zhiXiaoSettings;
             this._customerSettings = customerSettings;
             this._commonSettings = commonSettings;
         }
@@ -373,8 +376,9 @@ namespace Nop.Services.Customers
         /// </summary>
         /// <param name="customerIds">Customer parent id</param>
         /// <returns>Customers</returns>
-        public virtual IList<Customer> GetCustomerChildren(Customer parentCustomer, bool checkTeam = true)
+        public virtual IList<Customer> GetCustomerChildren(Customer parentCustomer, bool checkTeam)
         {
+            //TODO: load by join table
             if (parentCustomer == null)
                 return new List<Customer>();
             var query = _customerRepository.Table
@@ -382,7 +386,9 @@ namespace Nop.Services.Customers
                 .Where(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ParentId) == parentCustomer.Id);
             if (checkTeam)
             {
-                query = query.Where(x => x.CustomerTeam.Id == parentCustomer.CustomerTeam.Id);
+                // TODO:只显示后8个加入进来为child
+                query = query.Where(x => x.GetInTeamOrder() > _zhiXiaoSettings.TeamInitUserCount);
+                // query = query.Where(x => x.CustomerTeam.Id == parentCustomer.CustomerTeam.Id);
             }
             return query.ToList();
         }

@@ -19,6 +19,7 @@ using Nop.Services.ZhiXiao;
 using Nop.Web.Framework.Controllers;
 //using Nop.Services.Vendors;
 using Nop.Web.Framework.Kendoui;
+using Web.ZhiXiao.Factories;
 
 namespace Web.ZhiXiao.Areas.Admin.Controllers
 {
@@ -34,6 +35,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
         private readonly ICacheManager _cacheManager;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ZhiXiaoSettings _zhiXiaoSettings;
+        private readonly ICustomerModelFactory _customerModelFactory;
         #endregion
 
         #region Constructors
@@ -47,7 +49,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             IWorkContext workContext,
             ICacheManager cacheManager,
             IDateTimeHelper dateTimeHelper,
-            ZhiXiaoSettings zhiXiaoSettings)
+            ZhiXiaoSettings zhiXiaoSettings,
+            ICustomerModelFactory customerModelFactory)
         {
             this._customerTeamService = customerTeamService;
             this._customerService = customerService;
@@ -58,46 +61,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             this._cacheManager = cacheManager;
             this._dateTimeHelper = dateTimeHelper;
             this._zhiXiaoSettings = zhiXiaoSettings;
-        }
-
-        #endregion
-
-        #region Utilities
-
-        [NonAction]
-        protected virtual TeamDiagramModel PrepareTeamDiagarmModel(CustomerTeam team)
-        {
-            if (team == null)
-                throw new ArgumentNullException("team");
-
-            // 默认为7
-            var teamUnitCount = _zhiXiaoSettings.TeamInitUserCount;
-
-            List<CustomerDiagramModel> diagarmModel = new List<CustomerDiagramModel>();
-            foreach (var customer in team.Customers)
-            {
-                var model = customer.ToModel();
-                model.MoneyNum = customer.GetMoneyNum();
-
-                var childs = _customerService.GetCustomerChildren(customer);
-
-                foreach (var child in childs)
-                {
-                    model.Child.Add(child.ToModel());
-                }
-
-                diagarmModel.Add(model);
-            }
-
-            var group1Users = diagarmModel.Where(x => x.InTeamOrder <= teamUnitCount).OrderBy(x => x.InTeamOrder).ToList();
-            var group2Users = diagarmModel.Where(x => x.InTeamOrder > teamUnitCount).OrderBy(x => x.InTeamOrder).ToList();
-
-            return new TeamDiagramModel
-            {
-                TopHalfUsers = group1Users,
-                LastHalfUsers = group2Users,
-                Team = team
-            };
+            this._customerModelFactory = customerModelFactory;
         }
 
         #endregion
@@ -177,9 +141,12 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 //No customer role found with the specified id
                 return RedirectToRoute("HomePage");
 
-            var model = PrepareTeamDiagarmModel(team);
+            var model = _customerModelFactory.PrepareTeamDiagarmModel(team, true);
 
             ViewBag.IsAdmin = true;
+            // 显示不在一个小组的child的tree
+            ViewBag.FullChildList = _customerModelFactory.PrepareTeamDiagarmModel(team, false).AllUsers;
+
             return View("TeamDiagarm", model);
         }
 

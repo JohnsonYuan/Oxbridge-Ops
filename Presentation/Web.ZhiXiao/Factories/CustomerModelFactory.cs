@@ -1,6 +1,9 @@
 ﻿using System;
-using System.Web.Mvc;
+using System.Collections.Generic;
+using System.Linq;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.ZhiXiao;
+using Nop.Extensions;
 using Nop.Models.Customers;
 using Nop.Services.Common;
 using Nop.Services.Customers;
@@ -17,6 +20,7 @@ namespace Web.ZhiXiao.Factories
 
         private readonly ICustomerService _customerService;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly ZhiXiaoSettings _zhiXiaoSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly DateTimeSettings _dateTimeSettings;
 
@@ -27,12 +31,14 @@ namespace Web.ZhiXiao.Factories
         public CustomerModelFactory(
             ICustomerService customerService,
             IDateTimeHelper dateTimeHelper,
+            ZhiXiaoSettings zhiXiaoSettings,
             CustomerSettings customerSettings,
             DateTimeSettings dateTimeSettings)
         {
             this._customerService = customerService;
 
             this._dateTimeHelper = dateTimeHelper;
+            this._zhiXiaoSettings = zhiXiaoSettings;
             this._customerSettings = customerSettings;
             this._dateTimeSettings = dateTimeSettings;
         }
@@ -211,6 +217,46 @@ namespace Web.ZhiXiao.Factories
         {
             var model = new ChangePasswordModel();
             return model;
+        }
+
+        /// <summary>
+        /// 显示小组系谱图model
+        /// </summary>
+        /// <param name="team"></param>
+        /// <returns></returns>
+        public virtual TeamDiagramModel PrepareTeamDiagarmModel(CustomerTeam team, bool checkTeam = true)
+        {
+            if (team == null)
+                throw new ArgumentNullException("team");
+
+            // 默认为7
+            var teamUnitCount = _zhiXiaoSettings.TeamInitUserCount;
+
+            List<CustomerDiagramModel> diagarmModel = new List<CustomerDiagramModel>();
+            foreach (var customer in team.Customers)
+            {
+                var model = customer.ToModel();
+                model.MoneyNum = customer.GetMoneyNum();
+
+                var childs = _customerService.GetCustomerChildren(customer, checkTeam);
+
+                foreach (var child in childs)
+                {
+                    model.Child.Add(child.ToModel());
+                }
+
+                diagarmModel.Add(model);
+            }
+
+            var group1Users = diagarmModel.Where(x => x.InTeamOrder <= teamUnitCount).OrderBy(x => x.InTeamOrder).ToList();
+            var group2Users = diagarmModel.Where(x => x.InTeamOrder > teamUnitCount).OrderBy(x => x.InTeamOrder).ToList();
+
+            return new TeamDiagramModel
+            {
+                TopHalfUsers = group1Users,
+                LastHalfUsers = group2Users,
+                Team = team
+            };
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Infrastructure;
 using Nop.Models.Customers;
 using Nop.Services.Authentication;
 using Nop.Services.Common;
@@ -305,6 +306,22 @@ namespace Web.ZhiXiao.Controllers
         #endregion
 
         #region Test
+
+        public ActionResult TestUser(string username)
+        {
+            var _customerRepository = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<Customer>>();
+
+            var query = from c in _customerRepository.Table
+                        orderby c.Id
+                        where c.Username == username
+                        select c;
+
+            //var customer = query.ToList().FirstOrDefault(x => x.Username.Equals(username));
+ 
+            var customer = query.FirstOrDefault();
+            
+            return Json(customer != null ? customer.Username : null, JsonRequestBehavior.AllowGet);
+        }
 
         public ActionResult TestLevel()
         {

@@ -318,7 +318,6 @@
 
                         <script type="text/javascript">
                             var selectedIds = [];
-
                             $(document).ready(function () {
                                 //search button
                                 $('#search-customers').click(function () {
@@ -346,7 +345,16 @@
                                     });
 
                                 $('#mastercheckbox').click(function () {
-                                    $('.checkboxGroups').attr('checked', $(this).is(':chekced')).change();
+                                    $('.checkboxGroups').attr('checked', $(this).is(':checked')).change();
+                                });
+
+                                // wire up recharge button
+                                $('#customers-grid').data('kendoGrid').tbody.on('click', 'a[class*=recharge]', function () {
+                                //$('#customers-grid tr').on('click', 'a[class*=recharge]', function () {
+                                    var id = $(this).data('id');
+                                    var url = '@(Url.Action("Recharge", new { id = "__id__", btnId = "search-customers" }))';
+                                    OpenWindow(url.replace('__id__', id), 800, 400, false);
+                                    return false;
                                 });
 
                                 // wire up checkboxes
@@ -418,7 +426,7 @@
 
 <script type="text/x-kendo-template" id="editTemplate">
     <a class="btn btn-default" href="Edit/#=Id#"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</a>
-    <a class="btn btn-primary" href="Recharge/#=Id#"><i class="fa fa-cny"></i>充值</a>
+    <a class="btn btn-primary recharge" data-id="#=Id#"><i class="fa fa-cny"></i>充值</a>
     #if(CanUpgrade){#
     <a class="btn btn-info" href="UpgradeNormalUser/#=Id#"><i class="fa fa-level-up"></i>升级</a>
     #}#

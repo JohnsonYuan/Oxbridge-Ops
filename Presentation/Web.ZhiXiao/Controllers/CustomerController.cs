@@ -216,46 +216,6 @@ namespace Web.ZhiXiao.Controllers
         }
 
         /// <summary>
-        /// 系谱图页面分为7个, 8个2组用户
-        /// </summary>
-        /// <param name="team"></param>
-        /// <returns></returns>
-        [NonAction]
-        protected virtual TeamDiagramModel PrepareTeamDiagarmModel(CustomerTeam team)
-        {
-            if (team == null)
-                throw new ArgumentNullException("team");
-
-            // 默认为7
-            var teamUnitCount = _zhiXiaoSettings.TeamInitUserCount;
-
-            List<CustomerDiagramModel> diagarmModel = new List<CustomerDiagramModel>();
-            foreach (var customer in team.Customers)
-            {
-                var model = customer.ToModel();
-
-                var childs = _customerService.GetCustomerChildren(customer);
-
-                foreach (var child in childs)
-                {
-                    model.Child.Add(child.ToModel());
-                }
-
-                diagarmModel.Add(model);
-            }
-
-            var group1Users = diagarmModel.Where(x => x.InTeamOrder <= teamUnitCount).OrderBy(x => x.InTeamOrder).ToList();
-            var group2Users = diagarmModel.Where(x => x.InTeamOrder > teamUnitCount).OrderBy(x => x.InTeamOrder).ToList();
-
-            return new TeamDiagramModel
-            {
-                TopHalfUsers = group1Users,
-                LastHalfUsers = group2Users,
-                Team = team
-            };
-        }
-
-        /// <summary>
         /// 显示tree, 返回所有小组用户
         /// </summary>
         /// <param name="team"></param>
@@ -274,7 +234,7 @@ namespace Web.ZhiXiao.Controllers
             {
                 var model = customer.ToModel();
 
-                var childs = _customerService.GetCustomerChildren(customer);
+                var childs = _customerService.GetCustomerChildren(customer, true);
 
                 foreach (var child in childs)
                 {
@@ -518,10 +478,10 @@ namespace Web.ZhiXiao.Controllers
 
             var team = _workContext.CurrentCustomer.CustomerTeam;
             model.TeamUsers = team == null ? new List<CustomerDiagramModel>()
-                : PrepareTeamDiagarmInfo(team);
+                : _customerModelFactory.PrepareTeamDiagarmModel(team, true).AllUsers;
 
             // 如果是普通用户出盘, 提示继续3万注册信息
-            ViewBag.ShowRegisterAdvancedTip = currentCustomer.CustomerTeam == null && currentCustomer.IsRegistered();
+            ViewBag.ShowRegisterAdvancedTip = currentCustomer.CustomerTeam == null && !currentCustomer.IsRegistered_Advanced();
 
             return View(model);
         }
@@ -954,7 +914,7 @@ namespace Web.ZhiXiao.Controllers
             if (team == null)
                 return RedirectToRoute("HomePage");
 
-            var model = PrepareTeamDiagarmModel(team);
+            var model = _customerModelFactory.PrepareTeamDiagarmModel(team);
 
             ViewBag.ActiveMenuItemSystemName = "Customer teams diagarm";
             ViewBag.HideReturnTip = true;

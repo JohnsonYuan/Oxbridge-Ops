@@ -1,8 +1,24 @@
 ﻿@{
+
+    Layout = "~/Views/Shared/_AdminPopupLayout.cshtml";
+
     //page title
     ViewBag.Title = "电子币充值";
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Customers list");
+}
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script type="text/javascript">
+        try {
+            window.opener.document.getElementById('@(ViewBag.btnId)').click();
+        } catch (e) {
+            alert(e);
+        }
+        alert('充值成功!');
+        window.close();
+    </script>
 }
 
 @using (Html.BeginForm())
@@ -11,10 +27,9 @@
     <div class="content-header clearfix">
         <h1 class="pull-left">
             电子币充值
-            <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(T("Admin.Customers.CustomerRoles.BackToList").Text, "List")</small>
         </h1>
         <div class="pull-right">
-            <button type="submit" name="save" class="btn bg-blue">
+            <button type="submit" name="save" class="btn bg-blue" onclick="return confirm('确认充值?')">
                 <i class="fa fa-floppy-o"></i>
                 @T("Admin.Common.Save")
             </button>

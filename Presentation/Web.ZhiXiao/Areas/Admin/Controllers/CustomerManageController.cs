@@ -28,7 +28,6 @@ using Nop.Services.ZhiXiao;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Kendoui;
 using Nop.Web.Framework.Mvc;
-using Web.ZhiXiao.Controllers;
 using Web.ZhiXiao.Factories;
 using static Nop.Models.Customers.CustomerListModel;
 
@@ -370,14 +369,13 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             {
                 // 添加管理员
                 var allRoles = _customerService.GetAllCustomerRoles(true);
-                var managerRole = allRoles.FirstOrDefault(c => c.SystemName == SystemCustomerRoleNames.Managers);
-                if (managerRole != null)
-                    model.SelectedCustomerRoleIds.Add(managerRole.Id);
+                //var managerRole = allRoles.FirstOrDefault(c => c.SystemName == SystemCustomerRoleNames.Managers);
+                //if (managerRole != null)
+                //    model.SelectedCustomerRoleIds.Add(managerRole.Id);
 
+                //var managerRoels = allRoles.Except(zhiXiaoRoles);
 
-                var managerRoels = allRoles.Except(zhiXiaoRoles);
-
-                foreach (var role in managerRoels)
+                foreach (var role in allRoles)
                 {
                     model.AvailableCustomerRoles.Add(new SelectListItem
                     {
@@ -1386,7 +1384,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
         /// <summary>
         /// 充值电子币
         /// </summary>
-        public virtual ActionResult Recharge(int id, int amount)
+        public virtual ActionResult Recharge(int id, int amount, string btnId)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedKendoGridJson();
@@ -1412,6 +1410,9 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                         amount);
 
                     SuccessNotification(string.Format("用户{0}充值{1}", customer.GetNickName(), amount));
+
+                    ViewBag.btnId = btnId;
+                    ViewBag.RefreshPage = true;
                 }
                 catch (Exception ex)
                 {
@@ -1487,9 +1488,9 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
             ViewBag.btnId = btnId;
             var model = withDraw.ToModel();
-            model.CustomerModel = PrepareCustomerModelForZhiXiaoInfo(withDraw.Customer);
-            var customer = _customerService.GetCustomerById(model.CustomerId);
-            PrepareCustomerModel(model.CustomerModel, customer, false);
+            //model.CustomerModel = PrepareCustomerModelForZhiXiaoInfo(withDraw.Customer);
+            //var customer = _customerService.GetCustomerById(model.CustomerId);
+            PrepareCustomerModel(model.CustomerModel, withDraw.Customer, false);
             return View(model);
         }
 
@@ -1498,7 +1499,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
         /// </summary>
         /// <param name="id">Withdraw id</param> 
         [HttpPost]
-        public virtual ActionResult ProcessWithdrawPopup(string btnId, int id, bool isDone)
+        public virtual ActionResult ProcessWithdrawPopup(int id, string btnId, bool isDone)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedKendoGridJson();

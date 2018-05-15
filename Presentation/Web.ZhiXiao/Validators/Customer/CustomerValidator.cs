@@ -37,19 +37,19 @@ namespace Nop.Validators.Customers
             
             // 密码确认
             RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.ConfirmPassword.Required"))
-                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+                .When(x => x.Id == 0 && IsRegisteredCustomerRoleChecked(x, customerService));
             RuleFor(x => x.ConfirmPassword).Equal(x => x.Password).WithMessage(localizationService.GetResource("Account.Fields.Password.EnteredPasswordsDoNotMatch"))
-                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
+                .When(x => x.Id == 0 && IsRegisteredCustomerRoleChecked(x, customerService));
             
             // 二级密码
             RuleFor(x => x.Password2).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Password2.Required"))
-                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+                .When(x => x.Id == 0 &&IsRegisteredCustomerRoleChecked(x, customerService));;
             RuleFor(x => x.Password2).Length(customerSettings.PasswordMinLength, 999).WithMessage(string.Format(localizationService.GetResource("Account.Fields.Password2.LengthValidation"), customerSettings.PasswordMinLength))
-                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+                .When(x => x.Id == 0 &&IsRegisteredCustomerRoleChecked(x, customerService));;
             RuleFor(x => x.ConfirmPassword2).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.ConfirmPassword2.Required"))
-                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+                .When(x => x.Id == 0 &&IsRegisteredCustomerRoleChecked(x, customerService));;
             RuleFor(x => x.ConfirmPassword2).Equal(x => x.Password2).WithMessage(localizationService.GetResource("Account.Fields.Password2.EnteredPasswordsDoNotMatch"))
-                .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;
+                .When(x => x.Id == 0 &&IsRegisteredCustomerRoleChecked(x, customerService));;
 
             RuleFor(x => x.ZhiXiao_IdCardNum).NotEmpty()
                 .When(x => IsRegisteredCustomerRoleChecked(x, customerService));;

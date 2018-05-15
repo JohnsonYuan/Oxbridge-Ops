@@ -29,7 +29,6 @@
     <div class="row">
         <div class="col-md-12">
             <p><i class="fa fa-users"></i>当前人数: @Model.Team.UserCount</p>
-
             <div class="panel-group">
                 <div class="box box-info">
                     <div class="box-header with-border">
@@ -41,12 +40,11 @@
                             </button>
                         </div>
                     </div>
-                    <div class="box-body"> 
+                    <div class="box-body">
                         @Html.Partial("_TeamTreeView", Model.AllUsers)
                     </div>
                 </div>
             </div>
-
             <div class="box box-info">
                 <div class="box-header with-border">
                     <h4 class="box-title">七上八下图</h4>
@@ -63,6 +61,28 @@
                     @TeamDiagarm_v1(Model.LastHalfUsers)
                 </div>
             </div>
+
+            @if (ViewBag.IsAdmin == true)
+            {
+                <div class="panel-group">
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h4 class="box-title">树形图(显示不在一个小组)</h4>
+
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            
+                            @Html.Partial("_TeamTreeView", (IList<CustomerDiagramModel>)ViewBag.FullChildList)
+                        </div>
+                    </div>
+                </div>
+            }
+            
         </div>
     </div>
 </div>

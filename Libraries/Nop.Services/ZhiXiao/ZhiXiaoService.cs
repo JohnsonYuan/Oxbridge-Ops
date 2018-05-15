@@ -365,11 +365,16 @@ namespace Nop.Services.ZhiXiao
             else
             {
                 // 当是普通小组清空child parent
-                var childs = _customerService.GetCustomerChildren(zuZhang);
+                var childs = _customerService.GetCustomerChildren(zuZhang, false);
                 foreach (var child in childs)
                 {
-                    _genericAttributeService.SaveAttribute<string>(child, SystemCustomerAttributeNames.ZhiXiao_ParentId, null);
+                    _genericAttributeService.SaveAttribute<int>(child, SystemCustomerAttributeNames.ZhiXiao_ParentId, 0);
                 }
+
+                //下线个数为0
+                _genericAttributeService.SaveAttribute(zuZhang,
+                    SystemCustomerAttributeNames.ZhiXiao_ChildCount,
+                    0);
 
                 // 当是高级小组是才向上检查升级
                 // 组长进入董事级别
@@ -550,7 +555,7 @@ namespace Nop.Services.ZhiXiao
             {
                 return;
             }
-
+            var childs = _customerService.GetCustomerChildren(parentUser, false);
             var childs = _customerRepository.Table
                 .Where(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ParentId, 0) == parentUser.Id);
 

@@ -9,6 +9,11 @@ namespace Nop.Admin.Models.Logging
 {
     public partial class WithdrawLogModel : BaseNopEntityModel
     {
+        public WithdrawLogModel()
+        {
+            this.CustomerModel = new CustomerModel();
+        }
+
         [NopResourceDisplayName("Admin.Configuration.ActivityLog.ActivityLog.Fields.Customer")]
         public int CustomerId { get; set; }
         public string Username { get; set; }

@@ -373,9 +373,8 @@ namespace Nop.Admin.Helpers
                 // add log
                 _customerActivityService.InsertActivity(parentCustomer,
                     SystemZhiXiaoLogTypes.RegisterNewUser,
-                    "注册新用户: {0}, 用户级别: {1}, 扣除电子币 {2}",
+                    "注册新用户: {0}, 扣除电子币 {1}",
                     customer.GetNickNameAndUserName(),
-                    customer.GetLevelDescription(),
                     registerRequest.RequiredMoney);
             }
             else

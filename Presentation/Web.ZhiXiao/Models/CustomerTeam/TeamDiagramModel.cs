@@ -24,7 +24,7 @@ namespace Nop.Models.Customers
         public IList<CustomerDiagramModel> AllUsers
         {
             get {
-                return TopHalfUsers.Union(LastHalfUsers).ToList();      
+                return TopHalfUsers.Union(LastHalfUsers).ToList();
             }
         }
     }

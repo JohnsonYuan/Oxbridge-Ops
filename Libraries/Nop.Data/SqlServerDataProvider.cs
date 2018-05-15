@@ -94,13 +94,12 @@ namespace Nop.Data
         /// </summary>
         public virtual void SetDatabaseInitializer()
         {
-            //    //pass some table names to ensure that we have nopCommerce 2.X installed
-            //    var tablesToValidate = new[] { "Customer", "Discount", "Order", "Product", "ShoppingCartItem" };
+            //pass some table names to ensure that we have nopCommerce 2.X installed
+            var tablesToValidate = new[] { "Customer", "CustomerTeam" };
 
-            //    //custom commands (stored procedures, indexes)
-
-            //    var customCommands = new List<string>();
-            //    customCommands.AddRange(ParseCommands(CommonHelper.MapPath("~/App_Data/Install/SqlServer.Indexes.sql"), false));
+            //custom commands (stored procedures, indexes)
+            var customCommands = new List<string>();
+            customCommands.AddRange(ParseCommands(CommonHelper.MapPath("~/App_Data/Install/SqlServer.COLLATE.sql"), false));
             //    customCommands.AddRange(ParseCommands(CommonHelper.MapPath("~/App_Data/Install/SqlServer.StoredProcedures.sql"), false));
 
             var initializer = new CreateTablesIfNotExist<NopObjectContext>(null, null);

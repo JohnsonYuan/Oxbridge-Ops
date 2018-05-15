@@ -142,6 +142,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\Install\SqlServer.COLLATE.sql" />
     <Content Include="App_Data\Localization\defaultResources.nopres.xml" />
     <Content Include="App_Data\Localization\Installation\installation.en.xml" />
     <Content Include="App_Data\Localization\Installation\installation.zhs.xml" />

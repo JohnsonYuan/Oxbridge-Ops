@@ -1,4 +1,5 @@
 ﻿using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.ZhiXiao;
 using Nop.Models.Customers;
 
 namespace Web.ZhiXiao.Factories
@@ -31,5 +32,7 @@ namespace Web.ZhiXiao.Factories
         /// </summary>
         /// <returns>Change password model</returns>
         ChangePasswordModel PrepareChangePasswordModel();
+
+        TeamDiagramModel PrepareTeamDiagarmModel(CustomerTeam team, bool checkTeam = true);
     }
 }
