@@ -307,9 +307,27 @@ namespace Web.ZhiXiao.Controllers
 
         #region Test
 
+        public ActionResult TestUpgradeParent()
+        {
+            var _customerRepository = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<Customer>>();
+
+            var query = from c in _customerRepository.Table
+                        orderby c.Id
+                        where c.Username == "USER_10"
+                        select c;
+            
+            var customer = query.First();
+
+            var zhixiaoService = EngineContext.Current.Resolve<Nop.Services.ZhiXiao.IZhiXiaoService>();
+            zhixiaoService.ReGroup_UpdateZuZhangParentClass(customer);
+            return Content("success");
+        }
+
         public ActionResult TestUser(string username)
         {
             var _customerRepository = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<Customer>>();
+
+            var _gaRepository = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<Nop.Core.Domain.Common.GenericAttribute>>();
 
             var query = from c in _customerRepository.Table
                         orderby c.Id
@@ -317,10 +335,13 @@ namespace Web.ZhiXiao.Controllers
                         select c;
 
             //var customer = query.ToList().FirstOrDefault(x => x.Username.Equals(username));
- 
+
             var customer = query.FirstOrDefault();
-            
-            return Json(customer != null ? customer.Username : null, JsonRequestBehavior.AllowGet);
+
+
+            var childs = _customerService.GetCustomerChildren(customer, false);
+
+            return Json(childs.Select(x => new { name = x.Username, createTime = x.CreatedOnUtc }), JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult TestLevel()

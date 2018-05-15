@@ -350,7 +350,32 @@ namespace Web.ZhiXiao.Controllers
                 }
             }
 
-            return RedirectToAction("Register");
+            var validateParentResult = _registerZhiXiaoUserHelper.ValidateParentCustomer(_workContext.CurrentCustomer, false);
+
+            if (!validateParentResult.Success)
+            {
+                foreach (var error in validateParentResult.Errors)
+                {
+                    ErrorNotification(error);
+                }
+
+                ViewBag.CanRegiser = false;
+                return View();
+            }
+
+            ViewBag.CanRegiser = true;
+
+            PrepareCustomerModel(model);
+
+            if (_workContext.CurrentCustomer.IsRegistered_Advanced())
+            {
+                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
+            }
+            else
+            {
+                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
+            }
+            return View(model);
         }
 
         /// <summary>

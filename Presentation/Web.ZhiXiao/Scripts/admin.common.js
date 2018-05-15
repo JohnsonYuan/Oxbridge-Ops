@@ -15,7 +15,7 @@ function showThrobber(message) {
     $('.throbber-header').html(message);
     window.setTimeout(function () {
         $(".throbber").show();
-    }, 1000);
+    }, 500);
 }
 
 $(document).ready(function () {

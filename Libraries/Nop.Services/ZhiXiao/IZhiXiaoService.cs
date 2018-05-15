@@ -108,5 +108,7 @@ namespace Nop.Services.ZhiXiao
         /// <param name="customer"></param>
         /// <param name="amount"></param>
         int WithdrawMoney(Customer customer, int amount);
+
+        void ReGroup_UpdateZuZhangParentClass(Customer zuZhang);
     }
 }

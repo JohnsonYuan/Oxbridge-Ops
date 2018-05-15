@@ -439,13 +439,17 @@ namespace Nop.Admin.Helpers
                     RegisterAdvanceUser = true,
                 }, 
                 true);
-
+            
             _customerActivityService.InsertActivity(customer, SystemZhiXiaoLogTypes.UpgradeUser,
                         "管理员分至小组{0}(26800级别)",
                         parentCustomer.CustomerTeam.CustomNumber);
 
+            _customerActivityService.InsertActivity(parentCustomer, SystemZhiXiaoLogTypes.UpgradeUser,
+                        "管理员把用户{0}分到你的下线",
+                        customer.GetNickName());
+
             _customerActivityService.InsertActivity(SystemZhiXiaoLogTypes.UpgradeUser,
-                        "把用户{0}分至小组{1}(26800级别)",
+                        "把用户 {0} 分至小组 {1} (26800级别)",
                         customer.GetNickNameAndUserName(),
                         parentCustomer.CustomerTeam.CustomNumber);
         }

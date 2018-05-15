@@ -43,7 +43,7 @@
                                 @foreach (var child in Model.Children)
                                 {
                                     var teamNum = "";
-                                    if (Model.CustomerInfo.CustomerTeam == null || child.CustomerTeam.Id != Model.CustomerInfo.CustomerTeam.Id)
+                                    if (Model.CustomerInfo.CustomerTeam == null || child.CustomerTeam == null || child.CustomerTeam.Id != Model.CustomerInfo.CustomerTeam.Id)
                                     {
                                         teamNum = child.CustomerTeam == null ? "" : child.CustomerTeam.CustomNumber;
                                     }
@@ -61,7 +61,7 @@
                         <li><p class="margin">昵称 <span class="pull-right">@Model.CustomerInfo.NickName</span></p></li>
                         @if (Model.CustomerInfo.CustomerTeam != null)
                         {
-                            <li><p class="margin">小组编号<span class="pull-right badge bg-blue">@Model.CustomerInfo.CustomerTeam.CustomNumber (@Model.CustomerInfo.CustomerTeam.TeamType.GetDescription())</span></p></li>
+                            <li><p class="margin">小组编号<span class="pull-right">@Model.CustomerInfo.CustomerTeam.CustomNumber (@Model.CustomerInfo.CustomerTeam.TeamType.GetDescription())</span></p></li>
                         }
                         else
                         {

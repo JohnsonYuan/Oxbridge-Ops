@@ -382,15 +382,19 @@ namespace Nop.Services.Customers
             if (parentCustomer == null)
                 return new List<Customer>();
             var query = _customerRepository.Table
-                .ToList()
-                .Where(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ParentId) == parentCustomer.Id);
+                .Join(_gaRepository.Table, x => x.Id, y => y.EntityId, (x, y) => new { Customer = x, Attribute = y })
+                .Where(c => c.Attribute.KeyGroup == "Customer" &&
+                c.Attribute.Key == SystemCustomerAttributeNames.ZhiXiao_ParentId &&
+                c.Attribute.Value == parentCustomer.Id.ToString())
+                .Select(c => c.Customer).ToList();
+
             if (checkTeam)
             {
                 // TODO:只显示后8个加入进来为child
-                query = query.Where(x => x.GetInTeamOrder() > _zhiXiaoSettings.TeamInitUserCount);
+                query = query.Where(x => x.GetInTeamOrder() > _zhiXiaoSettings.TeamInitUserCount).ToList();
                 // query = query.Where(x => x.CustomerTeam.Id == parentCustomer.CustomerTeam.Id);
             }
-            return query.ToList();
+            return query;
         }
 
         /// <summary>

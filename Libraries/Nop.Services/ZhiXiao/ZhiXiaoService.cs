@@ -474,6 +474,12 @@ namespace Nop.Services.ZhiXiao
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_LevelId, (int)currentUserLevel);
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamOrder, (int)sortId + 1); // 排序从1开始
                 _genericAttributeService.SaveAttribute(currentUser, SystemCustomerAttributeNames.ZhiXiao_InTeamTime, DateTime.UtcNow);
+
+                // 如果是组长的话检查是否需要升级parent
+                if (currentUserLevel == CustomerLevel.ZuZhang)
+                {
+                    ReGroup_UpdateZuZhangParentClass(currentUser);
+                }
             }
         }
 
@@ -525,8 +531,8 @@ namespace Nop.Services.ZhiXiao
 
             UpdateMoneyForUserAndLog(parentUser,
                 addMoney,
-                "{0} 下小组重新分组, 奖金+{0}",
                 SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
+                "{0} 下小组重新分组, 奖金+{0}",
                 zuZhang.GetNickName(),
                 addMoney);
 
@@ -538,7 +544,7 @@ namespace Nop.Services.ZhiXiao
         /// (看该上线的另一个下线是否满足)
         /// </summary>
         /// <param name="zuZhang"></param>
-        private void ReGroup_UpdateZuZhangParentClass(Customer zuZhang)
+        public void ReGroup_UpdateZuZhangParentClass(Customer zuZhang)
         {
             if (zuZhang == null)
                 throw new ArgumentNullException("zuZhang");
@@ -556,9 +562,7 @@ namespace Nop.Services.ZhiXiao
                 return;
             }
             var childs = _customerService.GetCustomerChildren(parentUser, false);
-            var childs = _customerRepository.Table
-                .Where(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ParentId, 0) == parentUser.Id);
-
+ 
             // 找到另一个下线(最多两个下线)
             var otherChild = childs.Where(x => x.Id != zuZhang.Id).FirstOrDefault();
 
@@ -569,6 +573,10 @@ namespace Nop.Services.ZhiXiao
             var otherChildLevel = (CustomerLevel)otherChild.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId);
 
             var parentLevel = (CustomerLevel)parentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId);
+
+            // 董事级别才递归升级
+            if (parentLevel < CustomerLevel.DongShi0)
+                return;
 
             // 如果下线级别都达到 >= 上线级别-1, 则该上线升1级
             if (firstChildLevel >= parentLevel - 1 &&
@@ -619,7 +627,7 @@ namespace Nop.Services.ZhiXiao
                         SystemCustomerAttributeNames.ZhiXiao_LevelId,
                         (int)(parentLevel + 1));
 
-                    _customerActivityService.InsertActivity(zuZhang,
+                    _customerActivityService.InsertActivity(parentUser,
                         SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
                         "{0} 下小组重新分组, 由{1}升级为{2}",
                         zuZhang.GetNickName(),
