@@ -365,14 +365,11 @@ namespace Nop.Admin.Helpers
                 // 扣钱
                 //if (registerRequest.ParentUserMoney < registerRequest.RequiredMoney)
                 //    throw new Exception("所需电子币不足");
-                _genericAttributeService.SaveAttribute(
-                    parentCustomer,
-                    SystemCustomerAttributeNames.ZhiXiao_MoneyNum,
-                    registerRequest.ParentUserMoney - registerRequest.RequiredMoney);
 
                 // add log
-                _customerActivityService.InsertActivity(parentCustomer,
+                _customerActivityService.InsertMoneyLog(parentCustomer,
                     SystemZhiXiaoLogTypes.RegisterNewUser,
+                    -registerRequest.RequiredMoney,
                     "注册新用户: {0}, 扣除电子币 {1}",
                     customer.GetNickNameAndUserName(),
                     registerRequest.RequiredMoney);
@@ -440,11 +437,11 @@ namespace Nop.Admin.Helpers
                 }, 
                 true);
             
-            _customerActivityService.InsertActivity(customer, SystemZhiXiaoLogTypes.UpgradeUser,
+            _customerActivityService.InsertMoneyLog(customer, SystemZhiXiaoLogTypes.UpgradeUser,
                         "管理员分至小组{0}(26800级别)",
                         parentCustomer.CustomerTeam.CustomNumber);
 
-            _customerActivityService.InsertActivity(parentCustomer, SystemZhiXiaoLogTypes.UpgradeUser,
+            _customerActivityService.InsertMoneyLog(parentCustomer, SystemZhiXiaoLogTypes.UpgradeUser,
                         "管理员把用户{0}分到你的下线",
                         customer.GetNickName());
 

@@ -8,6 +8,8 @@ using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Logging;
 using Nop.Data;
+using Nop.Services.Common;
+using Nop.Services.Customers;
 
 namespace Nop.Services.Logging
 {
@@ -36,6 +38,7 @@ namespace Nop.Services.Logging
         /// </summary>
         private readonly ICacheManager _cacheManager;
         private readonly IRepository<ActivityLog> _activityLogRepository;
+        private readonly IRepository<MoneyLog> _moneyLogRepository;
         private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
         private readonly IRepository<WithdrawLog> _withdrawLogRepository;
         private readonly IWorkContext _workContext;
@@ -43,8 +46,9 @@ namespace Nop.Services.Logging
         private readonly IDataProvider _dataProvider;
         private readonly CommonSettings _commonSettings;
         private readonly IWebHelper _webHelper;
+        private readonly IGenericAttributeService _genericAttributeService;
         #endregion
-        
+
         #region Ctor
 
         /// <summary>
@@ -52,6 +56,7 @@ namespace Nop.Services.Logging
         /// </summary>
         /// <param name="cacheManager">Cache manager</param>
         /// <param name="activityLogRepository">Activity log repository</param>
+        /// <param name="moneyLogRepository">Money log repository</param>
         /// <param name="activityLogTypeRepository">Activity log type repository</param>
         /// <param name="workContext">Work context</param>
         /// <param name="dbContext">DB context</param>>
@@ -60,15 +65,18 @@ namespace Nop.Services.Logging
         /// <param name="webHelper">Web helper</param>
         public CustomerActivityService(ICacheManager cacheManager,
             IRepository<ActivityLog> activityLogRepository,
+            IRepository<MoneyLog> moneyLogRepository,
             IRepository<ActivityLogType> activityLogTypeRepository,
             IRepository<WithdrawLog> withdrawLogRepository,
             IWorkContext workContext,
             IDbContext dbContext, IDataProvider dataProvider,
             CommonSettings commonSettings,
-            IWebHelper webHelper)
+            IWebHelper webHelper,
+            IGenericAttributeService genericAttributeService)
         {
             this._cacheManager = cacheManager;
             this._activityLogRepository = activityLogRepository;
+            this._moneyLogRepository = moneyLogRepository;
             this._activityLogTypeRepository = activityLogTypeRepository;
             this._withdrawLogRepository = withdrawLogRepository;
             this._workContext = workContext;
@@ -76,6 +84,7 @@ namespace Nop.Services.Logging
             this._dataProvider = dataProvider;
             this._commonSettings = commonSettings;
             this._webHelper = webHelper;
+            this._genericAttributeService = genericAttributeService;
         }
 
         #endregion
@@ -151,7 +160,7 @@ namespace Nop.Services.Logging
             _activityLogTypeRepository.Update(activityLogType);
             _cacheManager.RemoveByPattern(ACTIVITYTYPE_PATTERN_KEY);
         }
-                
+
         /// <summary>
         /// Deletes an activity log type item
         /// </summary>
@@ -172,8 +181,8 @@ namespace Nop.Services.Logging
         public virtual IList<ActivityLogType> GetAllActivityTypes()
         {
             var query = from alt in _activityLogTypeRepository.Table
-                orderby alt.Name
-                select alt;
+                        orderby alt.Name
+                        select alt;
             var activityLogTypes = query.ToList();
             return activityLogTypes;
         }
@@ -226,7 +235,7 @@ namespace Nop.Services.Logging
             comment = string.Format(comment, commentParams);
             comment = CommonHelper.EnsureMaximumLength(comment, 4000);
 
-            
+
 
             var activity = new ActivityLog();
             activity.ActivityLogTypeId = activityType.Id;
@@ -239,7 +248,7 @@ namespace Nop.Services.Logging
 
             return activity;
         }
-        
+
         /// <summary>
         /// Deletes an activity log item
         /// </summary>
@@ -268,7 +277,7 @@ namespace Nop.Services.Logging
             int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null)
         {
             var query = _activityLogRepository.Table;
-            if(!String.IsNullOrEmpty(ipAddress))
+            if (!String.IsNullOrEmpty(ipAddress))
                 query = query.Where(al => al.IpAddress.Contains(ipAddress));
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
@@ -344,8 +353,138 @@ namespace Nop.Services.Logging
             }
         }
 
+        /// <summary>
+        /// Inserts an money log item
+        /// </summary>
+        /// <param name="systemKeyword">The system keyword</param>
+        /// <param name="moneyDelta"></param>
+        /// <param name="comment">The activity comment</param>
+        /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
+        /// <returns>Money log item</returns>
+        public virtual MoneyLog InsertMoneyLog(string systemKeyword, long moneyDelta, string comment, params object[] commentParams)
+        {
+            return InsertMoneyLog(_workContext.CurrentCustomer, systemKeyword, moneyDelta, comment, commentParams);
+        }
+
+        /// <summary>
+        /// Insert money log
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <param name="systemKeyword"></param>
+        /// <param name="comment"></param>
+        /// <param name="commentParams"></param>
+        /// <returns></returns>
+        public virtual MoneyLog InsertMoneyLog(Customer customer, string systemKeyword, string comment, params object[] commentParams)
+        {
+            return InsertMoneyLog(customer, systemKeyword, 0, comment, commentParams);
+        }
+
+        /// <summary>
+        /// Inserts an monety log item
+        /// </summary>
+        /// <param name="customer">The customer</param>
+        /// <param name="systemKeyword">The system keyword</param>
+        /// <param name="comment">The activity comment</param>
+        /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
+        /// <returns>Money log item</returns>
+        public virtual MoneyLog InsertMoneyLog(Customer customer, string systemKeyword, long moneyDelta, string comment, params object[] commentParams)
+        {
+            if (customer == null)
+                return null;
+
+            var activityTypes = GetAllActivityTypesCached();
+            var activityType = activityTypes.ToList().Find(at => at.SystemKeyword == systemKeyword);
+            if (activityType == null || !activityType.Enabled)
+                return null;
+
+            comment = CommonHelper.EnsureNotNull(comment);
+            comment = string.Format(comment, commentParams);
+            comment = CommonHelper.EnsureMaximumLength(comment, 4000);
+
+            var moneyLog = new MoneyLog();
+            moneyLog.ActivityLogTypeId = activityType.Id;
+            moneyLog.Customer = customer;
+            moneyLog.Comment = comment;
+            moneyLog.CreatedOnUtc = DateTime.UtcNow;
+            moneyLog.IpAddress = _webHelper.GetCurrentIpAddress();
+
+            var currentMoney = customer.GetMoneyNum();
+            moneyLog.MoneyBefore = currentMoney;
+            moneyLog.MoneyDelta = moneyDelta;
+            moneyLog.MoneyAfter = currentMoney + moneyDelta;
+
+            _moneyLogRepository.Insert(moneyLog);
+
+            // update customer's money
+            if (moneyDelta != 0)
+            {
+                // 实际扣除输入的金额
+                _genericAttributeService.SaveAttribute(
+                    customer,
+                    SystemCustomerAttributeNames.ZhiXiao_MoneyNum,
+                    currentMoney + moneyDelta);
+
+                // money history只记录金额增加
+                if (moneyDelta > 0)
+                {
+                    // 钱历史记录
+                    _genericAttributeService.SaveAttribute(
+                        customer,
+                        SystemCustomerAttributeNames.ZhiXiao_MoneyHistory,
+                        currentMoney + moneyDelta);
+                }
+            }
+
+            return moneyLog;
+        }
+
+        /// <summary>
+        /// Deletes an money log item
+        /// </summary>
+        /// <param name="moneyLog">Money log</param>
+        public virtual void DeleteMoneyLog(MoneyLog moneyLog)
+        {
+            if (moneyLog == null)
+                throw new ArgumentNullException("moneyLog");
+
+            _moneyLogRepository.Delete(moneyLog);
+        }
+
+        /// <summary>
+        /// Gets all money log items
+        /// </summary>
+        /// <param name="createdOnFrom">Log item creation from; null to load all activities</param>
+        /// <param name="createdOnTo">Log item creation to; null to load all activities</param>
+        /// <param name="customerId">Customer identifier; null to load all activities</param>
+        /// <param name="activityLogTypeId">Activity log type identifier</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
+        /// <param name="ipAddress">IP address; null or empty to load all activities</param>
+        /// <returns>Money log items</returns>
+        public virtual IPagedList<MoneyLog> GetAllMoneyLogs(DateTime? createdOnFrom = null,
+            DateTime? createdOnTo = null, int? customerId = null, int activityLogTypeId = 0,
+            int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null)
+        {
+            var query = _moneyLogRepository.Table;
+            if (!String.IsNullOrEmpty(ipAddress))
+                query = query.Where(al => al.IpAddress.Contains(ipAddress));
+            if (createdOnFrom.HasValue)
+                query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
+            if (createdOnTo.HasValue)
+                query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
+            if (activityLogTypeId > 0)
+                query = query.Where(al => activityLogTypeId == al.ActivityLogTypeId);
+            if (customerId.HasValue)
+                query = query.Where(al => customerId.Value == al.CustomerId);
+
+            query = query.OrderByDescending(al => al.CreatedOnUtc);
+
+            var moneyLog = new PagedList<MoneyLog>(query, pageIndex, pageSize);
+            return moneyLog;
+        }
+
         #region Withdraw log
-    
+
         /// <summary>
         /// Inserts an withdraw log item
         /// </summary>
@@ -387,7 +526,7 @@ namespace Nop.Services.Logging
 
             return withdraw;
         }
-        
+
         /// <summary>
         /// Update withdraw log item
         /// </summary>
@@ -428,7 +567,7 @@ namespace Nop.Services.Logging
             int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null)
         {
             var query = _withdrawLogRepository.Table;
-            if(!String.IsNullOrEmpty(ipAddress))
+            if (!String.IsNullOrEmpty(ipAddress))
                 query = query.Where(al => al.IpAddress.Contains(ipAddress));
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);

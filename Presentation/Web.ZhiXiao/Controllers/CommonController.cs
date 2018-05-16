@@ -307,6 +307,20 @@ namespace Web.ZhiXiao.Controllers
 
         #region Test
 
+        public ActionResult InstallLangagePacks()
+        {
+            var _languageRepository = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<Nop.Core.Domain.Localization.Language>>();
+
+            var localizationService = EngineContext.Current.Resolve<ILocalizationService>();
+            //'Chinese' language
+            var language = _languageRepository.Table.Single(l => l.Name == "中文");
+            //save resources
+            var localesXml = System.IO.File.ReadAllText(CommonHelper.MapPath("~/App_Data/Localization/zhs.nopres.xml"));
+            localizationService.ImportResourcesFromXml(language, localesXml);
+
+            return Content("success");
+        }
+
         public ActionResult TestUpgradeParent()
         {
             var _customerRepository = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<Customer>>();
@@ -349,6 +363,22 @@ namespace Web.ZhiXiao.Controllers
             var levels = Enum.GetValues(typeof(Nop.Core.Domain.ZhiXiao.CustomerLevel)).OfType<Nop.Core.Domain.ZhiXiao.CustomerLevel>().Select(x => (int)x).ToList();
 
             return Json(levels, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        #region 测试董事升级
+
+        public ActionResult AddFackParentToTestUser()
+        {
+            var testUser = _customerService.GetCustomerByUsername("USER_TEST");
+
+            var _customerRoleRepository = EngineContext.Current.Resolve<Nop.Core.Data.IRepository<CustomerRole>>();
+
+            var crRegistered_Normal = _customerRoleRepository.Table.Where(x => x.SystemName == SystemCustomerRoleNames.Registered).FirstOrDefault();
+            var crRegistered_Advanced = _customerRoleRepository.Table.Where(x => x.SystemName == SystemCustomerRoleNames.Registered_Advanced).FirstOrDefault();
+
+            return Content("");
         }
 
         #endregion

@@ -111,6 +111,11 @@ namespace Nop.Extensions
             return entity.MapTo<ActivityLog, ActivityLogModel>();
         }
 
+        public static MoneyLogModel ToModel(this MoneyLog entity)
+        {
+            return entity.MapTo<MoneyLog, MoneyLogModel>();
+        }
+
         #endregion
 
         #region Languages

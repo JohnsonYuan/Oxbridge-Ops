@@ -17200,5 +17200,14 @@
     <Value>时区</Value>
   </LocaleResource>
   
-  
+  <!--customer values-->
+  <LocaleResource Name="Admin.Customers.Customers.MoneyLog.MoneyBefore">
+    <Value>原始金额</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.MoneyLog.MoneyDelta">
+    <Value>变化金额</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.Customers.Customers.MoneyLog.MoneyAfter">
+    <Value>结果</Value>
+  </LocaleResource>
 </Language>

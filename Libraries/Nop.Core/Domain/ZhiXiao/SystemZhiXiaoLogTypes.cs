@@ -26,16 +26,7 @@
         /// 充值电子币
         /// </summary>
         public static string RechargeMoney { get { return "ZhiXiao_Recharge"; } }
-        
-        /// <summary>
-        /// 管理员发货
-        /// </summary>
-        public static string SendProduct { get { return "ZhiXiao_SendProduct"; } }
-        /// <summary>
-        /// 用户发货
-        /// </summary>
-        public static string ReceiveProduct { get { return "ZhiXiao_ReceiveProduct"; } }
-        
+
         /// <summary>
         /// 用户提现申请
         /// </summary>
@@ -53,5 +44,14 @@
         /// 用户分至26800小组
         /// </summary>
         public static string UpgradeUser { get { return "ZhiXiao_UpgradeUser"; } }
+
+        /// <summary>
+        /// 管理员发货
+        /// </summary>
+        public static string SendProduct { get { return "ZhiXiao_SendProduct"; } }
+        /// <summary>
+        /// 用户发货
+        /// </summary>
+        public static string ReceiveProduct { get { return "ZhiXiao_ReceiveProduct"; } }
     }
 }

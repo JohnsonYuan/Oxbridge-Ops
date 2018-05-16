@@ -282,6 +282,7 @@ namespace Web.ZhiXiao.Controllers
             return View(model);
         }
 
+        // 删除该方法记得psot return RedirectToAction("RegisterTest"); => return RedirectToAction("Register");
         public virtual ActionResult RegisterTest()
         {
             var validateParentResult = _registerZhiXiaoUserHelper.ValidateParentCustomer(_workContext.CurrentCustomer, false);
@@ -339,7 +340,7 @@ namespace Web.ZhiXiao.Controllers
                 if (registerResult.Success)
                 {
                     SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
-                    return RedirectToAction("Register");
+                    return RedirectToAction("RegisterTest");
                 }
                 else
                 {
@@ -375,6 +376,7 @@ namespace Web.ZhiXiao.Controllers
             {
                 ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
             }
+
             return View(model);
         }
 
@@ -837,42 +839,27 @@ namespace Web.ZhiXiao.Controllers
         }
         [HttpPost]
         [UserPassword2Authorize("MoneyLog list")]
-        public ActionResult MoneyLogList(DataSourceRequest command, FormCollection forms)
+        public ActionResult MoneyLogList(DataSourceRequest command)
         {
             if (!_workContext.CurrentCustomer.IsRegistered())
                 return new HttpUnauthorizedResult();
 
-            var activityLog = _customerActivityService.GetAllActivitiesByTypes(new string[]
-            {
-                SystemZhiXiaoLogTypes.AddNewUser,
-                SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
-                SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
-                SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
-                SystemZhiXiaoLogTypes.RechargeMoney,
-                SystemZhiXiaoLogTypes.Withdraw,
-                SystemZhiXiaoLogTypes.ProcessWithdraw,
-                SystemZhiXiaoLogTypes.RegisterNewUser,
-            },
-            _workContext.CurrentCustomer.Id,
-            command.Page - 1,
-            command.PageSize);
+            var moneyLogs = _customerActivityService.GetAllMoneyLogs(
+                customerId: _workContext.CurrentCustomer.Id,
+                pageIndex: command.Page - 1,
+                pageSize: command.PageSize);
 
             var gridModel = new DataSourceResult
             {
-                Data = activityLog.Select(x =>
+                Data = moneyLogs.Select(x =>
                 {
-                    var m = new CustomerModel.ActivityLogModel
-                    {
-                        Id = x.Id,
-                        ActivityLogTypeName = x.ActivityLogType.Name,
-                        Comment = x.Comment,
-                        CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                        IpAddress = x.IpAddress
-                    };
+                    var m = x.ToModel();
+                    m.ActivityLogTypeName = x.ActivityLogType.Name;
+                    m.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                    
                     return m;
-
                 }),
-                Total = activityLog.TotalCount
+                Total = moneyLogs.TotalCount
             };
 
             return Json(gridModel);

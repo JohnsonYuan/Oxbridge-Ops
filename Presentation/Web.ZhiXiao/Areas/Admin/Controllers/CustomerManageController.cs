@@ -460,6 +460,21 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             var model = new CustomerModel();
             PrepareCustomerModel(model, null, true);
 
+            // delete below when publish
+            model.Username = "user_";
+            model.NickName = "user_";
+            model.Password = "123456";
+            model.ConfirmPassword = "123456";
+            model.Password2 = "123456";
+            model.ConfirmPassword2 = "123456";
+            model.Gender = "M";
+            model.ZhiXiao_IdCardNum = CommonHelper.GenerateRandomDigitCode(18);
+            model.ZhiXiao_YinHang = "开户银行" + CommonHelper.GenerateRandomInteger(1, 200);
+            model.ZhiXiao_KaiHuHang = "开户行"+ CommonHelper.GenerateRandomInteger(1, 200);
+            model.ZhiXiao_KaiHuMing = "开户名" + CommonHelper.GenerateRandomInteger(1, 200);
+            model.ZhiXiao_BankNum = CommonHelper.GenerateRandomDigitCode(16);
+
+
             if (registerAdvanceUser)
             {
                 ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
@@ -480,7 +495,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 return AccessDeniedView();
 
             var parentUser = _customerService.GetCustomerById(model.ZhiXiao_ParentId);
-            var validateParentResult = _registerZhiXiaoUserHelper.ValidateParentCustomer(_workContext.CurrentCustomer, false);
+            var validateParentResult = _registerZhiXiaoUserHelper.ValidateParentCustomer(parentUser, true);
 
             if (!validateParentResult.Success)
             {
@@ -488,18 +503,19 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 {
                     ErrorNotification(error);
                 }
-
-                return View();
+                
+                return RedirectToAction("RegisterZhiXiaoUser");
             }
 
             if (ModelState.IsValid)
             {
+                model.Active = true;
                 var registerResult = _registerZhiXiaoUserHelper.RegisterNewUser(model, parentUser, true);
 
                 if (registerResult.Success)
                 {
                     SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
-                    return RedirectToAction("List");
+                    return RedirectToAction("RegisterZhiXiaoUser", new { registerAdvanceUser = registerAdvanceUser });
                 }
                 else
                 {
@@ -1287,34 +1303,22 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedKendoGridJson();
 
-            var activityLog = _customerActivityService.GetAllActivitiesByTypes(new string[]
-            {
-                SystemZhiXiaoLogTypes.AddNewUser,
-                SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
-                SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
-                SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
-                SystemZhiXiaoLogTypes.RechargeMoney,
-                SystemZhiXiaoLogTypes.Withdraw,
-                SystemZhiXiaoLogTypes.ProcessWithdraw,
-                SystemZhiXiaoLogTypes.RegisterNewUser,
-            }, customerId, command.Page - 1, command.PageSize);
+            var moneyLogs = _customerActivityService.GetAllMoneyLogs(
+                customerId: customerId,
+                pageIndex: command.Page - 1,
+                pageSize: command.PageSize);
 
             var gridModel = new DataSourceResult
             {
-                Data = activityLog.Select(x =>
+                Data = moneyLogs.Select(x =>
                 {
-                    var m = new CustomerModel.ActivityLogModel
-                    {
-                        Id = x.Id,
-                        ActivityLogTypeName = x.ActivityLogType.Name,
-                        Comment = x.Comment,
-                        CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                        IpAddress = x.IpAddress
-                    };
+                    var m = x.ToModel();
+                    m.ActivityLogTypeName = x.ActivityLogType.Name;
+                    m.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                    
                     return m;
-
                 }),
-                Total = activityLog.TotalCount
+                Total = moneyLogs.TotalCount
             };
 
             return Json(gridModel);
@@ -1337,7 +1341,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             {
                 Data = activityLog.Select(x =>
                 {
-                    var m = new CustomerModel.ActivityLogModel
+                    var m = new ActivityLogModel
                     {
                         Id = x.Id,
                         ActivityLogTypeName = x.ActivityLogType.Name,
@@ -1522,7 +1526,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                     customer.GetNickNameAndUserName(),
                     withDraw.Amount);
 
-                _customerActivityService.InsertActivity(withDraw.Customer, SystemZhiXiaoLogTypes.ProcessWithdraw,
+                _customerActivityService.InsertMoneyLog(withDraw.Customer, SystemZhiXiaoLogTypes.ProcessWithdraw,
+                    -withDraw.Amount,
                     "管理员通过提现{0}电子币申请",
                     withDraw.Amount);
             }

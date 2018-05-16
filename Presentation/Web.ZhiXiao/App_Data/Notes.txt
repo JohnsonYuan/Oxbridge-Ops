@@ -1,0 +1,11 @@
+﻿ var activityLog = _customerActivityService.GetAllActivitiesByTypes(new string[]
+            {
+                SystemZhiXiaoLogTypes.AddNewUser,
+                SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
+                SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
+                SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
+                SystemZhiXiaoLogTypes.RechargeMoney,
+                SystemZhiXiaoLogTypes.Withdraw,
+                SystemZhiXiaoLogTypes.ProcessWithdraw,
+                SystemZhiXiaoLogTypes.RegisterNewUser,
+            }, customerId, command.Page - 1, command.PageSize);

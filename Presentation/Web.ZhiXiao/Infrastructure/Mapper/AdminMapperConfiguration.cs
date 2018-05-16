@@ -86,6 +86,13 @@ namespace Nop.Admin.Infrastructure.Mapper
                     .ForMember(dest => dest.CustomerUserName, mo => mo.MapFrom(src => src.Customer.Username))
                     .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
                     .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
+                // money log
+                cfg.CreateMap<MoneyLog, MoneyLogModel>()
+                    .ForMember(dest => dest.ActivityLogTypeName, mo => mo.MapFrom(src => src.ActivityLogType.Name))
+                    .ForMember(dest => dest.CustomerEmail, mo => mo.MapFrom(src => src.Customer.Email))
+                    .ForMember(dest => dest.CustomerUserName, mo => mo.MapFrom(src => src.Customer.Username))
+                    .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
+                    .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
                 //language
                 cfg.CreateMap<Language, LanguageModel>()
                         .ForMember(dest => dest.AvailableStores, mo => mo.Ignore())

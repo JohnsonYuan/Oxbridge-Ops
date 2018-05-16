@@ -1,4 +1,0 @@
-﻿ALTER TABLE CustomerTeam
-ADD TypeId int
-
-update CustomerTeam set TypeId = 1 where id = 1

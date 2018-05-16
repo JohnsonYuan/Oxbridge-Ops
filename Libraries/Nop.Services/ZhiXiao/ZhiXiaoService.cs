@@ -126,23 +126,12 @@ namespace Nop.Services.ZhiXiao
         {
             var money = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyNum);
             var moneyHistory = customer.GetAttribute<long>(SystemCustomerAttributeNames.ZhiXiao_MoneyHistory);
-
-            // 实际钱
-            _genericAttributeService.SaveAttribute(
-                customer,
-                SystemCustomerAttributeNames.ZhiXiao_MoneyNum,
-                money + deltaMoney);
-
-            // 钱历史记录
-            _genericAttributeService.SaveAttribute(
-                customer,
-                SystemCustomerAttributeNames.ZhiXiao_MoneyHistory,
-                moneyHistory + deltaMoney);
-
+            
             // add log
-            _customerActivityService.InsertActivity(customer,
-                logType,
-                logComment,
+            _customerActivityService.InsertMoneyLog(customer, 
+                logType, 
+                deltaMoney, 
+                logComment, 
                 logCommentParams);
         }
 
@@ -349,8 +338,9 @@ namespace Nop.Services.ZhiXiao
                     SystemCustomerAttributeNames.ZhiXiao_LevelId,
                     (int)CustomerLevel.DongShi0);
 
-                _customerActivityService.InsertActivity(zuZhang,
+                _customerActivityService.InsertMoneyLog(zuZhang,
                     SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
+                    0,
                     "小组{0}重新分组, 由{1}升级为{2}",
                     oldTeam.CustomNumber,
                     CustomerLevel.ZuZhang.GetDescription(),
@@ -382,7 +372,7 @@ namespace Nop.Services.ZhiXiao
                     SystemCustomerAttributeNames.ZhiXiao_LevelId,
                     (int)CustomerLevel.PreDongShi);
 
-                _customerActivityService.InsertActivity(zuZhang,
+                _customerActivityService.InsertMoneyLog(zuZhang,
                     SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
                     "小组{0}重新分组, 离开小组",
                     oldTeam.CustomNumber);
@@ -459,13 +449,14 @@ namespace Nop.Services.ZhiXiao
                 //var currentUserOldTeam = currentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_TeamId);
 
                 var currentUserOldLevel = currentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_LevelId);
-                _customerActivityService.InsertActivity(currentUser,
-                        SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
-                        "{0} 小组重新分组, 原先级别为{1}, 当前级别为{2}, 分至小组{3}",
-                        oldTeam.CustomNumber,
-                        ((CustomerLevel)currentUserOldLevel).GetDescription(),
-                        ((CustomerLevel)currentUserLevel).GetDescription(),
-                        newTeam.CustomNumber);
+
+                _customerActivityService.InsertMoneyLog(currentUser,
+                    SystemZhiXiaoLogTypes.ReGroupTeam_ReSort,
+                    "{0} 小组重新分组, 原先级别为{1}, 当前级别为{2}, 分至小组{3}",
+                    oldTeam.CustomNumber,
+                    ((CustomerLevel)currentUserOldLevel).GetDescription(),
+                    ((CustomerLevel)currentUserLevel).GetDescription(),
+                    newTeam.CustomNumber);
 
                 int sortId = i / 2;
                 // 更新teamid, class, inTeamTime
@@ -627,7 +618,7 @@ namespace Nop.Services.ZhiXiao
                         SystemCustomerAttributeNames.ZhiXiao_LevelId,
                         (int)(parentLevel + 1));
 
-                    _customerActivityService.InsertActivity(parentUser,
+                    _customerActivityService.InsertMoneyLog(parentUser,
                         SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
                         "{0} 下小组重新分组, 由{1}升级为{2}",
                         zuZhang.GetNickName(),
@@ -806,21 +797,16 @@ namespace Nop.Services.ZhiXiao
             if (actualAmount > totalMoney)
                 throw new ArgumentException("提现金额超出当前电子币余额");
 
-            // 实际扣除输入的金额
-            _genericAttributeService.SaveAttribute(
-                customer,
-                SystemCustomerAttributeNames.ZhiXiao_MoneyNum,
-                totalMoney - amount);
-
-            // 提现记录显示扣除手续费的金额
-            _customerActivityService.InsertWithdraw(customer,
-                actualAmount,
+            _customerActivityService.InsertMoneyLog(customer,
+                SystemZhiXiaoLogTypes.Withdraw,
+                -amount,
                 "提现申请{0}, 实际金额{1}",
                 amount,
                 actualAmount);
 
-            _customerActivityService.InsertActivity(customer,
-                SystemZhiXiaoLogTypes.Withdraw,
+            // 提现记录显示扣除手续费的金额
+            _customerActivityService.InsertWithdraw(customer,
+                actualAmount,
                 "提现申请{0}, 实际金额{1}",
                 amount,
                 actualAmount);
