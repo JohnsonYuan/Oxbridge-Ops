@@ -275,7 +275,7 @@ namespace Nop.Services.ZhiXiao
             UpdateMoneyForUserAndLog(zuZhang,
                 addMoney,
                 SystemZhiXiaoLogTypes.AddNewUser,
-                "小组新加入会员{0}, 奖金+{1}",
+                "小组新加入会员{0}, 组长奖金+{1}",
                 newCustomer.GetNickName(),
                 addMoney);
 
@@ -291,7 +291,7 @@ namespace Nop.Services.ZhiXiao
                 UpdateMoneyForUserAndLog(user,
                     addMoney,
                     SystemZhiXiaoLogTypes.AddNewUser,
-                    "小组新加入会员{0}, 奖金+{1}",
+                    "小组新加入会员{0}, 副组长奖金+{1}",
                     newCustomer.GetNickName(),
                     addMoney);
             }
@@ -326,7 +326,7 @@ namespace Nop.Services.ZhiXiao
             UpdateMoneyForUserAndLog(zuZhang,
                 addMoney,
                 SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
-                "小组{0}重新分组, 奖金+{1}",
+                "小组{0}重新分组, 组长奖金+{1}",
                 oldTeam.CustomNumber,
                 addMoney);
 
@@ -501,13 +501,14 @@ namespace Nop.Services.ZhiXiao
                 _zhiXiaoSettings.ReGroupMoney_DongShiBase_Advanced
                 : _zhiXiaoSettings.ReGroupMoney_DongShiBase_Normal;
 
+            double rate = 0;
             switch (parentLevel)
             {
                 case CustomerLevel.DongShi1:
-                    addMoney = (int)(baseMoney * _zhiXiaoSettings.ReGroupMoney_Rate_DongShi1);
+                    rate = _zhiXiaoSettings.ReGroupMoney_Rate_DongShi1;
                     break;
                 case CustomerLevel.DongShi2:
-                    addMoney = (int)(baseMoney * _zhiXiaoSettings.ReGroupMoney_Rate_DongShi2);
+                    rate = _zhiXiaoSettings.ReGroupMoney_Rate_DongShi2;
                     break;
                 //case CustomerLevel.DongShi3:
                 //    addMoney = (int)(baseMoney * _zhiXiaoSettings.ReGroupMoney_Rate_DongShi3);
@@ -520,12 +521,15 @@ namespace Nop.Services.ZhiXiao
                 //    break;
             }
 
+            addMoney = (int)(baseMoney * rate);
+
             UpdateMoneyForUserAndLog(parentUser,
                 addMoney,
                 SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
-                "{0} 下小组重新分组, 奖金+{0}",
+                "{0} 下小组重新分组, 奖金+{0} ({1})",
                 zuZhang.GetNickName(),
-                addMoney);
+                addMoney,
+                string.Format("{0} * {1}", baseMoney, rate));
 
             ReGroup_UpdateZuZhangParentMoney(parentUser);
         }
@@ -580,7 +584,7 @@ namespace Nop.Services.ZhiXiao
                 }
                 else if (parentLevel == CustomerLevel.DongShi2)
                 {
-                    //该上线已经达到5星董事 => 该出盘了！！
+                    //该上线已经达到2星董事 => 该出盘了！！
                     _genericAttributeService.SaveAttribute(parentUser,
                         SystemCustomerAttributeNames.ZhiXiao_LevelId,
                         (int)(CustomerLevel.ChuPan));
@@ -589,11 +593,11 @@ namespace Nop.Services.ZhiXiao
                         _zhiXiaoSettings.ReGroupMoney_DongShi5_ChuPan_Advanced
                         : _zhiXiaoSettings.ReGroupMoney_DongShi5_ChuPan_Normal;
 
-                    // 五星董事升级！奖金30万
+                    // 2星董事升级！奖金30万
                     UpdateMoneyForUserAndLog(parentUser,
                         addMoney,
                         SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
-                        "{0} 下小组重新分组, 出盘, 奖金+{0}",
+                        "{0} 下小组重新分组, 出盘, 奖金+{1}",
                         zuZhang.GetNickName(),
                         addMoney);
 
@@ -657,7 +661,7 @@ namespace Nop.Services.ZhiXiao
                 UpdateMoneyForUserAndLog(member,
                     addMoney,
                     SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
-                    "小组{0}重新分组, 奖金+{1}",
+                    "小组{0}重新分组, 组员奖金+{1}",
                     team.CustomNumber,
                     addMoney);
             }

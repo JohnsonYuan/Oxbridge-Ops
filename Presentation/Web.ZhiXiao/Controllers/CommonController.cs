@@ -204,7 +204,9 @@ namespace Web.ZhiXiao.Controllers
                             //activity log
                             _customerActivityService.InsertActivity(customer, "PublicStore.Login", _localizationService.GetResource("ActivityLog.PublicStore.Login"));
 
-                            if (String.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+                            if (String.IsNullOrEmpty(returnUrl) 
+                                || !Url.IsLocalUrl(returnUrl) 
+                                || returnUrl == "/")
                             {
                                 if (customer.IsAdmin() || customer.IsManager())
                                 {
@@ -214,10 +216,6 @@ namespace Web.ZhiXiao.Controllers
                                 {
                                     return RedirectToRoute("HomePage");
                                 }
-                            }
-                            else if (returnUrl == "/")
-                            {
-                                return RedirectToRoute("AdminHomePage");
                             }
 
                             return Redirect(returnUrl);
