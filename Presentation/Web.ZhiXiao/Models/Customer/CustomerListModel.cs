@@ -74,6 +74,13 @@ namespace Nop.Models.Customers
         [NopResourceDisplayName("Admin.Customers.Customers.List.SearchIpAddress")]
         public string SearchIpAddress { get; set; }
 
+        // 小组
+        [Display(Name = "小组编号")]
+        public string SearchTeamNumber { get; set; }
+        [Display(Name = "小组类型")]
+        public int SearchTeamType { get; set; }
+        public IList<SelectListItem> AvailableTeamTypes { get; set; }
+
         public SendProductModel SendProduct { get; set; }
 
         /// <summary>

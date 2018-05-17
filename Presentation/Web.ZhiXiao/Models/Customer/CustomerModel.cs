@@ -9,6 +9,7 @@ using Nop.Web.Framework;
 using Nop.Web.Framework.Mvc;
 using Nop.Core.Domain.ZhiXiao;
 using Nop.Core.Domain.Customers;
+using Nop.Core;
 
 namespace Nop.Models.Customers
 {
@@ -23,7 +24,6 @@ namespace Nop.Models.Customers
 
             this.SelectedCustomerRoleIds= new List<int>();
             this.AvailableCustomerRoles = new List<SelectListItem>();
-            this.AvailableParents = new List<SelectListItem>();
 
             //this.AssociatedExternalAuthRecords = new List<AssociatedExternalAuthModel>();
             //this.AvailableCountries = new List<SelectListItem>();
@@ -88,6 +88,12 @@ namespace Nop.Models.Customers
         public string LastName { get; set; }
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.FullName")]
         public string FullName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the customer team number.
+        /// </summary>
+        public string CustomerTeamNum { get; set; }
+        public CustomerTeamModel TeamInfo { get; set; }
         
         public bool DateOfBirthEnabled { get; set; }
         [UIHint("DateNullable")]
@@ -241,7 +247,6 @@ namespace Nop.Models.Customers
         [UIHint("MultiSelect")]
         public int ZhiXiao_ParentId { get; set; }       // 推荐人id
         public Customer ParentUser { get; set; }
-        public List<SelectListItem> AvailableParents { get; set; }
         
         [Display(Name = "小组")]
         public int ZhiXiao_TeamId { get; set; }       // 小组id
@@ -282,6 +287,11 @@ namespace Nop.Models.Customers
                 this.ZhiXiao_LevelId = (int)value;
             }
         }
+
+        /// <summary>
+        /// 级别信息
+        /// </summary>
+        public string LevelDescription { get; set; }
 
         public SendProductStatus ProductStatus
         {

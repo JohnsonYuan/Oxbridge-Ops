@@ -70,7 +70,7 @@
                 <div class="panel panel-default panel-search">
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-md-7">
+                            <div class="col-md-6">
                                 @if (Model.UsernamesEnabled)
                                 {
                                     <div class="form-group">
@@ -151,18 +151,24 @@
                                     </div>
                                 }
                             </div>
-                            <div class="col-md-5">
-                                @if (Model.CompanyEnabled)
-                                {
-                                    <div class="form-group">
-                                        <div class="col-md-4">
-                                            @Html.NopLabelFor(model => model.SearchCompany)
-                                        </div>
-                                        <div class="col-md-8">
-                                            @Html.NopEditorFor(model => model.SearchCompany)
-                                        </div>
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(model => model.SearchTeamNumber)
                                     </div>
-                                }
+                                    <div class="col-md-8">
+                                        @Html.NopEditorFor(model => model.SearchTeamNumber)
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(model => model.SearchTeamType)
+                                    </div>
+                                    <div class="col-md-8">
+                                        @Html.NopDropDownListFor(model => model.SearchTeamType, Model.AvailableTeamTypes)
+                                    </div>
+                                </div>
                                 @if (Model.PhoneEnabled)
                                 {
                                     <div class="form-group">
@@ -171,17 +177,6 @@
                                         </div>
                                         <div class="col-md-8">
                                             @Html.NopEditorFor(model => model.SearchPhone)
-                                        </div>
-                                    </div>
-                                }
-                                @if (Model.ZipPostalCodeEnabled)
-                                {
-                                    <div class="form-group">
-                                        <div class="col-md-4">
-                                            @Html.NopLabelFor(model => model.SearchZipPostalCode)
-                                        </div>
-                                        <div class="col-md-8">
-                                            @Html.NopEditorFor(model => model.SearchZipPostalCode)
                                         </div>
                                     </div>
                                 }
@@ -245,64 +240,52 @@
                                     scrollable: false,
                                     dataBound: onDataBound,
                                     columns: [
-                                        {
-                                            field: "Id",
-                                            headerTemplate: "<input id='mastercheckbox' type='checkbox' />",
-                                            headerAttributes: { style: "text-align: center" },
-                                            template: "<input type='checkbox' value='#=Id#' class='checkboxGroups'/>",
-                                            width: 50
-                                        },
+                                        //{
+                                        //    field: "Id",
+                                        //    headerTemplate: "<input id='mastercheckbox' type='checkbox' />",
+                                        //    headerAttributes: { style: "text-align: center" },
+                                        //    template: "<input type='checkbox' value='#=Id#' class='checkboxGroups'/>",
+                                        //    width: 50
+                                        //},
                                         @if (Model.UsernamesEnabled)
                                         {
                                             <text>{
                                                 field: "Username",
-                                                title: "@T("Admin.Customers.Customers.Fields.Username")",
-                                                width: 200
+                                                title: "@T("Admin.Customers.Customers.Fields.Username")  (昵称)",
+                                                width: 150,
+                                                template: "#=Username#  (#=NickName#)"
                                             },</text>
                                         }{
-                                            field: "NickName",
-                                            title: "昵称",
-                                            width: 180
-                                        }, {
                                             field: "CustomerRoleNames",
                                             title: "@T("Admin.Customers.Customers.Fields.CustomerRoles")",
-                                            width: 250
-                                        },
-                                        @if (Model.PhoneEnabled)
-                                        {
-                                            <text>{
-                                            field: "Phone",
-                                            title: "@T("Admin.Customers.Customers.Fields.Phone")",
-                                            width: 150
-                                        },</text>
-                                        }
-
-                                        @if (Model.ZipPostalCodeEnabled)
-                                        {
-                                            <text>{
-                                            field: "ZipPostalCode",
-                                            title: "@T("Admin.Customers.Customers.Fields.ZipPostalCode")",
-                                            width: 200
-                                        },</text>
-                                        }
-                                        {
-                                            field: "Active",
-                                            title: "@T("Admin.Customers.Customers.Fields.Active")",
-                                            width: 100,
-                                            headerAttributes: { style: "text-align:center" },
-                                            attributes: { style: "text-align:center" },
-                                            template: '# if(Active) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
+                                            width: 130
                                         },
                                         {
+                                            field: "LevelDescription",
+                                            title: "级别",
+                                            width: 80
+                                        },{
+                                            field: "CustomerTeamNum",
+                                            title: "小组",
+                                            width: 90, 
+                                            template: kendo.template($("#teamTemplate").html())
+                                        }, {
                                             field: "ZhiXiao_MoneyNum",
                                             title: "电子币",
-                                            width: 100
+                                            width: 50
                                         }, {
                                             field: "LastActivityDate",
                                             title: "@T("Admin.Customers.Customers.Fields.LastActivityDate")",
                                             width: 180,
                                             type: "date",
                                             format: "{0:G}"
+                                        }, {
+                                            field: "Active",
+                                            title: "@T("Admin.Customers.Customers.Fields.Active")",
+                                            width: 100,
+                                            headerAttributes: { style: "text-align:center" },
+                                            attributes: { style: "text-align:center" },
+                                            template: '# if(Active) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
                                         }, {
                                             field: "Id",
                                             title: "@T("Admin.Common.Edit")",
@@ -337,6 +320,7 @@
                                     "#@Html.FieldIdFor(model => model.SearchCompany),",
                                     "#@Html.FieldIdFor(model => model.SearchPhone),",
                                     "#@Html.FieldIdFor(model => model.SearchZipPostalCode),",
+                                    "#@Html.FieldIdFor(model => model.SearchTeamNumber),",
                                     "#@Html.FieldIdFor(model => model.SearchIpAddress)")).keydown(function(event) {
                                         if (event.keyCode === 13) {
                                             $("#search-customers").click();
@@ -411,7 +395,10 @@
                                     SearchCompany: $('#@Html.FieldIdFor(model => model.SearchCompany)').val(),
                                     SearchPhone: $('#@Html.FieldIdFor(model => model.SearchPhone)').val(),
                                     SearchZipPostalCode: $('#@Html.FieldIdFor(model => model.SearchZipPostalCode)').val(),
-                                    SearchIpAddress: $('#@Html.FieldIdFor(model => model.SearchIpAddress)').val()
+                                    SearchIpAddress: $('#@Html.FieldIdFor(model => model.SearchIpAddress)').val(),
+                                    SearchTeamNumber: $('#@Html.FieldIdFor(model => model.SearchTeamNumber)').val(),
+                                    SearchTeamType: $('#@Html.FieldIdFor(model => model.SearchTeamType)').val(),
+
                                 };
                                 addAntiForgeryToken(data);
                                 return data;
@@ -423,6 +410,18 @@
         </div>
     </div>
 }
+
+<script type="text/x-kendo-template" id="teamTemplate">
+    #if(TeamInfo.Id > 0){#
+        #if(TeamInfo.TypeId == @((int)Nop.Core.Domain.ZhiXiao.CustomerTeamType.Normal)) {#
+        <a class="btn bg-purple" onclick="console.log(classname);OpenWindow('@Url.Action("Diagarm", "CustomerTeam")/#=TeamInfo.Id#', 1200, 700, true);"><i class="fa fa-bullseye"></i>#=TeamInfo.CustomNumber#</a>
+        #} else {#
+        <a class="btn bg-olive" onclick="OpenWindow('@Url.Action("Diagarm", "CustomerTeam")/#=TeamInfo.Id#', 1200, 700, true);"><i class="fa fa-bullseye"></i>#=TeamInfo.CustomNumber#</a>
+        #}#
+    #} else {#
+        无小组
+    #}#
+</script>>
 
 <script type="text/x-kendo-template" id="editTemplate">
     <a class="btn btn-default" href="Edit/#=Id#"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</a>

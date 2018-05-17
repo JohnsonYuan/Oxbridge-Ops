@@ -101,7 +101,9 @@ namespace Web.ZhiXiao
                 return;
 
             //miniprofiler
+#if !DEBUG
             if (EngineContext.Current.Resolve<StoreInformationSettings>().DisplayMiniProfilerInPublicStore)
+#endif
             {
                 MiniProfiler.Start();
                 //store a value indicating whether profiler was started

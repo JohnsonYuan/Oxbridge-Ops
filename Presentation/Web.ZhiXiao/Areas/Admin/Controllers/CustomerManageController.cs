@@ -213,8 +213,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 Id = customer.Id,
                 Email = customer.IsRegistered() ? customer.Email : _localizationService.GetResource("Admin.Customers.Guest"),
                 Username = customer.Username,
-                FullName = customer.GetFullName(),
-                Company = customer.GetAttribute<string>(SystemCustomerAttributeNames.Company),
+                //FullName = customer.GetFullName(),
+                //Company = customer.GetAttribute<string>(SystemCustomerAttributeNames.Company),
                 Phone = customer.GetAttribute<string>(SystemCustomerAttributeNames.Phone),
                 //ZipPostalCode = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZipPostalCode),
                 CustomerRoleNames = GetCustomerRolesNames(customer.CustomerRoles.ToList()),
@@ -222,6 +222,9 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 CreatedOn = _dateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc),
                 LastActivityDate = _dateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
 
+                LevelDescription = customer.GetAttribute<CustomerLevel>(SystemCustomerAttributeNames.ZhiXiao_LevelId).GetDescription(),
+                CustomerTeamNum = customer.CustomerTeam != null ? customer.CustomerTeam.CustomNumber : "",
+                TeamInfo = customer.CustomerTeam.ToModel() ?? new CustomerTeamModel(),
                 CanUpgrade = customer.GetLevel() == CustomerLevel.PreDongShi,
                 NickName = customer.GetNickName(),
                 ZhiXiao_MoneyNum = customer.GetMoneyNum(),
@@ -230,7 +233,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
         }
 
         [NonAction]
-        protected virtual void PrepareCustomerModel(CustomerModel model, Customer customer, bool excludeProperties, bool addManager = false)
+        protected virtual void PrepareCustomerModel(CustomerModel model, Customer customer, bool excludeProperties)
         {
             var allStores = _storeService.GetAllStores();
             if (customer != null)
@@ -365,44 +368,25 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
             //customer roles
             //precheck Registered Role as a default role while creating a new customer through admin
-            if (addManager)
+
+            // 添加管理员
+            var allRoles = _customerService.GetAllCustomerRoles(true);
+            //var managerRole = allRoles.FirstOrDefault(c => c.SystemName == SystemCustomerRoleNames.Managers);
+            //if (managerRole != null)
+            //    model.SelectedCustomerRoleIds.Add(managerRole.Id);
+
+            //var managerRoels = allRoles.Except(zhiXiaoRoles);
+
+            foreach (var role in allRoles)
             {
-                // 添加管理员
-                var allRoles = _customerService.GetAllCustomerRoles(true);
-                //var managerRole = allRoles.FirstOrDefault(c => c.SystemName == SystemCustomerRoleNames.Managers);
-                //if (managerRole != null)
-                //    model.SelectedCustomerRoleIds.Add(managerRole.Id);
-
-                //var managerRoels = allRoles.Except(zhiXiaoRoles);
-
-                foreach (var role in allRoles)
+                model.AvailableCustomerRoles.Add(new SelectListItem
                 {
-                    model.AvailableCustomerRoles.Add(new SelectListItem
-                    {
-                        Text = role.Name,
-                        Value = role.Id.ToString(),
-                        Selected = model.SelectedCustomerRoleIds.Contains(role.Id)
-                    });
-                }
+                    Text = role.Name,
+                    Value = role.Id.ToString(),
+                    Selected = model.SelectedCustomerRoleIds.Contains(role.Id)
+                });
             }
-            else
-            {
-                // 注册直销用户
-                var zhiXiaoRoleIds = zhiXiaoRoles.Select(x => x.Id).ToArray();
-                var availableParents = _customerService.GetAllCustomers(customerRoleIds: zhiXiaoRoleIds);
 
-                foreach (var item in availableParents)
-                {
-                    //var nickName = item.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_NickName);
-                    model.AvailableParents.Add(new SelectListItem()
-                    {
-                        Text = item.GetNickNameAndUserName(),
-                        Value = item.Id.ToString(),
-                        Selected = model.ParentUser != null && model.ParentUser.Id == item.Id
-                    });
-                }
-
-            }
             //sending of the welcome message:
             //1. "admin approval" registration method
             //2. already created customer
@@ -451,8 +435,35 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
         #region Register zhixiao user
 
-        [ParameterBasedOnQueryString("advanced", "registerAdvanceUser")]
-        public virtual ActionResult RegisterZhiXiaoUser(bool registerAdvanceUser)
+        [ValidateInput(false)]
+        public virtual ActionResult AvailableParentAutoComplete(string term)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedView();
+            if (String.IsNullOrWhiteSpace(term) || term.Length < 2)
+                return Content("");
+
+            var pageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+
+            var customers = _customerService.GetCustomersCanAddChild(username: term,
+                pageSize: pageSize);
+
+            var result = customers.Select(x => new
+            {
+                id = x.Id,
+                info = x.Username,
+                value = string.Format("{0}({1}), {2}, 下线个数{3}",
+                            x.Username,
+                            x.GetNickName(),
+                            x.CustomerTeam.TeamType.GetDescription(),
+                            x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount)
+                        )
+            });
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public virtual ActionResult RegisterZhiXiaoUser()
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedView();
@@ -470,28 +481,18 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             model.Gender = "M";
             model.ZhiXiao_IdCardNum = CommonHelper.GenerateRandomDigitCode(18);
             model.ZhiXiao_YinHang = "开户银行" + CommonHelper.GenerateRandomInteger(1, 200);
-            model.ZhiXiao_KaiHuHang = "开户行"+ CommonHelper.GenerateRandomInteger(1, 200);
+            model.ZhiXiao_KaiHuHang = "开户行" + CommonHelper.GenerateRandomInteger(1, 200);
             model.ZhiXiao_KaiHuMing = "开户名" + CommonHelper.GenerateRandomInteger(1, 200);
             model.ZhiXiao_BankNum = CommonHelper.GenerateRandomDigitCode(16);
 
-
-            if (registerAdvanceUser)
-            {
-                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
-            }
-            else
-            {
-                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
-            }
             return View(model);
         }
 
-        [HttpPost, ParameterBasedOnQueryString("advanced", "registerAdvanceUser")]
         [FormValueRequired("save", "save-continue")]
         [ValidateInput(false)]
-        public virtual ActionResult RegisterZhiXiaoUser(CustomerModel model, bool registerAdvanceUser)
+        public virtual ActionResult RegisterZhiXiaoUser(CustomerModel model)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.AccessAdminPanel))
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedView();
 
             var parentUser = _customerService.GetCustomerById(model.ZhiXiao_ParentId);
@@ -503,7 +504,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 {
                     ErrorNotification(error);
                 }
-                
+
                 return RedirectToAction("RegisterZhiXiaoUser");
             }
 
@@ -515,7 +516,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 if (registerResult.Success)
                 {
                     SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
-                    return RedirectToAction("RegisterZhiXiaoUser", new { registerAdvanceUser = registerAdvanceUser });
+                    return RedirectToAction("RegisterZhiXiaoUser");
                 }
                 else
                 {
@@ -660,7 +661,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             return Json(customers.Select(x =>
                 new
                 {
-                    name = x.GetNickName() + " (" + x.Username + ") "+ x.GetLevelDescription(),
+                    name = x.GetNickName() + " (" + x.Username + ") " + x.GetLevelDescription(),
                     id = x.Id
                 }
             ), JsonRequestBehavior.AllowGet);
@@ -708,10 +709,10 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
             // levels
             var allLevels = from CustomerLevel enumValue in Enum.GetValues(typeof(CustomerLevel))
-                         select new { ID = Convert.ToInt32(enumValue), Name = enumValue.GetDescription() };
+                            select new { ID = Convert.ToInt32(enumValue), Name = enumValue.GetDescription() };
 
             model.AvailableCustomerLevels = new SelectList(allLevels, "ID", "Name", null).ToList();
-            model.AvailableCustomerLevels.Insert(0, new SelectListItem { Text = _localizationService.GetResource("Admin.Common.All"), Value = "-1", Selected=true});
+            model.AvailableCustomerLevels.Insert(0, new SelectListItem { Text = _localizationService.GetResource("Admin.Common.All"), Value = "-1", Selected = true });
 
             // roles
             var allRoles = _customerService.GetAllCustomerRoles(true);
@@ -724,6 +725,13 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                     Selected = defaultRoleIds.Any(x => x == role.Id)
                 });
             }
+
+            // customer team types
+            var values = from CustomerTeamType enumValue in Enum.GetValues(typeof(CustomerTeamType))
+                         select new { ID = Convert.ToInt32(enumValue), Name = enumValue.GetDescription() };
+
+            model.AvailableTeamTypes = new SelectList(values, "ID", "Name", null).ToList();
+            model.AvailableTeamTypes.Insert(0, new SelectListItem { Text = _localizationService.GetResource("Admin.Common.All"), Value = "0" });
 
             return View(model);
         }
@@ -738,7 +746,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 return AccessDeniedView();
 
             var model = new CustomerModel();
-            PrepareCustomerModel(model, null, false, true);
+            PrepareCustomerModel(model, null, false);
             //default value
             model.Active = true;
             return View(model);
@@ -876,7 +884,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            PrepareCustomerModel(model, null, true, true);
+            PrepareCustomerModel(model, null, true);
             return View(model);
         }
 
@@ -896,6 +904,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 searchMonthOfBirth = Convert.ToInt32(model.SearchMonthOfBirth);
 
             CustomerLevel? customerLevel = model.SearchCustomerLevelId >= 0 ? (CustomerLevel?)(model.SearchCustomerLevelId) : null;
+            CustomerTeamType? teamType = model.SearchTeamType > 0 ? (CustomerTeamType?)(model.SearchTeamType) : null;
 
             var customers = _customerService.GetAllCustomers(
                 customerLevel: customerLevel,
@@ -911,6 +920,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 zipPostalCode: model.SearchZipPostalCode,
                 ipAddress: model.SearchIpAddress,
                 loadOnlyWithShoppingCart: false,
+                teamNumber: model.SearchTeamNumber,
+                teamType: teamType,
                 pageIndex: command.Page - 1,
                 pageSize: command.PageSize);
             var gridModel = new DataSourceResult
@@ -975,7 +986,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 return RedirectToAction("List");
 
             var model = new CustomerModel();
-            PrepareCustomerModel(model, customer, false, true);
+            PrepareCustomerModel(model, customer, false);
             return View(model);
         }
 
@@ -1157,7 +1168,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            PrepareCustomerModel(model, customer, false, true);
+            PrepareCustomerModel(model, customer, false);
             return View(model);
         }
 
@@ -1315,7 +1326,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                     var m = x.ToModel();
                     m.ActivityLogTypeName = x.ActivityLogType.Name;
                     m.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                    
+
                     return m;
                 }),
                 Total = moneyLogs.TotalCount

@@ -105,8 +105,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
             CustomerTeamType? teamType = searchModel.SearchTeamType > 0 ? (CustomerTeamType?)(searchModel.SearchTeamType) : null;
 
-            var customerTeams = _customerTeamService.GetAllCustomerTeams(searchModel.
-                SearchTeamNumber,
+            var customerTeams = _customerTeamService.GetAllCustomerTeams(
+                searchModel.SearchTeamNumber,
                 teamType,
                 searchModel.CreatedOnFrom,
                 searchModel.CreatedOnTo,
