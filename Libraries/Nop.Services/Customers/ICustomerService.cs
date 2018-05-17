@@ -14,6 +14,11 @@ namespace Nop.Services.Customers
         #region Customers
 
         /// <summary>
+        /// Gets customers(添加推荐人时候调用)
+        /// </summary>
+        IList<Customer> GetCustomersCanAddChild(string username, int pageSize = int.MaxValue);
+
+        /// <summary>
         /// Gets all customers
         /// </summary>
         /// <param name="createdFromUtc">Created date from (UTC); null to load all records</param>
@@ -43,6 +48,7 @@ namespace Nop.Services.Customers
             int dayOfBirth = 0, int monthOfBirth = 0,
             string company = null, string phone = null, string zipPostalCode = null,
             string ipAddress = null, bool loadOnlyWithShoppingCart = false,
+            string teamNumber = null, CustomerTeamType? teamType = null,
             int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>

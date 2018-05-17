@@ -115,6 +115,20 @@ namespace Nop.Services.Customers
         #region Customers
 
         /// <summary>
+        /// Gets customers(添加推荐人时候调用)
+        /// </summary>
+        /// <param name="username">Username; null to load all customers</param>
+        /// <param name="pageSize">Page size</param>
+        public IList<Customer> GetCustomersCanAddChild(string username, int pageSize = int.MaxValue)
+        {
+            var filteredUsers = GetAllCustomers(username: username);
+            var matchedUsers = filteredUsers.Where(c => c.CustomerTeam != null &&
+                   c.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount) < _zhiXiaoSettings.MaxChildCount);
+
+            return matchedUsers.Take(pageSize).ToList();
+        }
+
+        /// <summary>
         /// Gets all customers
         /// </summary>
         /// <param name="createdFromUtc">Created date from (UTC); null to load all records</param>
@@ -144,6 +158,7 @@ namespace Nop.Services.Customers
             int dayOfBirth = 0, int monthOfBirth = 0,
             string company = null, string phone = null, string zipPostalCode = null,
             string ipAddress = null, bool loadOnlyWithShoppingCart = false,
+            string teamNumber = null, CustomerTeamType? teamType = null,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = _customerRepository.Table;
@@ -274,6 +289,17 @@ namespace Nop.Services.Customers
             if (!String.IsNullOrWhiteSpace(ipAddress) && CommonHelper.IsValidIpAddress(ipAddress))
             {
                 query = query.Where(w => w.LastIpAddress == ipAddress);
+            }
+
+            if (!String.IsNullOrWhiteSpace(teamNumber))
+            {
+                query = query.Where(c => c.CustomerTeam != null && c.CustomerTeam.CustomNumber.Contains(teamNumber));
+            }
+
+            if (teamType.HasValue)
+            {
+                var teamTypeId = (int)teamType.Value;
+                query = query.Where(c => c.CustomerTeam != null && c.CustomerTeam.TypeId == teamTypeId);
             }
 
             query = query.OrderByDescending(c => c.CreatedOnUtc);
