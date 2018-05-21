@@ -1538,7 +1538,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                     withDraw.Amount);
 
                 _customerActivityService.InsertMoneyLog(withDraw.Customer, SystemZhiXiaoLogTypes.ProcessWithdraw,
-                    -withDraw.Amount,
+                    0,
                     "管理员通过提现{0}电子币申请",
                     withDraw.Amount);
             }

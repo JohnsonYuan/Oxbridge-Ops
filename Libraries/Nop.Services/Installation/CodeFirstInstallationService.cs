@@ -688,7 +688,7 @@ namespace Nop.Services.Installation
                 {
                     SystemKeyword = SystemZhiXiaoLogTypes.UpgradeUser,
                     Enabled = true,
-                    Name = "用户分至26800小组"
+                    Name = "用户分至29800小组"
                 },
 
                 //admin area activities
@@ -1301,7 +1301,7 @@ namespace Nop.Services.Installation
                 StreetAddress2Enabled = false,
                 ZipPostalCodeEnabled = false,
                 CityEnabled = true,
-                CountryEnabled = false,
+                CountryEnabled = true,
                 CountryRequired = false,
                 StateProvinceEnabled = true,
                 StateProvinceRequired = false,
@@ -1401,7 +1401,7 @@ namespace Nop.Services.Installation
                 /// <summary>
                 /// 注册高级用户需要钱
                 /// </summary>
-                Register_Money_AdvancedUser = 26800,
+                Register_Money_AdvancedUser = 29800,
                 /// <summary>
                 /// 最多下线个数
                 /// </summary>

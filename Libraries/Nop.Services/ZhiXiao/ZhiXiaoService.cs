@@ -109,6 +109,22 @@ namespace Nop.Services.ZhiXiao
 
             return customers;
         }
+
+        protected IList<Customer> FindTeamZuYuanTop_x(CustomerTeam team)
+        {
+            // 按照加入该小组时间来排序(使用orderid, 有可能时间在分组时值一样), 只有前4个组员才能分钱
+            var team_zuYuans = team.Customers
+                             .Where(x => x.GetAttribute<CustomerLevel>(SystemCustomerAttributeNames.ZhiXiao_LevelId) == CustomerLevel.ZuYuan)
+                             .OrderBy(x => x.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_InTeamOrder))
+                             .Take(_zhiXiaoSettings.ReGroupMoney_ZuYuan_Count)
+                             .ToList();
+
+            if (team_zuYuans.Count != _zhiXiaoSettings.ReGroupMoney_ZuYuan_Count)
+                throw new Exception(string.Format("小组{0}出现错误, 组员个数为{1}", team.CustomNumber, team_zuYuans.Count));
+
+            return team_zuYuans;
+        }
+
         #endregion
 
         #endregion
@@ -264,6 +280,7 @@ namespace Nop.Services.ZhiXiao
         /// <param name="newCustomer"></param>
         protected virtual void UpdateTeamMemberMoney(CustomerTeam team, Customer newCustomer)
         {
+            // 1.组长
             var zuZhang = FindTeamZuZhang(team);
 
             // 增加的钱数
@@ -279,6 +296,7 @@ namespace Nop.Services.ZhiXiao
                 newCustomer.GetNickName(),
                 addMoney);
 
+            // 2.副组长
             var fuZuZhangs = FindTeamFuZuZhang(team);
 
             addMoney = team.TypeId == (int)CustomerTeamType.Advanced ?
@@ -292,6 +310,24 @@ namespace Nop.Services.ZhiXiao
                     addMoney,
                     SystemZhiXiaoLogTypes.AddNewUser,
                     "小组新加入会员{0}, 副组长奖金+{1}",
+                    newCustomer.GetNickName(),
+                    addMoney);
+            }
+
+
+            // 4.原来小组的组员(SortId < 7)每人200/100
+            var zuYuans = FindTeamZuYuanTop_x(team);
+
+            addMoney = team.TypeId == (int)CustomerTeamType.Advanced ?
+                _zhiXiaoSettings.NewUserMoney_ZuYuan_Advanced
+                : _zhiXiaoSettings.NewUserMoney_ZuYuan_Normal;
+
+            foreach (var member in zuYuans)
+            {
+                UpdateMoneyForUserAndLog(member,
+                    addMoney,
+                    SystemZhiXiaoLogTypes.ReGroupTeam_AddMoney,
+                     "小组新加入会员{0}, 组员奖金+{1}",
                     newCustomer.GetNickName(),
                     addMoney);
             }
@@ -386,7 +422,7 @@ namespace Nop.Services.ZhiXiao
             _customerService.UpdateCustomer(zuZhang);
 
             // 4.原来小组的组员(SortId < 7)每人1600
-            ReGroup_UpdateZuYuanMoney(oldTeam);
+            //ReGroup_UpdateZuYuanMoney(oldTeam);
 
             var customNumberFormatter = EngineContext.Current.Resolve<ICustomNumberFormatter>();
 
@@ -676,7 +712,7 @@ namespace Nop.Services.ZhiXiao
         /// </summary>
         public virtual void AddNewUserToTeam(CustomerTeam team, Customer newCustomer)
         {
-            // 3. 给组长， 副组长分钱
+            // 3. 给组长， 副组长,  组员分钱
             UpdateTeamMemberMoney(team, newCustomer);
 
             // 4. 如果人数满足, 重新分组
