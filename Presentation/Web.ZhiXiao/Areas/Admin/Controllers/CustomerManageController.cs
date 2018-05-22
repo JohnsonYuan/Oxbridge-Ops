@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using Nop.Admin.Helpers;
+using Nop.Admin.Models.Common;
 using Nop.Admin.Models.Logging;
 using Nop.Core;
 using Nop.Core.Data;
@@ -1550,9 +1551,55 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// 业绩统计
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult MoneyOverview()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedKendoGridJson();
+
+            return View();
+        }
+        [HttpPost]
+        public ActionResult MoneyOverview(DataSourceRequest command, BaseSearchModel searchModel)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedKendoGridJson();
+
+            DateTime? startDateValue = (searchModel.CreatedOnFrom == null) ? null
+                : (DateTime?)_dateTimeHelper.ConvertToUtcTime(searchModel.CreatedOnFrom.Value, _dateTimeHelper.CurrentTimeZone);
+
+            DateTime? endDateValue = (searchModel.CreatedOnTo == null) ? null
+                            : (DateTime?)_dateTimeHelper.ConvertToUtcTime(searchModel.CreatedOnTo.Value, _dateTimeHelper.CurrentTimeZone).AddDays(1);
+
+            var activityLog = _customerActivityService.GetAllActivitiesByTypes(new string[] {
+                    SystemZhiXiaoLogTypes.RegisterNewUser
+                },
+                startDateValue,
+                endDateValue,
+                null,
+                command.Page - 1,
+                command.PageSize,
+                searchModel.IpAddress);
+
+            var gridModel = new DataSourceResult
+            {
+                Data = activityLog.Select(x =>
+                {
+                    var m = x.ToModel();
+                    m.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                    return m;
+                }),
+                Total = activityLog.TotalCount
+            };
+            return Json(gridModel);
+        }
+
         #endregion
 
-        #region install est data
+        #region install test data
 
         public virtual void InstallNewTeam()
         {

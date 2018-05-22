@@ -997,54 +997,11 @@ namespace Nop.Services.Installation
                     SystemKeyword = "Impersonation.Finished",
                     Enabled = true,
                     Name = "Customer impersonation session. Finished"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "ImportCategories",
-                    Enabled = true,
-                    Name = "Categories were imported"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "ImportProducts",
-                    Enabled = true,
-                    Name = "Products were imported"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "ImportStates",
-                    Enabled = true,
-                    Name = "States were imported"
-                },
-                //public store activities
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.ViewCategory",
-                    Enabled = false,
-                    Name = "Public store. View a category"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.ViewProduct",
-                    Enabled = false,
-                    Name = "Public store. View a product"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.PlaceOrder",
-                    Enabled = false,
-                    Name = "Public store. Place an order"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.AddToShoppingCart",
-                    Enabled = false,
-                    Name = "Public store. Add to shopping cart"
-                },
+                }, 
                 new ActivityLogType
                 {
                     SystemKeyword = "PublicStore.Login",
-                    Enabled = false,
+                    Enabled = true,
                     Name = "Public store. Login"
                 },
                 new ActivityLogType

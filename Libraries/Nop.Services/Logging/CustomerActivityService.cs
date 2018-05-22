@@ -298,8 +298,12 @@ namespace Nop.Services.Logging
         /// Gets all activity log items by types.
         /// </summary>
         public virtual IPagedList<ActivityLog> GetAllActivitiesByTypes(string[] logTypeSystemNames,
+            DateTime? createdOnFrom = null,
+            DateTime? createdOnTo = null,
             int? customerId = null,
-            int pageIndex = 0, int pageSize = int.MaxValue)
+            int pageIndex = 0,
+            int pageSize = int.MaxValue,
+            string ipAddress = null)
         {
             var query = _activityLogRepository.Table;
 
@@ -308,8 +312,15 @@ namespace Nop.Services.Logging
                 query = query.Join(_activityLogTypeRepository.Table, x => x.ActivityLogTypeId, y => y.Id, (x, y) => new { Log = x, LogType = y })
                     .Where(z => logTypeSystemNames.Contains(z.LogType.SystemKeyword))
                     .Select(z => z.Log);
+            if (createdOnFrom.HasValue)
+                query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
+            if (createdOnTo.HasValue)
+                query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
             if (customerId.HasValue)
                 query = query.Where(al => customerId.Value == al.CustomerId);
+
+            if (!String.IsNullOrEmpty(ipAddress))
+                query = query.Where(al => al.IpAddress.Contains(ipAddress));
 
             query = query.OrderByDescending(al => al.CreatedOnUtc);
 
