@@ -868,6 +868,7 @@
     <Content Include="Areas\Admin\Views\Common\Maintenance.cshtml" />
     <Content Include="Areas\Admin\Views\Common\SystemInfo.cshtml" />
     <Content Include="Areas\Admin\Views\CustomerManage\UpgradeNormalUser.cshtml" />
+    <Content Include="Areas\Admin\Views\CustomerManage\MoneyOverview.cshtml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap\bootstrap.js" />
@@ -1344,6 +1345,7 @@
     <Compile Include="Helpers\TinyMceHelper.cs" />
     <Compile Include="Infrastructure\DependencyRegistrar.cs" />
     <Compile Include="Infrastructure\Mapper\AdminMapperConfiguration.cs" />
+    <Compile Include="Models\Common\BaseSearchModel.cs" />
     <Compile Include="Models\Common\MaintenanceModel.cs" />
     <Compile Include="Models\Common\SystemInfoModel.cs" />
     <Compile Include="Models\CustomerTeam\TeamDiagramModel.cs" />

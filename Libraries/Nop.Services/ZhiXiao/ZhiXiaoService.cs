@@ -1,4 +1,6 @@
-﻿using System;
+﻿#undef ENABLE_DONGSHI_LEVEL
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Nop.Core;
@@ -332,6 +334,18 @@ namespace Nop.Services.ZhiXiao
 
             if (zuZhang.IsRegistered_Advanced())
             {
+                _genericAttributeService.SaveAttribute(zuZhang,
+                    SystemCustomerAttributeNames.ZhiXiao_LevelId,
+                    (int)CustomerLevel.ChuPan);
+
+                _customerActivityService.InsertMoneyLog(zuZhang,
+                    SystemZhiXiaoLogTypes.ReGroupTeam_UpdateLevel,
+                    0,
+                    "小组{0}重新分组, 离开小组, 出盘",
+                    oldTeam.CustomNumber);
+
+#if ENABLE_DONGSHI_LEVEL    // 取消董事级别升级, 改为升级为组长就出盘
+
                 // 当是高级小组是才向上检查升级
                 // 组长进入董事级别
                 _genericAttributeService.SaveAttribute(zuZhang,
@@ -351,6 +365,7 @@ namespace Nop.Services.ZhiXiao
 
                 // 3. 判断该组长的上线是否满足升级资格 => 看该上线的另一个下线是否满足
                 ReGroup_UpdateZuZhangParentClass(zuZhang);
+#endif
             }
             else
             {
