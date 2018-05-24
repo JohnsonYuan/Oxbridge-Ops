@@ -378,10 +378,12 @@ namespace Nop.Admin.Helpers
             {
                 //activity log
                 _customerActivityService.InsertActivity(SystemZhiXiaoLogTypes.RegisterNewUser,
-                    "注册新用户 {0}, 推荐人 {1}, 小组编号 {2}",
+                    "注册新用户 {0}, 推荐人 {1}, 小组编号 {2}, 用户级别 {3}",
                     customer.GetNickNameAndUserName(),
                     parentCustomer.GetNickNameAndUserName(),
-                    parentCustomer.CustomerTeam.CustomNumber);
+                    parentCustomer.CustomerTeam.CustomNumber,
+                    parentCustomer.IsRegistered_Advanced() ?
+                        _zhiXiaoSettings.Register_Money_AdvancedUser : _zhiXiaoSettings.Register_Money_NormalUser);
             }
 
             // 7. add roles

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using Nop.Admin.Helpers;
 using Nop.Admin.Models.Common;
@@ -1559,7 +1560,34 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedKendoGridJson();
+            
+            // 用户级别 29800
+            var adminCommentRegex = new Regex("用户级别 (\\d+)$");
+            // 扣除电子币 29800
+            var userCommentRegex = new Regex("扣除电子币 (\\d+)$");
 
+            // 统计log中花费金额(管理员, 普通用户注册)
+            var activityLog = _customerActivityService.GetAllActivitiesByTypes(new string[] {
+                    SystemZhiXiaoLogTypes.RegisterNewUser
+                });
+
+            long adminAmount = 0, userAmount = 0;
+            foreach (var logItem in activityLog)
+            {
+                bool isAdmin = logItem.Customer.IsAdmin();
+                if (isAdmin)
+                {
+                    adminAmount += Int32.Parse(adminCommentRegex.Match(logItem.Comment).Groups[1].Value);
+                }
+                else
+                {
+                    userAmount += Int32.Parse(userCommentRegex.Match(logItem.Comment).Groups[1].Value);
+                }
+            }
+
+            ViewBag.TotalAmount = adminAmount + userAmount;
+            ViewBag.AdminAmount = adminAmount;
+            ViewBag.UserAmount = userAmount;
             return View();
         }
         [HttpPost]

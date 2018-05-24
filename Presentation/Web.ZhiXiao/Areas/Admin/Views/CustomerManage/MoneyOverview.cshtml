@@ -22,6 +22,32 @@
             <div class="panel panel-default panel-search">
                 <div class="panel-body">
                     <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    总金额
+                                </div>
+                                <div class="col-md-8">
+                                    @ViewBag.TotalAmount
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    管理员总金额
+                                </div>
+                                <div class="col-md-8">
+                                    @ViewBag.AdminAmount
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    用户总金额
+                                </div>
+                                <div class="col-md-8">
+                                    @ViewBag.UserAmount
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <div class="col-md-4">
@@ -118,10 +144,6 @@
                                     width: 100,
                                     template: '<a href="@Url.Content("~/Admin/CustomerManage/Edit/")#=CustomerId#">#:CustomerUserName#</a>'
                                 }, {
-                                    field: "IpAddress",
-                                    title: "@T("Admin.Customers.Customers.ActivityLog.IpAddress")",
-                                    width: 100
-                                }, {
                                     field: "Comment",
                                     title: "@T("Admin.Configuration.ActivityLog.ActivityLog.Fields.Comment")"
                                 }, {
@@ -130,11 +152,12 @@
                                     width: 200,
                                     type: "date",
                                     format: "{0:G}"
-                                }, {
+                                }
+                                    @*, {
                                     command: { name: "destroy", text: "@T("Admin.Common.Delete")" },
                                     title: "@T("Admin.Common.Delete")",
                                         width: 100
-                                    }
+                                    }*@
                                 ]
                             });
                         });

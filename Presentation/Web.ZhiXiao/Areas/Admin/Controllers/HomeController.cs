@@ -5,6 +5,7 @@ using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Services.Configuration;
 using Nop.Services.Customers;
+using Nop.Services.Logging;
 using Nop.Services.Security;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Models.Home;
@@ -21,6 +22,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
         //private readonly IProductService _productService;
         //private readonly IOrderService _orderService;
         private readonly ICustomerService _customerService;
+        private readonly ICustomerActivityService _customerActivityService;
         //private readonly IReturnRequestService _returnRequestService;
         private readonly IWorkContext _workContext;
         private readonly ICacheManager _cacheManager;
@@ -36,6 +38,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             //IProductService productService,
             //IOrderService orderService,
             ICustomerService customerService,
+            ICustomerActivityService customerActivityService,
             //IReturnRequestService returnRequestService,
             IWorkContext workContext,
             ICacheManager cacheManager)
@@ -47,6 +50,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             //this._productService = productService;
             //this._orderService = orderService;
             this._customerService = customerService;
+            this._customerActivityService = customerActivityService;
             //this._returnRequestService = returnRequestService;
             this._workContext = workContext;
             this._cacheManager = cacheManager;
@@ -74,10 +78,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
         [ChildActionOnly]
         public virtual ActionResult CommonStatistics()
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers) ||
-                !_permissionService.Authorize(StandardPermissionProvider.ManageOrders) ||
-                !_permissionService.Authorize(StandardPermissionProvider.ManageReturnRequests) ||
-                !_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return Content("");
 
             var model = new CommonStatisticsModel();
@@ -91,6 +92,9 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 pageIndex: 0,
                 pageSize: 1).TotalCount;
 
+            model.NumberOfPendingWithdrawRequest = _customerActivityService.GetAllWithdraws(
+                isDone: false).TotalCount;
+            
             //model.NumberOfPendingReturnRequests = _returnRequestService.SearchReturnRequests(
             //    rs: ReturnRequestStatus.Pending,
             //    pageIndex: 0,
