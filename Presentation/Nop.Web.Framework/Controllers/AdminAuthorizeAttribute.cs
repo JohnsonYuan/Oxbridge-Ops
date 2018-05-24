@@ -25,7 +25,7 @@ namespace Nop.Web.Framework.Controllers
 
         private void HandleUnauthorizedRequest(AuthorizationContext filterContext)
         {
-            filterContext.Result = new HttpUnauthorizedResult();
+            filterContext.Result = new RedirectToRouteResult("AdminLogin", null);
         }
 
         private IEnumerable<AdminAuthorizeAttribute> GetAdminAuthorizeAttributes(ActionDescriptor descriptor)

@@ -140,6 +140,88 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
         #region Methods
 
+        public virtual ActionResult Login(bool? checkoutAsGuest)
+        {
+            var model = _customerModelFactory.PrepareLoginModel(checkoutAsGuest);
+            return View("~/Views/Common/Login.cshtml", model);
+        }
+
+
+        [HttpPost]
+        public virtual ActionResult Login(LoginModel model, string returnUrl)
+        {
+            if (ModelState.IsValid)
+            {
+                if (_customerSettings.UsernamesEnabled && model.Username != null)
+                {
+                    model.Username = model.Username.Trim();
+                }
+                var loginResult =
+                   _customerRegistrationService.ValidateCustomer(
+                       _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
+
+                switch (loginResult)
+                {
+                    case CustomerLoginResults.Successful:
+                        {
+                            var customer = _customerSettings.UsernamesEnabled
+                                ? _customerService.GetCustomerByUsername(model.Username)
+                                : _customerService.GetCustomerByEmail(model.Email);
+
+                            // 管理员账号只能通过管理员登陆页面登陆
+                            if (!customer.IsAdmin())
+                            {
+                                return RedirectToRoute("HomePage");
+                            }
+
+                            //migrate shopping cart
+                            //_shoppingCartService.MigrateShoppingCart(_workContext.CurrentCustomer, customer, true);
+
+                            //sign in new customer
+                            _authenticationService.SignIn(customer, model.RememberMe);
+
+                            //raise event       
+                            //_eventPublisher.Publish(new CustomerLoggedinEvent(customer));
+
+                            //activity log
+                            _customerActivityService.InsertActivity(customer, "PublicStore.Login", _localizationService.GetResource("ActivityLog.PublicStore.Login"));
+
+                            if (String.IsNullOrEmpty(returnUrl)
+                                || !Url.IsLocalUrl(returnUrl)
+                                || returnUrl == "/")
+                            {
+                                return RedirectToRoute("AdminHomePage");
+                            }
+
+                            return Redirect(returnUrl);
+                        }
+                    case CustomerLoginResults.CustomerNotExist:
+                        ModelState.AddModelError("", _localizationService.GetResource("Account.Login.WrongCredentials.CustomerNotExist"));
+                        break;
+                    case CustomerLoginResults.Deleted:
+                        ModelState.AddModelError("", _localizationService.GetResource("Account.Login.WrongCredentials.Deleted"));
+                        break;
+                    case CustomerLoginResults.NotActive:
+                        ModelState.AddModelError("", _localizationService.GetResource("Account.Login.WrongCredentials.NotActive"));
+                        break;
+                    case CustomerLoginResults.NotRegistered:
+                        ModelState.AddModelError("", _localizationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
+                        break;
+                    case CustomerLoginResults.LockedOut:
+                        ModelState.AddModelError("", _localizationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
+                        break;
+                    case CustomerLoginResults.WrongPassword:
+                    default:
+                        ModelState.AddModelError("", _localizationService.GetResource("Account.Login.WrongCredentials"));
+                        break;
+                }
+            }
+
+            //If we got this far, something failed, redisplay form
+            model = _customerModelFactory.PrepareLoginModel(model.CheckoutAsGuest);
+            return View(model);
+        }
+
         [AdminAuthorize]
         public virtual ActionResult SystemInfo()
         {
@@ -233,7 +315,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
             var gridModel = new DataSourceResult
             {
-                Data = backupFiles.Select(p => new {
+                Data = backupFiles.Select(p => new
+                {
                     p.Name,
                     Length = string.Format("{0:F2} Mb", p.Length / 1024f / 1024f),
                     Link = _webHelper.GetStoreLocation(false) + "db_backups/" + p.Name

@@ -184,6 +184,7 @@ namespace Web.ZhiXiao.Controllers
                 var loginResult =
                    _customerRegistrationService.ValidateCustomer(
                        _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
+
                 switch (loginResult)
                 {
                     case CustomerLoginResults.Successful:
@@ -191,6 +192,17 @@ namespace Web.ZhiXiao.Controllers
                             var customer = _customerSettings.UsernamesEnabled
                                 ? _customerService.GetCustomerByUsername(model.Username)
                                 : _customerService.GetCustomerByEmail(model.Email);
+
+                            // 管理员账号只能通过管理员登陆页面登陆
+                            if (customer.IsAdmin())
+                            {
+                                var areaInfo = RouteData.DataTokens["area"] as string;
+                                if (areaInfo == null || areaInfo != "YiJiaYi_Manage")
+                                {
+                                    ModelState.AddModelError("", _localizationService.GetResource("Account.Login.WrongCredentials.CustomerNotExist"));
+                                    break;
+                                }
+                            }
 
                             //migrate shopping cart
                             //_shoppingCartService.MigrateShoppingCart(_workContext.CurrentCustomer, customer, true);
@@ -208,7 +220,7 @@ namespace Web.ZhiXiao.Controllers
                                 || !Url.IsLocalUrl(returnUrl) 
                                 || returnUrl == "/")
                             {
-                                if (customer.IsAdmin() || customer.IsManager())
+                                if (customer.IsAdmin())
                                 {
                                     return RedirectToRoute("AdminHomePage");
                                 }

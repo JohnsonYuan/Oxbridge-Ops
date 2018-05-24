@@ -8,20 +8,25 @@ namespace Web.ZhiXiao.Areas.Admin
         {
             get 
             {
-                return "Admin";
+                return "YiJiaYi_Manage";
             }
         }
 
         public override void RegisterArea(AreaRegistrationContext context) 
         {
             context.MapRoute("AdminHomePage",
-                            "Admin",
+                            "YiJiaYi_Manage",
                             new { controller = "Home", action = "Index" },
+                            new[] { "Web.ZhiXiao.Areas.Admin.Controllers" });
+
+            context.MapRoute("AdminLogin",
+                            "YiJiaYi_Manage/yijiayi",
+                            new { controller = "Common", action = "Login" },
                             new[] { "Web.ZhiXiao.Areas.Admin.Controllers" });
 
             context.MapRoute(
                 "Admin_default",
-                "Admin/{controller}/{action}/{id}",
+                "YiJiaYi_Manage/{controller}/{action}/{id}",
                 new { action = "Index", id = UrlParameter.Optional },
                 new[] { "Web.ZhiXiao.Areas.Admin.Controllers" }
             );
