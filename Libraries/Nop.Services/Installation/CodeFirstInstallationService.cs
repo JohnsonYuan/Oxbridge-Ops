@@ -89,14 +89,14 @@ namespace Nop.Services.Installation
             {
                 new Store
                 {
-                    Name = "七上八下直销系统",
+                    Name = "伊佳宜管理系统",
                     Url = storeUrl,
                     SslEnabled = false,
-                    Hosts = "yourstore.com,www.yourstore.com",
+                    Hosts = "yijiayifr.com,www.yijiayifr.com",
                     DisplayOrder = 1,
                     //should we set some default company info?
                     CompanyName = "伊佳宜",
-                    CompanyAddress = "your company country, state, zip, street, etc",
+                    CompanyAddress = "山西省太原市小店区",
                     CompanyPhoneNumber = "(123) 456-78901",
                     CompanyVat = null,
                 },
@@ -185,13 +185,6 @@ namespace Nop.Services.Installation
                 IsSystemRole = true,
                 SystemName = SystemCustomerRoleNames.Administrators,
             };
-            var crManagers = new CustomerRole
-            {
-                Name = "管理员",
-                Active = true,
-                IsSystemRole = true,
-                SystemName = SystemCustomerRoleNames.Managers,
-            };
             var crRegistered_Normal = new CustomerRole
             {
                 Name = "普通用户",
@@ -270,7 +263,6 @@ namespace Nop.Services.Installation
             adminUser.Addresses.Add(defaultAdminUserAddress);
 
             adminUser.CustomerRoles.Add(crAdministrators);
-            adminUser.CustomerRoles.Add(crManagers);
             adminUser.CustomerRoles.Add(crRegistered_Normal);
             adminUser.CustomerRoles.Add(crRegistered_Advanced);
 
@@ -282,7 +274,7 @@ namespace Nop.Services.Installation
                  PasswordFormat.Hashed, defaultUserPassword));
 
             //second user
-            var secondUserEmail = "xiaoyuan@yourStore.com";
+            var secondUserEmail = "xiaoyuan@yijiayifr.com";
             var secondUser = new Customer
             {
                 CustomerGuid = Guid.NewGuid(),
@@ -311,7 +303,6 @@ namespace Nop.Services.Installation
             secondUser.BillingAddress = defaultSecondUserAddress;
             secondUser.ShippingAddress = defaultSecondUserAddress;
 
-            secondUser.CustomerRoles.Add(crManagers);
             secondUser.CustomerRoles.Add(crRegistered_Normal);
 
             _customerRepository.Insert(secondUser);
@@ -391,8 +382,8 @@ namespace Nop.Services.Installation
             //for (int i = 1; i <= 11; i++)
             for (int i = 1; i <= 7; i++)
             {
-                var currentUserName = "user_" + i;
-                var currentUserEmail = currentUserName + "@yourStore.com";
+                var currentUserName = "yijiayi_user_" + i;
+                var currentUserEmail = currentUserName + "@yijiayifr.com";
                 int currentLevel = 0;
                 if (i == 1)
                 {
@@ -461,7 +452,7 @@ namespace Nop.Services.Installation
                 _customerPasswordRepository.Insert(new CustomerPassword
                 {
                     Customer = currentUser,
-                    Password = "123456",
+                    Password = "Yijiayi_user_123456_",
                     PasswordFormat = PasswordFormat.Clear,
                     PasswordSalt = string.Empty,
                     CreatedOnUtc = DateTime.UtcNow
@@ -530,8 +521,8 @@ namespace Nop.Services.Installation
             // 组长(*1) 副组长(*2) 组员 (*4)
             for (int i = 1; i <= 7; i++)
             {
-                var currentUserName = "USER_" + i;
-                var currentUserEmail = currentUserName + "@yourStore.com";
+                var currentUserName = "yijiayi_USER_" + i;
+                var currentUserEmail = currentUserName + "@yijiayifr.com";
                 int currentLevel = 0;
                 if (i == 1)
                 {
@@ -600,7 +591,7 @@ namespace Nop.Services.Installation
                 _customerPasswordRepository.Insert(new CustomerPassword
                 {
                     Customer = currentUser,
-                    Password = "123456",
+                    Password = "Yijiayi_USER_123456_",
                     PasswordFormat = PasswordFormat.Clear,
                     PasswordSalt = string.Empty,
                     CreatedOnUtc = DateTime.UtcNow
@@ -1463,7 +1454,7 @@ namespace Nop.Services.Installation
                 // no data
                 //InstallActivityLog(defaultUserEmail);
 
-                InstallZhiXiaoActivityLog("user_1@yourStore.com");
+                InstallZhiXiaoActivityLog("yijiayi_user_1@yijiayifr.com");
             }
         }
 
