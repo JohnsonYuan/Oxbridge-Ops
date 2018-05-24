@@ -77,7 +77,7 @@ namespace Nop.Web.Framework.Menu
             //title
             var nopResource = GetStringValueFromAttribute(xmlNode, "nopResource");
             var localizationService = EngineContext.Current.Resolve<ILocalizationService>();
-            siteMapNode.Title = localizationService.GetResource(nopResource);
+            siteMapNode.Title = localizationService.GetResource(nopResource, 0, logIfNotFound: false);
 
             //routes, url
             string controllerName = GetStringValueFromAttribute(xmlNode, "controller");
