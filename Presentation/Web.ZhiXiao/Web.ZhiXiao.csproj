@@ -154,10 +154,11 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Images\ajax-loading.gif" />
     <Content Include="Content\Images\ajax_loader_small.gif" />
+    <Content Include="Content\Images\logo-mini.png" />
     <Content Include="Content\Images\flags\cn.png" />
     <Content Include="Content\Images\flags\us.png" />
     <Content Include="Content\Images\google-maps.gif" />
-    <Content Include="Content\Images\logo-mini.png" />
+    <Content Include="Content\Images\logo.png" />
     <Content Include="Content\Images\search-icon.png" />
     <Content Include="Content\Images\throbber-synchronizing.gif" />
     <Content Include="Content\Images\warnings-ajax-loader.gif" />
@@ -799,6 +800,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Content\styles.css" />
     <Content Include="Content\styles.rtl.css" />
+    <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\admin.common.js" />

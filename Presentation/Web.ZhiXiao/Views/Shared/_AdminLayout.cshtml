@@ -75,6 +75,8 @@
     //avatar
     var currentCustomer = EngineContext.Current.Resolve<IWorkContext>().CurrentCustomer;
 
+    var webHelper = EngineContext.Current.Resolve<IWebHelper>();
+
     //info: we specify "Admin" area for actions and widgets here for cases when we use this layout in a plugin that is running in a different area than "admin"
 }
 
@@ -87,6 +89,7 @@
         @Html.NopHeadCustom()
         @Html.NopCssFiles(this.Url, ResourceLocation.Head, false)
         @Html.NopScripts(this.Url, ResourceLocation.Head, false)
+        <link rel="shortcut icon" href="@(webHelper.GetStoreLocation())favicon.ico" />
     </head>
     <body class="hold-transition skin-blue sidebar-mini @if (hideSidebar)
                                                     {<text>sidebar-collapse</text>}">
