@@ -217,7 +217,7 @@
             } else {
                 $('.modal-title', modal).text(data.Title);
                 $('.modal-body', modal).html(data.Full);
-                $('.modal-date', modal).text(new Date(data.CreatedOn).Format("yyyy-MM-dd"));
+                $('.modal-date', modal).text(new Date(parseInt(data.CreatedOn.substr(6))).Format("yyyy-MM-dd"));
 
             }
         });
