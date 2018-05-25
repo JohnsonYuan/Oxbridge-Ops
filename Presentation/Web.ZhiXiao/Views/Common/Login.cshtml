@@ -36,6 +36,9 @@
     <!-- Theme style -->
     @Styles.Render("~/Content/lib/adminLTE/AdminLTE-2.3.0.min.css")
     <style>
+        body.login-page {
+            background-image: url(/Content/images/bg.jpg);
+        }
         .message-error {
             color: #e4434b;
         }
@@ -99,8 +102,6 @@
                 </div>
             }
             <!-- /.social-auth-links -->
-            @Html.RouteLink(T("Account.Login.ForgotPassword").Text, "PasswordRecovery")
-            <a href="@registerUrl" class="text-center">@T("Account.Register")</a>
         </div>
         <!-- /.login-box-body -->
     </div>

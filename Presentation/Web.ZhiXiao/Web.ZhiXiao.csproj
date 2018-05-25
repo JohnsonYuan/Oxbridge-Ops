@@ -154,6 +154,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Images\ajax-loading.gif" />
     <Content Include="Content\Images\ajax_loader_small.gif" />
+    <Content Include="Content\Images\bg.jpg" />
     <Content Include="Content\Images\logo-mini.png" />
     <Content Include="Content\Images\flags\cn.png" />
     <Content Include="Content\Images\flags\us.png" />
