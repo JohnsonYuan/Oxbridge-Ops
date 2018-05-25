@@ -175,7 +175,7 @@ namespace Web.ZhiXiao.Controllers
 
             var model = new InstallModel
             {
-                AdminEmail = "yijiayii68@yijiayifr.com",
+                AdminEmail = "yijiayi168@yijiayifr.com",
                 InstallSampleData = true,
                 DatabaseConnectionString = "",
                 DataProvider = "sqlserver",
