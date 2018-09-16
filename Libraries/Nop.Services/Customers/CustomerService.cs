@@ -353,7 +353,24 @@ namespace Nop.Services.Customers
                     customer.Username += "-DELETED";
             }
 
+            // 更新小组人数
+            if (customer.CustomerTeam != null)
+            {
+                customer.CustomerTeam.UserCount -= 1;
+            }
+
             UpdateCustomer(customer);
+
+            // 更新推荐人下线人数
+            var parentId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ParentId);
+            var parentUser = GetCustomerById(parentId);
+
+            if (parentUser != null)
+            {
+                var parentChildCount = parentUser.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ChildCount);
+                if (parentChildCount > 0)
+                    _genericAttributeService.SaveAttribute(parentUser, SystemCustomerAttributeNames.ZhiXiao_ChildCount, parentChildCount - 1);
+            }
 
             //event notification
             _eventPublisher.EntityDeleted(customer);
@@ -408,6 +425,7 @@ namespace Nop.Services.Customers
             if (parentCustomer == null)
                 return new List<Customer>();
             var query = _customerRepository.Table
+                .Where(c => !c.Deleted)
                 .Join(_gaRepository.Table, x => x.Id, y => y.EntityId, (x, y) => new { Customer = x, Attribute = y })
                 .Where(c => c.Attribute.KeyGroup == "Customer" &&
                 c.Attribute.Key == SystemCustomerAttributeNames.ZhiXiao_ParentId &&

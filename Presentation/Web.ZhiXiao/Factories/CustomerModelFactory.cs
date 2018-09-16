@@ -233,7 +233,7 @@ namespace Web.ZhiXiao.Factories
             var teamUnitCount = _zhiXiaoSettings.TeamInitUserCount;
 
             List<CustomerDiagramModel> diagarmModel = new List<CustomerDiagramModel>();
-            foreach (var customer in team.Customers)
+            foreach (var customer in team.Customers.Where(c => !c.Deleted))
             {
                 var model = customer.ToModel();
                 model.MoneyNum = customer.GetMoneyNum();
