@@ -16,6 +16,8 @@
         var webHelper = EngineContext.Current.Resolve<IWebHelper>();
         registerUrl = webHelper.ModifyQueryString(registerUrl, "returnurl=" + HttpUtility.UrlEncode(this.Context.Request.QueryString["returnUrl"]), null);
     }
+
+    var seoSettings = EngineContext.Current.Resolve<Nop.Core.Domain.Seo.SeoSettings>();
 }
 
 <!DOCTYPE html>
@@ -53,7 +55,7 @@
 <body class="hold-transition login-page">
     <div class="login-box">
         <div class="login-logo">
-            <b>登陆</b>直销系统
+            @seoSettings.DefaultTitle
         </div>
         <!-- /.login-logo -->
         <div class="login-box-body">
