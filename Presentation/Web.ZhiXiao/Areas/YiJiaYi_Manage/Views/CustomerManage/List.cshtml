@@ -414,7 +414,7 @@
 <script type="text/x-kendo-template" id="teamTemplate">
     #if(TeamInfo.Id > 0){#
         #if(TeamInfo.TypeId == @((int)Nop.Core.Domain.ZhiXiao.CustomerTeamType.Normal)) {#
-        <a class="btn bg-purple" onclick="console.log(classname);OpenWindow('@Url.Action("Diagarm", "CustomerTeam")/#=TeamInfo.Id#', 1200, 700, true);"><i class="fa fa-bullseye"></i>#=TeamInfo.CustomNumber#</a>
+        <a class="btn bg-purple" onclick="OpenWindow('@Url.Action("Diagarm", "CustomerTeam")/#=TeamInfo.Id#', 1200, 700, true);"><i class="fa fa-bullseye"></i>#=TeamInfo.CustomNumber#</a>
         #} else {#
         <a class="btn bg-olive" onclick="OpenWindow('@Url.Action("Diagarm", "CustomerTeam")/#=TeamInfo.Id#', 1200, 700, true);"><i class="fa fa-bullseye"></i>#=TeamInfo.CustomNumber#</a>
         #}#
