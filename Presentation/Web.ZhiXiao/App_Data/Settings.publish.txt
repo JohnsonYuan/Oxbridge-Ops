@@ -1,0 +1,2 @@
+DataProvider: sqlserver
+DataConnectionString: Data Source=SQL5006.webweb.com;Initial Catalog=DB_138449F_yijiayi;Integrated Security=False;Persist Security Info=False;User ID=DB_138449F_yijiayi_admin;Password=Yijiayi1q@W#E123
