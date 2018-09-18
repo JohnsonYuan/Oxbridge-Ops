@@ -354,10 +354,9 @@ namespace Nop.Services.Customers
             }
 
             // 更新小组人数
-            if (customer.CustomerTeam != null)
-            {
-                customer.CustomerTeam.UserCount -= 1;
-            }
+            var customerTeam = customer.CustomerTeam;
+            if (customerTeam != null && customerTeam.UserCount > 0)
+                customerTeam.UserCount = customerTeam.UserCount - 1;
 
             UpdateCustomer(customer);
 

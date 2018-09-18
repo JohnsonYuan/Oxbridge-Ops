@@ -1244,12 +1244,6 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 //delete
                 _customerService.DeleteCustomer(customer);
 
-                // update customer team
-                var customerTeam = customer.CustomerTeam;
-                if (customerTeam != null && customerTeam.UserCount > 0)
-                    customerTeam.UserCount = customerTeam.UserCount - 1;
-                _zhiXiaoService.UpdateCustomerTeam(customerTeam);
-
                 //remove newsletter subscription (if exists)
                 //foreach (var store in _storeService.GetAllStores())
                 //{
