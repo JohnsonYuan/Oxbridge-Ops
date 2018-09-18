@@ -810,7 +810,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 var customer = new Customer
                 {
                     CustomerGuid = Guid.NewGuid(),
-                    Email = CommonHelper.IsValidEmail(model.Email) ? model.Email : string.Format("{0}@yourStore.com", model.Username),
+                    Email = CommonHelper.IsValidEmail(model.Email) ? model.Email : ZhiXiaoConfig.AppendEmailToUsername(model.Username),
                     Username = model.Username,
                     //VendorId = model.VendorId,
                     AdminComment = model.AdminComment,

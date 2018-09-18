@@ -316,7 +316,7 @@ namespace Nop.Admin.Helpers
             {
                 CustomerGuid = Guid.NewGuid(),
                 // 邮箱默认后缀为@yourStore.com
-                Email = CommonHelper.IsValidEmail(model.Email) ? model.Email : string.Format("{0}@yourStore.com", model.Username),
+                Email = CommonHelper.IsValidEmail(model.Email) ? model.Email : ZhiXiaoConfig.AppendEmailToUsername(model.Username),
                 Username = model.Username,
                 //VendorId = model.VendorId,
                 AdminComment = model.AdminComment,
