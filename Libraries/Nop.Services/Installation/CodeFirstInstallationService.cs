@@ -274,6 +274,7 @@ namespace Nop.Services.Installation
                  PasswordFormat.Hashed, defaultUserPassword));
 
             //second user
+            /* »°œ˚≤‚ ‘’À∫≈
             var secondUserEmail = "xiaoyuan@yijiayifr.com";
             var secondUser = new Customer
             {
@@ -316,6 +317,7 @@ namespace Nop.Services.Installation
                 PasswordSalt = string.Empty,
                 CreatedOnUtc = DateTime.UtcNow
             });
+            */
 
             //search engine (crawler) built-in user
             var searchEngineUser = new Customer
@@ -383,7 +385,7 @@ namespace Nop.Services.Installation
             for (int i = 1; i <= 7; i++)
             {
                 var currentUserName = "yijiayi_user_" + i;
-                var currentUserEmail = currentUserName + "@yijiayifr.com";
+                var currentUserEmail = ZhiXiaoConfig.AppendEmailToUsername(currentUserName);
                 int currentLevel = 0;
                 if (i == 1)
                 {
@@ -522,7 +524,7 @@ namespace Nop.Services.Installation
             for (int i = 1; i <= 7; i++)
             {
                 var currentUserName = "yijiayi_USER_" + i;
-                var currentUserEmail = currentUserName + "@yijiayifr.com";
+                var currentUserEmail = ZhiXiaoConfig.AppendEmailToUsername(currentUserName);
                 int currentLevel = 0;
                 if (i == 1)
                 {
@@ -1454,7 +1456,7 @@ namespace Nop.Services.Installation
                 // no data
                 //InstallActivityLog(defaultUserEmail);
 
-                InstallZhiXiaoActivityLog("yijiayi_user_1@yijiayifr.com");
+                InstallZhiXiaoActivityLog(ZhiXiaoConfig.AppendEmailToUsername("yijiayi_user_1"));
             }
         }
 

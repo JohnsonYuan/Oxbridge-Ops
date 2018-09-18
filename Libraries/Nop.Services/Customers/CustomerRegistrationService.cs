@@ -291,9 +291,9 @@ namespace Nop.Services.Customers
                 throw new ArgumentNullException(nameof(request));
 
             var result = new ChangePasswordResult();
-            if (string.IsNullOrWhiteSpace(request.Username))
+            if (string.IsNullOrWhiteSpace(request.Email))
             {
-                result.AddError(_localizationService.GetResource("Account.CheckUsernameAvailability.EnterUsername"));
+                result.AddError(_localizationService.GetResource("Account.ChangePassword.Errors.EmailIsNotProvided"));
                 return result;
             }
             if (string.IsNullOrWhiteSpace(request.NewPassword))
@@ -301,9 +301,8 @@ namespace Nop.Services.Customers
                 result.AddError(_localizationService.GetResource("Account.ChangePassword.Errors.PasswordIsNotProvided"));
                 return result;
             }
-            
-            //var customer = _customerService.GetCustomerByEmail(request.Username);
-            var customer = _customerService.GetCustomerByUsername(request.Username);
+
+            var customer = _customerService.GetCustomerByEmail(request.Email);
             if (customer == null)
             {
                 result.AddError(_localizationService.GetResource("Account.ChangePassword.Errors.EmailNotFound"));
@@ -493,7 +492,7 @@ namespace Nop.Services.Customers
                 throw new ArgumentNullException(nameof(request));
 
             var result = new ChangePasswordResult();
-            if (string.IsNullOrWhiteSpace(request.Username))
+            if (string.IsNullOrWhiteSpace(request.Email))
             {
                 result.AddError(_localizationService.GetResource("Account.ChangePassword.Errors.EmailIsNotProvided"));
                 return result;
@@ -504,7 +503,7 @@ namespace Nop.Services.Customers
                 return result;
             }
 
-            var customer = _customerService.GetCustomerByEmail(request.Username);
+            var customer = _customerService.GetCustomerByEmail(request.Email);
             if (customer == null)
             {
                 result.AddError(_localizationService.GetResource("Account.ChangePassword.Errors.EmailNotFound"));

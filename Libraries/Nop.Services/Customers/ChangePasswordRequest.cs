@@ -8,9 +8,9 @@ namespace Nop.Services.Customers
     public class ChangePasswordRequest
     {
         /// <summary>
-        /// 根据username来寻找用户
+        /// Email
         /// </summary>
-        public string Username { get; set; }
+        public string Email { get; set; }
 
         /// <summary>
         /// A value indicating whether we should validate request
@@ -43,7 +43,7 @@ namespace Nop.Services.Customers
         public ChangePasswordRequest(string email, bool validateRequest, 
             PasswordFormat newPasswordFormat, string newPassword, string oldPassword = "")
         {
-            this.Username = email;
+            this.Email = email;
             this.ValidateRequest = validateRequest;
             this.NewPasswordFormat = newPasswordFormat;
             this.NewPassword = newPassword;

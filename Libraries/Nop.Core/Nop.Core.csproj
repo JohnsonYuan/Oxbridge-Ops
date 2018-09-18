@@ -229,6 +229,7 @@
     <Compile Include="TypeConverterRegistrationStartUpTask.cs" />
     <Compile Include="WebHelper.cs" />
     <Compile Include="XmlHelper.cs" />
+    <Compile Include="ZhiXiaoConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
