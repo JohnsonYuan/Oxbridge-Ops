@@ -1370,7 +1370,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
         #region 直销
 
         /// <summary>
-        /// 充值电子币
+        /// 充值积分
         /// </summary>
         /// <param name="customerId"></param>
         /// <param name="amount"></param>
@@ -1393,7 +1393,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
         [HttpPost]
         /// <summary>
-        /// 充值电子币
+        /// 充值积分
         /// </summary>
         public virtual ActionResult Recharge(int id, int amount, string btnId)
         {
@@ -1412,11 +1412,11 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 try
                 {
                     _zhiXiaoService.UpdateMoneyForUserAndLog(customer, amount, SystemZhiXiaoLogTypes.RechargeMoney,
-                        "管理员充值电子币{0}", amount);
+                        "管理员充值积分{0}", amount);
 
                     //activity log
                     _customerActivityService.InsertActivity(SystemZhiXiaoLogTypes.RechargeMoney,
-                        _localizationService.GetResource("给用户{0}充值电子币{1}"),
+                        _localizationService.GetResource("给用户{0}充值积分{1}"),
                         customer.GetNickNameAndUserName(),
                         amount);
 
@@ -1529,13 +1529,13 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
 
                 var customer = withDraw.Customer;
                 _customerActivityService.InsertActivity(SystemZhiXiaoLogTypes.ProcessWithdraw,
-                    "管理员通过用户{0}的{1}电子币提现申请",
+                    "管理员通过用户{0}的{1}积分兑换申请",
                     customer.GetNickNameAndUserName(),
                     withDraw.Amount);
 
                 _customerActivityService.InsertMoneyLog(withDraw.Customer, SystemZhiXiaoLogTypes.ProcessWithdraw,
                     0,
-                    "管理员通过提现{0}电子币申请",
+                    "管理员通过兑换{0}积分申请",
                     withDraw.Amount);
             }
 
@@ -1557,8 +1557,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             
             // 用户级别 29800
             var adminCommentRegex = new Regex("用户级别 (\\d+)$");
-            // 扣除电子币 29800
-            var userCommentRegex = new Regex("扣除电子币 (\\d+)$");
+            // 扣除积分 29800
+            var userCommentRegex = new Regex("扣除积分 (\\d+)$");
 
             // 统计log中花费金额(管理员, 普通用户注册)
             var activityLog = _customerActivityService.GetAllActivitiesByTypes(new string[] {
@@ -1788,7 +1788,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 //{
                 //    SystemKeyword = SystemZhiXiaoLogTypes.RechargeMoney,
                 //    Enabled = true,
-                //    Name = "充值电子币"
+                //    Name = "充值积分"
                 //},
                 //new ActivityLogType
                 //{
@@ -1800,13 +1800,13 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 //{
                 //    SystemKeyword = SystemZhiXiaoLogTypes.Withdraw,
                 //    Enabled = true,
-                //    Name = "提现申请"
+                //    Name = "兑换申请"
                 //},
                 //new ActivityLogType
                 //{
                 //    SystemKeyword = SystemZhiXiaoLogTypes.ProcessWithdraw,
                 //    Enabled = true,
-                //    Name = "管理员处理提现申请"
+                //    Name = "管理员处理兑换申请"
                 //},
                 //new ActivityLogType
                 //{
@@ -1818,7 +1818,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 {
                     SystemKeyword = SystemZhiXiaoLogTypes.RegisterNewUser,
                     Enabled = true,
-                    Name = "管理员处理提现申请"
+                    Name = "管理员处理兑换申请"
                 }
             };
 
@@ -1890,7 +1890,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 /// </summary>
                 Password2_ValidTime = 15,
                 /// <summary>
-                /// 提现比例
+                /// 兑换比例
                 /// </summary>
                 Withdraw_Rate = 0.90,
                 /// <summary>
@@ -1981,7 +1981,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
             });
 
             //var firstCustomer = _customerService.GetCustomerByUsername("user_1");
-            //_customerActivityService.InsertWithdraw(firstCustomer, 500, "申请提现500", "");
+            //_customerActivityService.InsertWithdraw(firstCustomer, 500, "申请兑换500", "");
         }
 
         #endregion

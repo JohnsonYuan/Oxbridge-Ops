@@ -192,10 +192,10 @@ namespace Nop.Models.Customers
         public string ZhiXiao_ChildCount { get; set; }   // 下线个数
         [Display(Name = "用户级别")]
         public int ZhiXiao_LevelId { get; set; }        // 级别
-        [Display(Name = "电子币")]
-        public long ZhiXiao_MoneyNum { get; set; }       // 电子币(真是个数)
-        [Display(Name = "历史电子币")]
-        public long ZhiXiao_MoneyHistory { get; set; }   // 历史电子币(只记录增加, 不记录减少)
+        [Display(Name = "积分")]
+        public long ZhiXiao_MoneyNum { get; set; }       // 积分(當前个数)
+        [Display(Name = "历史积分")]
+        public long ZhiXiao_MoneyHistory { get; set; }   // 历史积分(只记录增加, 不记录减少)
 
         [Display(Name = "身份证号")]
         public string ZhiXiao_IdCardNum { get; set; }       // 身份证号

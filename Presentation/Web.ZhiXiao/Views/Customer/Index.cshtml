@@ -38,7 +38,7 @@
                         else
                         {
                             <p>您当前的等级是: @Model.CustomerInfo.CustomerLevel.GetDescription()</p>
-                            <p>您的下线成员有:</p>
+                            <p>您的会员有:</p>
                             <ul class="diagarm">
                                 @foreach (var child in Model.Children)
                                 {
@@ -67,8 +67,8 @@
                         {
                             <li><p class="margin">小组编号<span class="pull-right">无小组</span></p></li>
                         }
-                        <li><p class="margin">电子币余额 <span class="pull-right badge bg-blue">@Model.CustomerInfo.ZhiXiao_MoneyNum</span></p></li>
-                        <li><p class="margin">历史电子币 <span class="pull-right badge bg-blue">@Model.CustomerInfo.ZhiXiao_MoneyHistory</span></p></li>
+                        <li><p class="margin">积分余额 <span class="pull-right badge bg-blue">@Model.CustomerInfo.ZhiXiao_MoneyNum</span></p></li>
+                        <li><p class="margin">历史积分 <span class="pull-right badge bg-blue">@Model.CustomerInfo.ZhiXiao_MoneyHistory</span></p></li>
                         <li><p class="margin">注册时间<span class="pull-right">@Model.CustomerInfo.CreatedOn</span></p></li>
                     </ul>
                 </div>

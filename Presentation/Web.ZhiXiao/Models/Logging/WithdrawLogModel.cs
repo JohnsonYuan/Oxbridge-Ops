@@ -23,7 +23,7 @@ namespace Nop.Admin.Models.Logging
 
         [NopResourceDisplayName("Admin.Configuration.ActivityLog.ActivityLog.Fields.Comment")]
         public string Comment { get; set; }
-        [Display(Name ="提现金额")]
+        [Display(Name ="兑换金额")]
         public int Amount { get; set; }
         [Display(Name ="状态")]
         public bool IsDone { get; set; }

@@ -2,7 +2,7 @@
 
     @{
         //page title
-        ViewBag.Title = "资金提现";
+        ViewBag.Title = "积分兑换";
         //active menu item (system name)
         Html.SetActiveMenuItemSystemName("Withdraw money");
     }
@@ -12,7 +12,7 @@
         @Html.AntiForgeryToken()
         <div class="content-header clearfix">
             <h1 class="pull-left">
-                资金提现
+                积分兑换
             </h1>
         </div>
 
@@ -27,7 +27,7 @@
                                 <div class="col-md-3">
                                     <div class="label-wrapper">
                                         <label class="control-label" for="Name" title="">
-                                            当前电子币为
+                                            当前积分为
                                         </label>
                                     </div>
                                 </div>
@@ -68,7 +68,7 @@
                                 <div class="col-md-3"></div>
                                 <div class="col-md-9">
                                     <p class="red">
-                                        提现会收取10%的手续费, 不足一个电子币按一个计算
+                                        兑换会收取10%的手续费, 不足一个积分按一个计算
                                     </p>
                                 </div>
                             </div>
@@ -78,7 +78,7 @@
                                 <div class="col-md-9">
                                     <button type="submit" name="save" class="btn bg-blue">
                                         <i class="fa fa-floppy-o"></i>
-                                        提现
+                                        兑换
                                     </button>
                                 </div>
                             </div>

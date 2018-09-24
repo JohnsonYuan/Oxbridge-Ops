@@ -273,11 +273,11 @@ namespace Web.ZhiXiao.Controllers
 
             if (_workContext.CurrentCustomer.IsRegistered_Advanced())
             {
-                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
+                ViewBag.Notes = string.Format("注册高级会员, 所需积分{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
             }
             else
             {
-                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
+                ViewBag.Notes = string.Format("注册普通会员, 所需积分{0}", _zhiXiaoSettings.Register_Money_NormalUser);
             }
             return View(model);
         }
@@ -317,11 +317,11 @@ namespace Web.ZhiXiao.Controllers
 
             if (_workContext.CurrentCustomer.IsRegistered_Advanced())
             {
-                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
+                ViewBag.Notes = string.Format("注册高级会员, 所需积分{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
             }
             else
             {
-                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
+                ViewBag.Notes = string.Format("注册普通会员, 所需积分{0}", _zhiXiaoSettings.Register_Money_NormalUser);
             }
             return View(model);
         }
@@ -370,11 +370,11 @@ namespace Web.ZhiXiao.Controllers
 
             if (_workContext.CurrentCustomer.IsRegistered_Advanced())
             {
-                ViewBag.Notes = string.Format("注册高级会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
+                ViewBag.Notes = string.Format("注册高级会员, 所需积分{0}", _zhiXiaoSettings.Register_Money_AdvancedUser);
             }
             else
             {
-                ViewBag.Notes = string.Format("注册普通会员, 所需电子币{0}", _zhiXiaoSettings.Register_Money_NormalUser);
+                ViewBag.Notes = string.Format("注册普通会员, 所需积分{0}", _zhiXiaoSettings.Register_Money_NormalUser);
             }
 
             return View(model);
@@ -761,7 +761,7 @@ namespace Web.ZhiXiao.Controllers
                 {
                     var acutalAmount = _zhiXiaoService.WithdrawMoney(_workContext.CurrentCustomer, model.Amount);
 
-                    SuccessNotification(string.Format("提现成功, 手续费{0}, 实际到账{1}, 资金不久会打入您的银行卡中， 请耐心等待！",
+                    SuccessNotification(string.Format("兑换成功, 手续费{0}, 实际到账{1}, 资金不久会打入您的银行卡中， 请耐心等待！",
                         model.Amount - acutalAmount,
                         acutalAmount));
                 }
@@ -776,7 +776,7 @@ namespace Web.ZhiXiao.Controllers
         }
 
         /// <summary>
-        /// 提现列表
+        /// 积分列表
         /// </summary>
         /// <returns></returns>
         [UserPassword2Authorize("Withdraw list")]
@@ -826,7 +826,7 @@ namespace Web.ZhiXiao.Controllers
         }
 
         /// <summary>
-        /// 资金清单
+        /// 积分明细
         /// </summary>
         /// <returns></returns>
         [UserPassword2Authorize("MoneyLog list")]

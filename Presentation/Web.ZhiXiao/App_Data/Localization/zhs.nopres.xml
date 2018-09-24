@@ -8752,13 +8752,13 @@
     <Value>请输入用户名</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.NickName">
-    <Value>昵称(系谱图中显示)</Value>
+    <Value>昵称(会员概况中显示)</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.NickName.Hint">
-    <Value>昵称(系谱图中显示)</Value>
+    <Value>昵称(会员概况中显示)</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.NickName.Required">
-    <Value>请输入昵称(系谱图中显示)</Value>
+    <Value>请输入昵称</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Customers.Customers.Fields.VatNumber">
     <Value>增值税号码</Value>

@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_AdminPopupLayout.cshtml";
 
     //page title
-    ViewBag.Title = "处理提现申请";
+    ViewBag.Title = "处理兑换申请";
 }
 
 @if (ViewBag.RefreshPage == true)
@@ -24,7 +24,7 @@
     <input type="hidden" name="id" value="@(Model.Id)">
     <div class="content-header clearfix">
         <h1 class="pull-left">
-            提现申请(金额 @Model.Amount)
+            兑换申请(金额 @Model.Amount)
         </h1>
         <div class="pull-right">
             &nbsp;
@@ -55,7 +55,7 @@
                         <div class="form-group">
                             <div class="col-xs-4">
                                 <div class="label-wrapper">
-                                   当前电子币 
+                                   当前积分 
                                 </div>
                             </div>
                             <div class="col-xs-6">

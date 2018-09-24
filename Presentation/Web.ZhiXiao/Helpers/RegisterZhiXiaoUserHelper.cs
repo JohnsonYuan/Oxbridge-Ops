@@ -266,7 +266,7 @@ namespace Nop.Admin.Helpers
                 if (userMoney < requiredMoney)
                 {
                     //resultStatus = CustomerRegisterStatus.MoneyNotEnough;
-                    result.AddError("电子币不足" + requiredMoney + ", 不能注册会员, 请充值!");
+                    result.AddError("积分不足" + requiredMoney + ", 不能注册会员, 请充值!");
                     return result;
                 }
 
@@ -364,13 +364,13 @@ namespace Nop.Admin.Helpers
             {
                 // 扣钱
                 //if (registerRequest.ParentUserMoney < registerRequest.RequiredMoney)
-                //    throw new Exception("所需电子币不足");
+                //    throw new Exception("所需积分不足");
 
                 // add log
                 _customerActivityService.InsertMoneyLog(parentCustomer,
                     SystemZhiXiaoLogTypes.RegisterNewUser,
                     -registerRequest.RequiredMoney,
-                    "注册新用户: {0}, 扣除电子币 {1}",
+                    "注册新用户: {0}, 扣除积分 {1}",
                     customer.GetNickNameAndUserName(),
                     registerRequest.RequiredMoney);
             }

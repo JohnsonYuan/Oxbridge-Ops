@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_AdminPopupLayout.cshtml";
 
     //page title
-    ViewBag.Title = "电子币充值";
+    ViewBag.Title = "积分充值";
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Customers list");
 }
@@ -25,7 +25,7 @@
     @Html.AntiForgeryToken()
     <div class="content-header clearfix">
         <h1 class="pull-left">
-            电子币充值
+            积分充值
         </h1>
         <div class="pull-right">
             <button type="submit" name="save" class="btn bg-blue" onclick="return confirm('确认充值?')">
@@ -51,7 +51,7 @@
                             </div>
                             <div class="col-md-9">
                                 <div class="form-text-row">
-                                   @ViewBag.NickName (@ViewBag.Username), 当前电子币@(ViewBag.MoneyNum)
+                                   @ViewBag.NickName (@ViewBag.Username), 当前积分@(ViewBag.MoneyNum)
                                 </div>
                             </div>
                         </div>
