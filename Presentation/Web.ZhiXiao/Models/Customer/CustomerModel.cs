@@ -22,7 +22,7 @@ namespace Nop.Models.Customers
             this.SendEmail = new SendEmailModel() { SendImmediately = true };
             this.SendPm = new SendPmModel();
 
-            this.SelectedCustomerRoleIds= new List<int>();
+            this.SelectedCustomerRoleIds = new List<int>();
             this.AvailableCustomerRoles = new List<SelectListItem>();
 
             //this.AssociatedExternalAuthRecords = new List<AssociatedExternalAuthModel>();
@@ -33,7 +33,7 @@ namespace Nop.Models.Customers
             this.AvailableNewsletterSubscriptionStores = new List<StoreModel>();
             //this.RewardPointsAvailableStores = new List<SelectListItem>();
         }
-       
+
         public bool UsernamesEnabled { get; set; }
 
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.Username")]
@@ -71,6 +71,13 @@ namespace Nop.Models.Customers
         [AllowHtml]
         public string ConfirmPassword2 { get; set; }
 
+        /// <summary>
+        /// 二级密码
+        /// </summary>
+        [NoTrim]
+        [AllowHtml]
+        public string ZhiXiao_Password { get; set; }
+
         //[NopResourceDisplayName("Admin.Customers.Customers.Fields.Vendor")]
         //public int VendorId { get; set; }
         //public IList<SelectListItem> AvailableVendors { get; set; }
@@ -94,7 +101,7 @@ namespace Nop.Models.Customers
         /// </summary>
         public string CustomerTeamNum { get; set; }
         public CustomerTeamModel TeamInfo { get; set; }
-        
+
         public bool DateOfBirthEnabled { get; set; }
         [UIHint("DateNullable")]
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.DateOfBirth")]
@@ -117,14 +124,14 @@ namespace Nop.Models.Customers
 
         // 省 市 区
         public bool StateProvinceEnabled { get; set; }
-        [NopResourceDisplayName("Admin.Customers.Customers.Fields.StateProvince")] 
+        [NopResourceDisplayName("Admin.Customers.Customers.Fields.StateProvince")]
         public string StateProvince { get; set; }
 
         public bool CityEnabled { get; set; }
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.City")]
         [AllowHtml]
         public string City { get; set; }
-        
+
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.District")]
         public string District { get; set; }
 
@@ -146,7 +153,7 @@ namespace Nop.Models.Customers
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.AdminComment")]
         [AllowHtml]
         public string AdminComment { get; set; }
-        
+
         [NopResourceDisplayName("Admin.Customers.Customers.Fields.IsTaxExempt")]
         public bool IsTaxExempt { get; set; }
 
@@ -247,7 +254,7 @@ namespace Nop.Models.Customers
         [UIHint("MultiSelect")]
         public int ZhiXiao_ParentId { get; set; }       // 推荐人id
         public Customer ParentUser { get; set; }
-        
+
         [Display(Name = "小组")]
         public int ZhiXiao_TeamId { get; set; }       // 小组id
         public CustomerTeam CustomerTeam { get; set; }

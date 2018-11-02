@@ -148,6 +148,7 @@
     <Content Include="App_Data\Localization\Installation\installation.zhs.xml" />
     <Content Include="App_Data\Localization\zhs.nopres.xml" />
     <Content Include="App_Data\Notes.txt" />
+    <Content Include="App_Data\Settings.txt" />
     <Content Include="Areas\YiJiaYi_Manage\Views\Log\List.cshtml" />
     <Content Include="Areas\YiJiaYi_Manage\Views\Log\View.cshtml" />
     <Content Include="Content\bootstrap.css" />
@@ -1405,7 +1406,6 @@
     <Compile Include="Validators\Install\InstallValidator.cs" />
     <Compile Include="Validators\Localization\LanguageResourceValidator.cs" />
     <Compile Include="Validators\Localization\LanguageValidator.cs" />
-    <Compile Include="Validators\Log\WithdrawLogValidator.cs" />
     <Compile Include="Validators\News\NewsItemValidator.cs" />
     <Compile Include="Validators\Settings\SettingValidator.cs" />
     <Compile Include="Validators\Stores\StoreValidator.cs" />
@@ -1567,6 +1567,7 @@
     <Folder Include="Content\lib\Roxy_Fileman\tmp\" />
     <Folder Include="Content\uploaded\" />
     <Folder Include="db_backups\" />
+    <Folder Include="Validators\Log\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Libraries\Nop.Core\Nop.Core.csproj">

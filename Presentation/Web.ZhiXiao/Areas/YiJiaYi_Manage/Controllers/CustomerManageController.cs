@@ -292,6 +292,8 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                         //}
                     }
 
+                    model.ZhiXiao_Password = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_Password2);
+
                     //form fields
                     model.FirstName = customer.GetAttribute<string>(SystemCustomerAttributeNames.FirstName);
                     model.LastName = customer.GetAttribute<string>(SystemCustomerAttributeNames.LastName);
