@@ -292,7 +292,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                         //}
                     }
 
-                    model.ZhiXiao_Password = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_Password2);
+                    model.Password2 = customer.GetAttribute<string>(SystemCustomerAttributeNames.ZhiXiao_Password2);
 
                     //form fields
                     model.FirstName = customer.GetAttribute<string>(SystemCustomerAttributeNames.FirstName);
@@ -1200,6 +1200,44 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
                 var changePassRequest = new ChangePasswordRequest(model.Email,
                     false, _customerSettings.DefaultPasswordFormat, model.Password);
                 var changePassResult = _customerRegistrationService.ChangePassword(changePassRequest);
+                if (changePassResult.Success)
+                    SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.PasswordChanged"));
+                else
+                    foreach (var error in changePassResult.Errors)
+                        ErrorNotification(error);
+            }
+
+            return RedirectToAction("Edit", new { id = customer.Id });
+        }
+        /// <summary>
+        /// 修改二级密码
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, ActionName("Edit")]
+        [FormValueRequired("changepassword2")]
+        public virtual ActionResult ChangePassword2(CustomerModel model)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedView();
+
+            var customer = _customerService.GetCustomerById(model.Id);
+            if (customer == null)
+                //No customer found with the specified id
+                return RedirectToAction("List");
+
+            //ensure that the current customer cannot change passwords of "Administrators" if he's not an admin himself
+            if (customer.IsAdmin() && !_workContext.CurrentCustomer.IsAdmin())
+            {
+                ErrorNotification(_localizationService.GetResource("Admin.Customers.Customers.OnlyAdminCanChangePassword"));
+                return RedirectToAction("Edit", new { id = customer.Id });
+            }
+
+            if (ModelState.IsValid)
+            {
+                var changePassRequest = new ChangePasswordRequest(model.Email,
+                    false, _customerSettings.DefaultPasswordFormat, model.ZhiXiao_Password_Display);
+                var changePassResult = _customerRegistrationService.ChangeZhiXiaoPassword(changePassRequest);
                 if (changePassResult.Success)
                     SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.PasswordChanged"));
                 else

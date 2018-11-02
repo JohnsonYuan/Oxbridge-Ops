@@ -74,9 +74,7 @@ namespace Nop.Models.Customers
         /// <summary>
         /// 二级密码
         /// </summary>
-        [NoTrim]
-        [AllowHtml]
-        public string ZhiXiao_Password { get; set; }
+        public string ZhiXiao_Password_Display { get { return Password2; } set { Password2 = value; } }
 
         //[NopResourceDisplayName("Admin.Customers.Customers.Fields.Vendor")]
         //public int VendorId { get; set; }
