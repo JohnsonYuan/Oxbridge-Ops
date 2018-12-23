@@ -33,6 +33,7 @@ using Nop.Services.Topics;
 using Nop.Services.News;
 using Nop.Services.Directory;
 using Nop.Services.ZhiXiao;
+using Nop.Services.ZhiXiao.BonusApp;
 
 namespace Nop.Web.Framework
 {
@@ -208,6 +209,14 @@ namespace Nop.Web.Framework
             builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             builder.RegisterType<GeoLookupService>().As<IGeoLookupService>().InstancePerLifetimeScope();
             builder.RegisterType<MaintenanceService>().As<IMaintenanceService>().InstancePerLifetimeScope();
+
+
+            // bonus app service
+            builder.RegisterType<BonusAppService>().As<IBonusAppService>().InstancePerLifetimeScope();
+            
+            builder.RegisterType<CustomerActivityService>().As<ICustomerActivityService>().InstancePerLifetimeScope();
+            
+
 
             builder.RegisterType<NullEventPublisher>().As<IEventPublisher>().SingleInstance();
             builder.RegisterType<NullSubscriptionService>().As<ISubscriptionService>().SingleInstance();

@@ -1319,6 +1319,9 @@
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Areas\BonusApp\BonusAppAreaRegistration.cs" />
+    <Compile Include="Areas\BonusApp\Controllers\CommonController.cs" />
+    <Compile Include="Areas\BonusApp\Controllers\HomeController.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\AdminAreaRegistration.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\ActivityLogController.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\CommonController.cs" />
@@ -1349,6 +1352,7 @@
     <Compile Include="Helpers\TinyMceHelper.cs" />
     <Compile Include="Infrastructure\DependencyRegistrar.cs" />
     <Compile Include="Infrastructure\Mapper\AdminMapperConfiguration.cs" />
+    <Compile Include="Infrastructure\Mvc\Routes\BonusAppHostRouteConstraint.cs" />
     <Compile Include="Models\Common\BaseSearchModel.cs" />
     <Compile Include="Models\Common\MaintenanceModel.cs" />
     <Compile Include="Models\Common\SystemInfoModel.cs" />
@@ -1564,6 +1568,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Areas\BonusApp\Views\" />
+    <Folder Include="Areas\BunusApp_Manage\" />
     <Folder Include="Content\lib\Roxy_Fileman\tmp\" />
     <Folder Include="Content\uploaded\" />
     <Folder Include="db_backups\" />

@@ -19,6 +19,9 @@ namespace Nop.Core.Configuration
         public object Create(object parent, object configContext, XmlNode section)
         {
             var config = new NopConfig();
+ 
+            var bonusAppNode = section.SelectSingleNode("BonusApp");
+            config.BonusAppDomain = GetString(bonusAppNode, "Domain");
 
             var startupNode = section.SelectSingleNode("Startup");
             config.IgnoreStartupTasks = GetBool(startupNode, "IgnoreStartupTasks");
@@ -69,6 +72,11 @@ namespace Nop.Core.Configuration
             var attrVal = attr.Value;
             return converter(attrVal);
         }
+
+        /// <summary>
+        /// 奖金池系统domain
+        /// </summary>
+        public string BonusAppDomain { get; private set; }
 
         /// <summary>
         /// Indicates whether we should ignore startup tasks
