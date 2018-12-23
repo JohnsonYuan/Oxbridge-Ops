@@ -115,7 +115,7 @@ namespace Nop.Services.Customers
         #region Customers
 
         /// <summary>
-        /// Gets customers(添加推荐人时候调用)
+        /// Gets customers(锟斤拷锟斤拷萍锟斤拷锟绞憋拷锟斤拷锟斤拷)
         /// </summary>
         /// <param name="username">Username; null to load all customers</param>
         /// <param name="pageSize">Page size</param>
@@ -175,7 +175,7 @@ namespace Nop.Services.Customers
                 query = query.Where(c => c.CustomerRoles.Select(cr => cr.Id).Intersect(customerRoleIds).Any());
             if (customerLevel.HasValue)
             {
-                // 不能在linq中调用convert.ToInt32,所以把参数转str
+                // 锟斤拷锟斤拷锟斤拷linq锟叫碉拷锟斤拷convert.ToInt32,锟斤拷锟皆把诧拷锟斤拷转str
                 var levelIdStr = ((int)customerLevel).ToString();
                 query = query
                     .Join(_gaRepository.Table, x => x.Id, y => y.EntityId, (x, y) => new { Customer = x, Attribute = y })
@@ -353,14 +353,14 @@ namespace Nop.Services.Customers
                     customer.Username += "-DELETED";
             }
 
-            // 更新小组人数
+            // 锟斤拷锟斤拷小锟斤拷锟斤拷锟斤拷
             var customerTeam = customer.CustomerTeam;
             if (customerTeam != null && customerTeam.UserCount > 0)
                 customerTeam.UserCount = customerTeam.UserCount - 1;
 
             UpdateCustomer(customer);
 
-            // 更新推荐人下线人数
+            // 锟斤拷锟斤拷锟狡硷拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷
             var parentId = customer.GetAttribute<int>(SystemCustomerAttributeNames.ZhiXiao_ParentId);
             var parentUser = GetCustomerById(parentId);
 
@@ -433,7 +433,7 @@ namespace Nop.Services.Customers
 
             if (checkTeam)
             {
-                // TODO:只显示后8个加入进来为child
+                // TODO:只锟斤拷示锟斤拷8锟斤拷锟斤拷锟斤拷锟斤拷锟轿猚hild
                 query = query.Where(x => x.GetInTeamOrder() > _zhiXiaoSettings.TeamInitUserCount).ToList();
                 // query = query.Where(x => x.CustomerTeam.Id == parentCustomer.CustomerTeam.Id);
             }

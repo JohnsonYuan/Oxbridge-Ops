@@ -7,6 +7,7 @@ using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Vendors;
 using Nop.Core.Fakes;
 using Nop.Services.Authentication;
+using Nop.Services.BonusApp.Authentication;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Helpers;
@@ -32,11 +33,13 @@ namespace Nop.Web.Framework
         private readonly ICustomerService _customerService;
         private readonly IStoreContext _storeContext;
         private readonly IAuthenticationService _authenticationService;
+        private readonly IBonusAppFormsAuthenticationService _bonusAppAuthenticationService;
         private readonly ILanguageService _languageService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly LocalizationSettings _localizationSettings;
         private readonly IUserAgentHelper _userAgentHelper;
 
+        private Nop.Core.Domain.BonusApp.Customers.BonusApp_Customer _cachedBonusAppCustomer;
         private Customer _cachedCustomer;
         private Customer _originalCustomerIfImpersonated;
         //private Vendor _cachedVendor;
@@ -49,6 +52,7 @@ namespace Nop.Web.Framework
         public WebWorkContext(HttpContextBase httpContext,
             ICustomerService customerService,
             IStoreContext storeContext,
+            IBonusAppFormsAuthenticationService bonusAppAuthenticationService,
             IAuthenticationService authenticationService,
             ILanguageService languageService,
             IGenericAttributeService genericAttributeService,
@@ -58,6 +62,7 @@ namespace Nop.Web.Framework
             this._httpContext = httpContext;
             this._customerService = customerService;
             this._storeContext = storeContext;
+            this._bonusAppAuthenticationService = bonusAppAuthenticationService;
             this._authenticationService = authenticationService;
             this._languageService = languageService;
             this._genericAttributeService = genericAttributeService;
@@ -149,6 +154,42 @@ namespace Nop.Web.Framework
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets or sets the current customer
+        /// </summary>
+        public virtual Nop.Core.Domain.BonusApp.Customers.BonusApp_Customer CurrentBonusAppCustomer
+        {
+            get
+            {
+                if (_cachedBonusAppCustomer != null)
+                    return _cachedBonusAppCustomer;
+
+                var customer  = _bonusAppAuthenticationService.GetAuthenticatedCustomer();
+
+                // 不自动插入guest
+                //create guest if not exists
+                //if (customer == null || customer.Deleted || !customer.Active || customer.RequireReLogin)
+                //{
+                //    customer = _customerService.InsertGuestCustomer();
+                //}
+
+                //validation
+                if (customer != null && 
+                    !customer.Deleted && customer.Active)
+                {
+                    //SetCustomerCookie(customer.CustomerGuid);
+                    _cachedBonusAppCustomer = customer;
+                }
+
+                return _cachedBonusAppCustomer;
+            }
+            set
+            {
+                //SetCustomerCookie(value.CustomerGuid);
+                _cachedBonusAppCustomer = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the current customer

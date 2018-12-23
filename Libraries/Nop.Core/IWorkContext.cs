@@ -10,6 +10,11 @@ namespace Nop.Core
     public interface IWorkContext
     {
         /// <summary>
+        /// Gets or sets the bonus app current customer
+        /// </summary>
+        Nop.Core.Domain.BonusApp.Customers.BonusApp_Customer CurrentBonusAppCustomer { get; set; }
+
+        /// <summary>
         /// Gets or sets the current customer
         /// </summary>
         Customer CurrentCustomer { get; set; }

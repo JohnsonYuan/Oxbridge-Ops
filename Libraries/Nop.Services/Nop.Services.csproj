@@ -104,6 +104,18 @@
     <Compile Include="Customers\ICustomerAttributeService.cs" />
     <Compile Include="Customers\ICustomerRegistrationService.cs" />
     <Compile Include="Customers\ICustomerService.cs" />
+
+    <Compile Include="BonusApp\IBonusAppService.cs" />
+    <Compile Include="BonusApp\BonusAppService.cs" />
+    <Compile Include="BonusApp\Authentication\BonusAppFormsAuthenticationService.cs" />
+    <Compile Include="BonusApp\Authentication\IBonusAppFormsAuthenticationService.cs" />
+    <Compile Include="BonusApp\Configuration\SettingService.cs" />
+    <Compile Include="BonusApp\Configuration\ISettingService.cs" />
+    <Compile Include="BonusApp\Customers\CustomerService.cs" />
+    <Compile Include="BonusApp\Customers\ICustomerService.cs" />
+    <Compile Include="BonusApp\Logging\CustomerActivityService.cs" />
+    <Compile Include="BonusApp\Logging\ICustomerActivityService.cs" />
+
     <Compile Include="Events\EventPublisherExtensions.cs" />
     <Compile Include="Events\IConsumer.cs" />
     <Compile Include="Events\IEventPublisher.cs" />
@@ -132,7 +144,6 @@
     <Compile Include="Localization\LocalizedEntityService.cs" />
     <Compile Include="Directory\GeoLookupService.cs" />
     <Compile Include="Directory\IGeoLookupService.cs" />
-    <Compile Include="Logging\ICustomerActivityService2.cs" />
     <Compile Include="News\INewsService.cs" />
     <Compile Include="News\NewsService.cs" />
     <Compile Include="Orders\IRewardPointService.cs" />

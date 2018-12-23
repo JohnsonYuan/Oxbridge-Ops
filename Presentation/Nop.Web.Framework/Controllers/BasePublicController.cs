@@ -1,7 +1,7 @@
 ﻿namespace Nop.Web.Framework.Controllers
 {
     //[CheckAffiliate]
-    [StoreClosed]
+    //[StoreClosed]
     //[PublicStoreAllowNavigation]
     //[LanguageSeoCode]
     //[NopHttpsRequirement(SslRequirement.NoMatter)]
