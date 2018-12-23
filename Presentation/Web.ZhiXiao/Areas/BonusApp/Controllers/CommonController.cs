@@ -1,13 +1,9 @@
 using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Customers;
-using Nop.Core.Infrastructure;
 using Nop.Models.Customers;
 using Nop.Services.Authentication;
 using Nop.Services.Common;

@@ -1,0 +1,50 @@
+﻿@using Nop.Core
+@using Nop.Web.Framework.UI
+@{
+    //CSS resources
+    Html.AppendCssFileParts("~/Content/bonus/css/page.css");
+    Html.AppendCssFileParts("~/Content/bonus/css/base.css");
+
+    //scripts
+    Html.AppendScriptParts("~/Scripts/bonus/js/rem.js");
+    Html.AppendScriptParts("~/Scripts//jquery-1.10.2.min.js");
+
+    var appSetting = EngineContext.Current.Resolve<Nop.Core.Domain.BonusApp.Configuration.BonusAppSettings>();
+
+    if (!String.IsNullOrEmpty(appSetting.SiteTitle))
+    {
+        Html.AppendTitleParts(appSetting.SiteTitle);
+    }
+
+    //page title
+    string pageTitle = !String.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title : "";
+    //adminPageTitle += T("Admin.PageTitle").Text;
+    Html.AppendTitleParts(pageTitle);
+
+    //avatar
+    var currentCustomer = EngineContext.Current.Resolve<IWorkContext>().CurrentBonusAppCustomer;
+
+    var webHelper = EngineContext.Current.Resolve<IWebHelper>();
+
+    //info: we specify "Admin" area for actions and widgets here for cases when we use this layout in a plugin that is running in a different area than "admin"
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@Html.NopTitle()</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    @Html.NopHeadCustom()
+    @Html.NopCssFiles(this.Url, ResourceLocation.Head, false)
+    @Html.NopScripts(this.Url, ResourceLocation.Head, false)
+    <link rel="shortcut icon" href="@(webHelper.GetStoreLocation())favicon.ico" />
+</head>
+<body>
+    @RenderBody()
+
+    <!--footer star-->
+    @Html.Partial("_Menu")
+    <!--footer end-->
+</body>
+</html>

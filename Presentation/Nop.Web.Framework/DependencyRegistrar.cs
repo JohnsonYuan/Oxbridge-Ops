@@ -6,6 +6,7 @@ using System.Web;
 using Autofac;
 using Autofac.Builder;
 using Autofac.Core;
+using Autofac.Integration.Mvc;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Configuration;
@@ -13,27 +14,26 @@ using Nop.Core.Data;
 using Nop.Core.Fakes;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
+using Nop.Data;
+using Nop.Services.Authentication;
+using Nop.Services.BonusApp.Configuration;
+using Nop.Services.Common;
 using Nop.Services.Configuration;
+using Nop.Services.Customers;
+using Nop.Services.Directory;
 using Nop.Services.Events;
+using Nop.Services.Helpers;
+using Nop.Services.Infrastructure;
+using Nop.Services.Installation;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
-using Nop.Web.Framework.UI;
-using Autofac.Integration.Mvc;
-using Nop.Data;
-using Nop.Services.Infrastructure;
-using Nop.Services.Customers;
-using Nop.Services.Installation;
-using Nop.Services.Authentication;
-using Nop.Services.Common;
-using Nop.Services.Helpers;
-using Nop.Services.Stores;
-using Nop.Services.Security;
-using Nop.Services.Orders;
-using Nop.Services.Topics;
 using Nop.Services.News;
-using Nop.Services.Directory;
+using Nop.Services.Orders;
+using Nop.Services.Security;
+using Nop.Services.Stores;
+using Nop.Services.Topics;
 using Nop.Services.ZhiXiao;
-using Nop.Services.ZhiXiao.BonusApp;
+using Nop.Web.Framework.UI;
 
 namespace Nop.Web.Framework
 {
@@ -51,7 +51,7 @@ namespace Nop.Web.Framework
         public virtual void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
             //HTTP context and other related stuff
-            builder.Register(c => 
+            builder.Register(c =>
                 //register FakeHttpContext when HttpContext is not available
                 HttpContext.Current != null ?
                 (new HttpContextWrapper(HttpContext.Current) as HttpContextBase) :
@@ -210,14 +210,6 @@ namespace Nop.Web.Framework
             builder.RegisterType<GeoLookupService>().As<IGeoLookupService>().InstancePerLifetimeScope();
             builder.RegisterType<MaintenanceService>().As<IMaintenanceService>().InstancePerLifetimeScope();
 
-
-            // bonus app service
-            builder.RegisterType<BonusAppService>().As<IBonusAppService>().InstancePerLifetimeScope();
-            
-            builder.RegisterType<CustomerActivityService>().As<ICustomerActivityService>().InstancePerLifetimeScope();
-            
-
-
             builder.RegisterType<NullEventPublisher>().As<IEventPublisher>().SingleInstance();
             builder.RegisterType<NullSubscriptionService>().As<ISubscriptionService>().SingleInstance();
         }
@@ -238,6 +230,11 @@ namespace Nop.Web.Framework
             "BuildRegistration",
             BindingFlags.Static | BindingFlags.NonPublic);
 
+        // bonus register method
+        static readonly MethodInfo BonusApp_BuildMethod = typeof(SettingsSource).GetMethod(
+            "BonusApp_BuildRegistration",
+            BindingFlags.Static | BindingFlags.NonPublic);
+
         public IEnumerable<IComponentRegistration> RegistrationsFor(
                 Service service,
                 Func<Service, IEnumerable<IComponentRegistration>> registrations)
@@ -248,8 +245,26 @@ namespace Nop.Web.Framework
                 var buildMethod = BuildMethod.MakeGenericMethod(ts.ServiceType);
                 yield return (IComponentRegistration)buildMethod.Invoke(null, null);
             }
+            if (ts != null)
+            {
+                if (typeof(ISettings).IsAssignableFrom(ts.ServiceType))
+                {
+                    var buildMethod = BuildMethod.MakeGenericMethod(ts.ServiceType);
+                    yield return (IComponentRegistration)buildMethod.Invoke(null, null);
+                }
+                else if (typeof(IBonusApp_Settings).IsAssignableFrom(ts.ServiceType))
+                {
+                    var buildMethod = BonusApp_BuildMethod.MakeGenericMethod(ts.ServiceType);
+                    yield return (IComponentRegistration)buildMethod.Invoke(null, null);
+                }
+            }
         }
 
+        /// <summary>
+        /// Bonus app settings
+        /// </summary>
+        /// <typeparam name="TSettings"></typeparam>
+        /// <returns></returns>
         static IComponentRegistration BuildRegistration<TSettings>() where TSettings : ISettings, new()
         {
             return RegistrationBuilder
@@ -264,6 +279,30 @@ namespace Nop.Web.Framework
                     //although it's better to connect to your database and execute the following SQL:
                     //DELETE FROM [Setting] WHERE [StoreId] > 0
                     return c.Resolve<ISettingService>().LoadSetting<TSettings>(currentStoreId);
+                })
+                .InstancePerLifetimeScope()
+                .CreateRegistration();
+        }
+
+        /// <summary>
+        /// Bonus IBonusApp_Settings
+        /// </summary>
+        /// <typeparam name="TSettings"></typeparam>
+        /// <returns></returns>
+        static IComponentRegistration BonusApp_BuildRegistration<TSettings>() where TSettings : IBonusApp_Settings, new()
+        {
+            return RegistrationBuilder
+                .ForDelegate((c, p) =>
+                {
+                    var currentStoreId = c.Resolve<IStoreContext>().CurrentStore.Id;
+
+                    //uncomment the code below if you want load settings per store only when you have two stores installed.
+                    //var currentStoreId = c.Resolve<IStoreService>().GetAllStores().Count > 1
+                    //    c.Resolve<IStoreContext>().CurrentStore.Id : 0;
+
+                    //although it's better to connect to your database and execute the following SQL:
+                    //DELETE FROM [Setting] WHERE [StoreId] > 0
+                    return c.Resolve<IBonusApp_SettingService>().LoadSetting<TSettings>(currentStoreId);
                 })
                 .InstancePerLifetimeScope()
                 .CreateRegistration();
