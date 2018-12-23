@@ -32,8 +32,7 @@ namespace Nop.Services.BonusApp.Authentication
         /// <param name="customerService">Customer service</param>
         /// <param name="customerSettings">Customer settings</param>
         public BonusAppFormsAuthenticationService(HttpContextBase httpContext,
-            IBonusApp_CustomerService customerService,
-            BonusApp_Customer customerSettings)
+            IBonusApp_CustomerService customerService)
         {
             this._httpContext = httpContext;
             this._customerService = customerService;

@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="Authentication\FormsAuthenticationService.cs" />
     <Compile Include="Authentication\IAuthenticationService.cs" />
+    <Compile Include="BonusApp\BonusAppDependencyRegister.cs" />
     <Compile Include="Common\Cache\CustomerCacheEventConsumer.cs" />
     <Compile Include="Common\GenericAttributeExtensions.cs" />
     <Compile Include="Common\GenericAttributeService.cs" />
@@ -104,7 +105,6 @@
     <Compile Include="Customers\ICustomerAttributeService.cs" />
     <Compile Include="Customers\ICustomerRegistrationService.cs" />
     <Compile Include="Customers\ICustomerService.cs" />
-
     <Compile Include="BonusApp\IBonusAppService.cs" />
     <Compile Include="BonusApp\BonusAppService.cs" />
     <Compile Include="BonusApp\Authentication\BonusAppFormsAuthenticationService.cs" />
@@ -115,7 +115,6 @@
     <Compile Include="BonusApp\Customers\ICustomerService.cs" />
     <Compile Include="BonusApp\Logging\CustomerActivityService.cs" />
     <Compile Include="BonusApp\Logging\ICustomerActivityService.cs" />
-
     <Compile Include="Events\EventPublisherExtensions.cs" />
     <Compile Include="Events\IConsumer.cs" />
     <Compile Include="Events\IEventPublisher.cs" />

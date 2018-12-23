@@ -75,14 +75,14 @@ namespace Nop.Services.BonusApp.Configuration
         /// <returns>true -setting exists; false - does not exist</returns>
         bool SettingExists<T, TPropType>(T settings, 
             Expression<Func<T, TPropType>> keySelector, int storeId = 0)
-            where T : ISettings, new();
+            where T : IBonusApp_Settings, new();
 
         /// <summary>
         /// Load settings
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="storeId">Store identifier for which settigns should be loaded</param>
-        T LoadSetting<T>(int storeId = 0) where T : ISettings, new();
+        T LoadSetting<T>(int storeId = 0) where T : IBonusApp_Settings, new();
         
         /// <summary>
         /// Save settings object
@@ -90,7 +90,7 @@ namespace Nop.Services.BonusApp.Configuration
         /// <typeparam name="T">Type</typeparam>
         /// <param name="storeId">Store identifier</param>
         /// <param name="settings">Setting instance</param>
-        void SaveSetting<T>(T settings, int storeId = 0) where T : ISettings, new();
+        void SaveSetting<T>(T settings, int storeId = 0) where T : IBonusApp_Settings, new();
         
         /// <summary>
         /// Save settings object
@@ -103,7 +103,7 @@ namespace Nop.Services.BonusApp.Configuration
         /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
         void SaveSetting<T, TPropType>(T settings,
             Expression<Func<T, TPropType>> keySelector,
-            int storeId = 0, bool clearCache = true) where T : ISettings, new();
+            int storeId = 0, bool clearCache = true) where T : IBonusApp_Settings, new();
 
         /// <summary>
         /// Save settings object (per store). If the setting is not overridden per storem then it'll be delete
@@ -117,13 +117,13 @@ namespace Nop.Services.BonusApp.Configuration
         /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
         void SaveSettingOverridablePerStore<T, TPropType>(T settings,
             Expression<Func<T, TPropType>> keySelector,
-            bool overrideForStore, int storeId = 0, bool clearCache = true) where T : ISettings, new();
+            bool overrideForStore, int storeId = 0, bool clearCache = true) where T : IBonusApp_Settings, new();
 
         /// <summary>
         /// Delete all settings
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
-        void DeleteSetting<T>() where T : ISettings, new();
+        void DeleteSetting<T>() where T : IBonusApp_Settings, new();
         
         /// <summary>
         /// Delete settings object
@@ -134,7 +134,7 @@ namespace Nop.Services.BonusApp.Configuration
         /// <param name="keySelector">Key selector</param>
         /// <param name="storeId">Store ID</param>
         void DeleteSetting<T, TPropType>(T settings,
-            Expression<Func<T, TPropType>> keySelector, int storeId = 0) where T : ISettings, new();
+            Expression<Func<T, TPropType>> keySelector, int storeId = 0) where T : IBonusApp_Settings, new();
 
         /// <summary>
         /// Clear cache

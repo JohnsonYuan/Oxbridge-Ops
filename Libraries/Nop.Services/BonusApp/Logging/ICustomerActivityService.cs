@@ -9,7 +9,7 @@ namespace Nop.Services.BonusApp.Logging
     /// <summary>
     /// Customer activity service
     /// </summary>
-    public interface ICustomerActivityService
+    public interface IBonusApp_CustomerActivityService
     {
         void ClearAllActivities();
         void DeleteActivity(BonusApp_ActivityLog activityLog);
@@ -30,5 +30,10 @@ namespace Nop.Services.BonusApp.Logging
         void UpdateActivityType(BonusApp_ActivityLogType activityLogType);
         void UpdateMoneyLog(BonusApp_MoneyLog moneyLog);
 
+        /// <summary>
+        /// Return first waiting log
+        /// </summary>
+        /// <returns></returns>
+        BonusApp_MoneyLog GetFirstWaitingLog();
     }
 }

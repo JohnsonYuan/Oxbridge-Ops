@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using Nop.Core.Configuration;
 
@@ -7,8 +6,14 @@ namespace Nop.Core.Domain.BonusApp.Configuration
     /// <summary>
     /// Represents an bonus app status.
     /// </summary>
-    public class BonusAppSettings : ISettings
+    public class BonusAppSettings : IBonusApp_Settings
     {
+        /// <summary>
+        /// 网站名称
+        /// </summary>
+        [DisplayName("网站名称")]
+        public string SiteTitle { get; set; }
+
         /// <summary>
         /// 用户返回金额比例 目前返还100%
         /// </summary>
@@ -26,5 +31,11 @@ namespace Nop.Core.Domain.BonusApp.Configuration
         /// </summary>
         [DisplayName("用户提现比例")]
         public double Withdraw_Rate { get; set; } = 0.95;
+
+        /// <summary>
+        /// mdt salt
+        /// </summary>
+        [DisplayName("md5 salt")]
+        public string CustomerPasswordSalt { get; set; } = "Z3GP1bc=";
     }
 }

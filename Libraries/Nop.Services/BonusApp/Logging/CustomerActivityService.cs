@@ -8,17 +8,15 @@ using Nop.Core.Domain.BonusApp;
 using Nop.Core.Domain.BonusApp.Configuration;
 using Nop.Core.Domain.BonusApp.Customers;
 using Nop.Core.Domain.BonusApp.Logging;
-using Nop.Core.Domain.Common;
 using Nop.Data;
 using Nop.Services.Common;
-using Nop.Services.Customers;
 
 namespace Nop.Services.BonusApp.Logging
 {
     /// <summary>
     /// Customer activity service
     /// </summary>
-    public class CustomerActivityService : ICustomerActivityService
+    public class BonusApp_CustomerActivityService : IBonusApp_CustomerActivityService
     {
         #region Constants
 
@@ -34,6 +32,8 @@ namespace Nop.Services.BonusApp.Logging
         #endregion
 
         #region Fields
+
+        private readonly object _myLock = new object();
 
         /// <summary>
         /// Cache manager
@@ -64,7 +64,7 @@ namespace Nop.Services.BonusApp.Logging
         /// <param name="dataProvider">WeData provider</param>
         /// <param name="commonSettings">Common settings</param>
         /// <param name="webHelper">Web helper</param>
-        public CustomerActivityService(ICacheManager cacheManager,
+        public BonusApp_CustomerActivityService(ICacheManager cacheManager,
             IRepository<BonusAppStatus> bonusAppStatusRepository,
             IRepository<BonusApp_ActivityLog> activityLogRepository,
             IRepository<BonusApp_MoneyLog> moneyLogRepository,
@@ -409,31 +409,35 @@ namespace Nop.Services.BonusApp.Logging
             comment = string.Format(comment, commentParams);
             comment = CommonHelper.EnsureMaximumLength(comment, 4000);
 
-            var moneyLog = new BonusApp_MoneyLog();
-            moneyLog.Customer = customer;
-            moneyLog.Comment = comment;
-            moneyLog.CreatedOnUtc = DateTime.UtcNow;
-            moneyLog.IpAddress = _webHelper.GetCurrentIpAddress();
-            // Bonus info
-            moneyLog.Money = moneyDelta;
-            moneyLog.ReturnMoney = moneyDelta * _bonusAppSettings.UserReturnMoneyPercent;   // current return 100%
-            moneyLog.MoneyReturnStatusId = (int)BonusApp_MoneyReturnStatus.Waiting;
+            // 防止同时请求CreatedOnUtc时间相同 排序依赖于CreatedOnUtc
+            lock (_myLock)
+            {
+                var moneyLog = new BonusApp_MoneyLog();
+                moneyLog.Customer = customer;
+                moneyLog.Comment = comment;
+                moneyLog.CreatedOnUtc = DateTime.UtcNow;
+                moneyLog.IpAddress = _webHelper.GetCurrentIpAddress();
+                // Bonus info
+                moneyLog.Money = moneyDelta;
+                moneyLog.ReturnMoney = Math.Round(moneyDelta * _bonusAppSettings.UserReturnMoneyPercent, 2);   // current return 100%
+                moneyLog.MoneyReturnStatusId = (int)BonusApp_MoneyReturnStatus.Waiting;
 
-            // Bonus pool info
-            double moneySaveToPool = moneyDelta * _bonusAppSettings.SaveToAppMoneyPercent;
-            moneyLog.AppMoneyBefore = bonusPoolInfo.CurrentMoney;
-            moneyLog.AppMoneyDelta = moneySaveToPool;
-            moneyLog.AppMoneyAfter = bonusPoolInfo.CurrentMoney + moneySaveToPool;
+                // Bonus pool info
+                double moneySaveToPool = moneyDelta * _bonusAppSettings.SaveToAppMoneyPercent;
+                moneyLog.AppMoneyBefore = bonusPoolInfo.CurrentMoney;
+                moneyLog.AppMoneyDelta = moneySaveToPool;
+                moneyLog.AppMoneyAfter = bonusPoolInfo.CurrentMoney + moneySaveToPool;
 
-            // insert money log
-            _moneyLogRepository.Insert(moneyLog);
+                // insert money log
+                _moneyLogRepository.Insert(moneyLog);
 
-            // update pool info
-            bonusPoolInfo.CurrentMoney += moneySaveToPool;
-            bonusPoolInfo.WaitingUserCount += 1;
-            _bonusAppStatusRepository.Update(bonusPoolInfo);
+                // update pool info
+                bonusPoolInfo.CurrentMoney += moneySaveToPool;
+                bonusPoolInfo.WaitingUserCount += 1;
+                _bonusAppStatusRepository.Update(bonusPoolInfo);
 
-            return moneyLog;
+                return moneyLog;
+            }
         }
 
         /// <summary>
@@ -492,6 +496,25 @@ namespace Nop.Services.BonusApp.Logging
             var moneyLog = new PagedList<BonusApp_MoneyLog>(query, pageIndex, pageSize);
             return moneyLog;
         }
+
+        #region Bonus Logic
+
+        /// <summary>
+        /// Order by create time
+        /// </summary>
+        /// <returns></returns>
+        public BonusApp_MoneyLog GetFirstWaitingLog()
+        {
+            var query = from l in _moneyLogRepository.Table
+                        where l.MoneyReturnStatus == BonusApp_MoneyReturnStatus.Waiting
+                        orderby l.CreatedOnUtc ascending
+                        select l;
+
+            return query.FirstOrDefault();
+        }
+
+        #endregion
+
         #endregion
     }
 }

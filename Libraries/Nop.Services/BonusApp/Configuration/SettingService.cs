@@ -341,9 +341,9 @@ namespace Nop.Services.BonusApp.Configuration
         /// <returns>true -setting exists; false - does not exist</returns>
         public virtual bool SettingExists<T, TPropType>(T settings,
             Expression<Func<T, TPropType>> keySelector, int storeId = 0)
-            where T : ISettings, new()
+            where T : IBonusApp_Settings, new()
         {
-            string key = settings.GetSettingKey(keySelector);
+            string key = settings.GetBonusAppSettingKey(keySelector);
 
             var setting = GetSettingByKey<string>(key, storeId: storeId);
             return setting != null;
@@ -354,7 +354,7 @@ namespace Nop.Services.BonusApp.Configuration
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="storeId">Store identifier for which settigns should be loaded</param>
-        public virtual T LoadSetting<T>(int storeId = 0) where T : ISettings, new()
+        public virtual T LoadSetting<T>(int storeId = 0) where T : IBonusApp_Settings, new()
         {
             var settings = Activator.CreateInstance<T>();
 
@@ -391,7 +391,7 @@ namespace Nop.Services.BonusApp.Configuration
         /// <typeparam name="T">Type</typeparam>
         /// <param name="storeId">Store identifier</param>
         /// <param name="settings">Setting instance</param>
-        public virtual void SaveSetting<T>(T settings, int storeId = 0) where T : ISettings, new()
+        public virtual void SaveSetting<T>(T settings, int storeId = 0) where T : IBonusApp_Settings, new()
         {
             /* We do not clear cache after each setting update.
              * This behavior can increase performance because cached settings will not be cleared 
@@ -429,7 +429,7 @@ namespace Nop.Services.BonusApp.Configuration
         /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
         public virtual void SaveSetting<T, TPropType>(T settings,
             Expression<Func<T, TPropType>> keySelector,
-            int storeId = 0, bool clearCache = true) where T : ISettings, new()
+            int storeId = 0, bool clearCache = true) where T : IBonusApp_Settings, new()
         {
             var member = keySelector.Body as MemberExpression;
             if (member == null)
@@ -447,7 +447,7 @@ namespace Nop.Services.BonusApp.Configuration
                        keySelector));
             }
 
-            string key = settings.GetSettingKey(keySelector);
+            string key = settings.GetBonusAppSettingKey(keySelector);
             //Duck typing is not supported in C#. That's why we're using dynamic type
             dynamic value = propInfo.GetValue(settings, null);
             if (value != null)
@@ -468,7 +468,7 @@ namespace Nop.Services.BonusApp.Configuration
         /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
         public virtual void SaveSettingOverridablePerStore<T, TPropType>(T settings,
             Expression<Func<T, TPropType>> keySelector,
-            bool overrideForStore, int storeId = 0, bool clearCache = true) where T : ISettings, new()
+            bool overrideForStore, int storeId = 0, bool clearCache = true) where T : IBonusApp_Settings, new()
         {
             if (overrideForStore || storeId == 0)
                 SaveSetting(settings, keySelector, storeId, clearCache);
@@ -480,7 +480,7 @@ namespace Nop.Services.BonusApp.Configuration
         /// Delete all settings
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
-        public virtual void DeleteSetting<T>() where T : ISettings, new()
+        public virtual void DeleteSetting<T>() where T : IBonusApp_Settings, new()
         {
             var settingsToDelete = new List<BonusApp_Setting>();
             var allSettings = GetAllSettings();
@@ -502,9 +502,9 @@ namespace Nop.Services.BonusApp.Configuration
         /// <param name="keySelector">Key selector</param>
         /// <param name="storeId">Store ID</param>
         public virtual void DeleteSetting<T, TPropType>(T settings,
-            Expression<Func<T, TPropType>> keySelector, int storeId = 0) where T : ISettings, new()
+            Expression<Func<T, TPropType>> keySelector, int storeId = 0) where T : IBonusApp_Settings, new()
         {
-            string key = settings.GetSettingKey(keySelector);
+            string key = settings.GetBonusAppSettingKey(keySelector);
             key = key.Trim().ToLowerInvariant();
 
             var allSettings = GetAllSettingsCached();
