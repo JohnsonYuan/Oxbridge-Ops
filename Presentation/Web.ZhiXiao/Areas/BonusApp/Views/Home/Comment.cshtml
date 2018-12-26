@@ -1,0 +1,52 @@
+﻿@model CommentListModel
+
+@{
+    Html.SetActiveMenuItemSystemName("Comment");
+}
+<div class="clearfloat main">
+    <!--liebiao star-->
+    <div class="liebiao clearfloat">
+        <div class="top clearfloat box-s">
+            <p class="fl bt">最新评论</p>
+            <p class="fr fu-tit">
+                已有@(Model.TotalCount)人评论
+            </p>
+        </div>
+        <div class="content clearfloat">
+            <!--comment-->
+            @Html.Partial("_CommentItems", Model.Data)
+            <!--/comment-->
+        </div>
+        <div class="clearfloat view-more-button">
+            <a href="javascript:void(0);">
+                加载...
+                <span><img src="~/Content/bonus/img/54.png" /></span>
+            </a>
+        </div>
+    </div>
+    <!--liebiao end-->
+</div>
+
+
+@section scripts {
+    <script src="~/Scripts/bonus/infinite-scroll.pkgd.min.js"></script>
+    <script>
+        var $container = $('.content').infiniteScroll({
+            // options 'news/blog-p{{#}}.html'
+            path: getPath,
+            append: '.list',
+            history: false,
+            //status: '.page-load-status',
+            button: '.view-more-button',
+            // load pages on button click
+            scrollThreshold: false,
+        });
+
+        function getPath() {
+            var availableCount = @(Model.TotalPages - 1);
+            if (this.loadCount < availableCount) {
+                return '/Home/LoadComment?page=' + (this.pageIndex + 1);
+            }
+        }
+    </script>
+}

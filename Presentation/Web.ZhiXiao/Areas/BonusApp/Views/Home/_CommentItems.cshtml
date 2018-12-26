@@ -1,0 +1,45 @@
+﻿@model IEnumerable<CommentModel>
+@{ 
+    // 评分最多5星
+    const int TOTAL_STAR_COUNT = 5;
+}
+
+@foreach (var item in Model)
+{
+    <div class="list clearfloat fl">
+        <div class="zuo clearfloat fl">
+            <a href="center.html">
+                <span></span>
+                <img src="@item.CustomerAvatar" />
+            </a>
+        </div>
+        <div class="you clearfloat fl">
+            <div class="shang clearfloat">
+                <div class="left clearfloat fl">
+                    <p class="tit">@item.CustomerNickName</p>
+                </div>
+            </div>
+            <div>
+                <div class="time clearfloat">
+                    <div class="fl star-ratings-css">
+                        @for (int i = 0; i < TOTAL_STAR_COUNT; i++)
+                        {
+                            // 如果评分是1 i=0 满足， 1个星选中
+                            // 如果评分是2 i=0,1 满足， 2个星选中
+                            var isActive = item.Rate > i;
+
+                            <text>
+                            <span @(isActive ? Html.Raw("class=\"select\"") : null)>★</span>
+                            </text>
+                        }
+                        @*<span class="select">★</span>*@
+                    </div>
+                    <span class="fr">@item.CreatedOn</span>
+                </div>
+                <div class="xia clearfloat">
+                    @Html.Raw(item.Comment)
+                </div>
+            </div>
+        </div>
+    </div>
+}

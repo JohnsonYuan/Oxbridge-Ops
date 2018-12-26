@@ -1,9 +1,21 @@
-﻿
+﻿@model Web.ZhiXiao.Areas.BonusApp.Models.HomePageModel
+
+@using Nop.Core.Domain.BonusApp.Logging;
+
+@{ 
+    var isWaitingType = Model.Status == BonusApp_MoneyReturnStatus.Waiting;
+
+    // 当前选中的不显示url, 未选中的url
+    var inActiveStatus = isWaitingType ? BonusApp_MoneyReturnStatus.Complete : BonusApp_MoneyReturnStatus.Waiting;
+    var inActiveUrl = Url.Action("Index", !isWaitingType ? null : new { status = (int)inActiveStatus });
+
+    Html.SetActiveMenuItemSystemName("Index");
+}
 <div class="shouyi clearfloat main">
     <!-- 收益 star -->
     <div class="top clearfloat">
         <div class="one clearfloat box-s">
-            今日收益
+            奖金池
         </div>
         <div class="three clearfloat">
             <div class="zuo clearfloat fl">
@@ -11,7 +23,7 @@
                 <p class="tit">
                     送出收益
                     <span class="fu-tit">
-                        ¥55555
+                        ¥@Model.BonusAppStatus.MoneyPaied
                     </span>
                 </p>
             </div>
@@ -21,7 +33,7 @@
                 <p class="tit">
                     奖金池
                     <span class="fu-tit">
-                        ¥55555
+                        ¥@Model.BonusAppStatus.CurrentMoney
                     </span>
                 </p>
             </div>
@@ -31,204 +43,53 @@
     <!-- paihang star -->
     <div class="paihang clearfloat">
         <div class="contentTitle tit top clearfloat box-s">
-            <p class="tit fl bt">
-                <a href='#' class="active">
+            <p class="tit fl bt @(isWaitingType ? "active" : "")">
+                <a href="@(isWaitingType ? "javascript:void(0);" : inActiveUrl)">
                     <img src="/Content/bonus/img/48.png">
-                    排队中 97位
+                    排队中 @(Model.BonusAppStatus.WaitingUserCount)位
                 </a>
             </p>
-            <p class="tit fr fu-tit">
-                <a href='#'>
+            <p class="tit fr fu-tit @( !isWaitingType ? "active" : "")">
+                <a href="@( !isWaitingType ? "javascript:void(0);" : inActiveUrl)">
                     <img src="/Content/bonus/img/58.png">
-                    已奖励 97位
+                    已奖励 @(Model.BonusAppStatus.CompleteUserCount)位
                 </a>
             </p>
         </div>
         <div class="content clearfloat">
-            <div class="list clearfloat fl">
-                <div class="clearfloat">
-                    <div class="zuo clearfloat fl">
-                        <ul>
-                            <li class="tu">
-                                <a href="brcenter.html">
-                                    <span></span>
-                                    <img src="/Content/bonus/img/41.png">
-                                </a>
-                            </li>
-                            <li>老薛在哪里</li>
-                            <li>
-                                <p class="you clearfloat fr" style="float: none;">
-                                    ¥ 758.00
-                                </p>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="you clearfloat fr">
-                        第78位
-                    </div>
-                </div>
-
-                <div class="time clearfloat fr">
-                    2018-01-11 18:24
-                </div>
-            </div>
-
-            <div class="list clearfloat fl">
-                <div class="clearfloat">
-                    <div class="zuo clearfloat fl">
-                        <ul>
-                            <li class="tu">
-                                <img src="/Content/bonus/img/42.jpg">
-                            </li>
-                            <li>老薛在哪里</li>
-                            <li>
-                                <p class="you clearfloat fr" style="float: none;">
-                                    ¥ 758.00
-                                </p>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="you clearfloat fr">
-                        第78位
-                    </div>
-                </div>
-
-                <div class="time clearfloat fr">
-                    2018-01-11 18:24
-                </div>
-            </div>
-
-
-            <div class="list clearfloat fl">
-                <div class="clearfloat">
-                    <div class="zuo clearfloat fl">
-                        <ul>
-                            <li class="tu">
-                                <img src="/Content/bonus/img/42.jpg">
-                            </li>
-                            <li>老薛在哪里</li>
-                            <li>
-                                <p class="you clearfloat fr" style="float: none;">
-                                    ¥ 758.00
-                                </p>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="you clearfloat fr">
-                        第78位
-                    </div>
-                </div>
-
-                <div class="time clearfloat fr">
-                    2018-01-11 18:24
-                </div>
-            </div>
-
-
-            <div class="list clearfloat fl">
-                <div class="clearfloat">
-                    <div class="zuo clearfloat fl">
-                        <ul>
-                            <li class="tu">
-                                <img src="/Content/bonus/img/42.jpg">
-                            </li>
-                            <li>老薛在哪里</li>
-                            <li>
-                                <p class="you clearfloat fr" style="float: none;">
-                                    ¥ 758.00
-                                </p>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="you clearfloat fr">
-                        第78位
-                    </div>
-                </div>
-
-                <div class="time clearfloat fr">
-                    2018-01-11 18:24
-                </div>
-            </div>
-            <div class="list clearfloat fl">
-                <div class="clearfloat">
-                    <div class="zuo clearfloat fl">
-                        <ul>
-                            <li class="tu">
-                                <img src="/Content/bonus/img/42.jpg">
-                            </li>
-                            <li>老薛在哪里</li>
-                            <li>
-                                <p class="you clearfloat fr" style="float: none;">
-                                    ¥ 758.00
-                                </p>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="you clearfloat fr">
-                        第78位
-                    </div>
-                </div>
-
-                <div class="time clearfloat fr">
-                    2018-01-11 18:24
-                </div>
-            </div>
-            <div class="list clearfloat fl">
-                <div class="clearfloat">
-                    <div class="zuo clearfloat fl">
-                        <ul>
-                            <li class="tu">
-                                <img src="/Content/bonus/img/42.jpg">
-                            </li>
-                            <li>老薛在哪里</li>
-                            <li>
-                                <p class="you clearfloat fr" style="float: none;">
-                                    ¥ 758.00
-                                </p>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="you clearfloat fr">
-                        第78位
-                    </div>
-                </div>
-
-                <div class="time clearfloat fr">
-                    2018-01-11 18:24
-                </div>
-            </div>
-            <div class="list clearfloat fl">
-                <div class="clearfloat">
-                    <div class="zuo clearfloat fl">
-                        <ul>
-                            <li class="tu">
-                                <img src="/Content/bonus/img/42.jpg">
-                            </li>
-                            <li>老薛在哪里</li>
-                            <li>
-                                <p class="you clearfloat fr" style="float: none;">
-                                    ¥ 758.00
-                                </p>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="you clearfloat fr">
-                        第78位
-                    </div>
-                </div>
-
-                <div class="time clearfloat fr">
-                    2018-01-11 18:24
-                </div>
-            </div>
+            @Html.Partial("_PoolItems", Model.PoolItems.Data)
         </div>
+    </div>
+
+    <div class="page-load-status">
+        <div class="loader-ellips infinite-scroll-request">
+            <span class="loader-ellips__dot"></span>
+            <span class="loader-ellips__dot"></span>
+            <span class="loader-ellips__dot"></span>
+            <span class="loader-ellips__dot"></span>
+        </div>
+        <p class="infinite-scroll-last">加载完毕</p>
     </div>
     <!-- paihang end -->
 </div>
+
+@section scripts {
+    <script src="~/Scripts/bonus/infinite-scroll.pkgd.min.js"></script>
+    <script>
+
+        var $container = $('.content').infiniteScroll({
+            // options 'news/blog-p{{#}}.html'
+            path: getPath,
+            append: '.list',
+            //prefill: true,
+            status: '.page-load-status'
+        });
+
+        function getPath() {
+            var availableCount = @(Model.PoolItems.TotalPages - 1);
+            if (this.loadCount < availableCount) {
+                return '/Home/LoadUser?status=@((int)Model.Status)&page=' + (this.pageIndex + 1);
+            }
+        }
+    </script>
+}

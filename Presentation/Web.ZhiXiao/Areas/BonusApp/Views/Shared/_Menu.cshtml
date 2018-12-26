@@ -1,18 +1,27 @@
-﻿<div class="footer clearfloat">
+﻿@{ 
+    var activeMenu = Html.GetActiveMenuItemSystemName();
+    /*
+     Index
+     Comment
+     User
+     */
+}
+
+<div class="footer clearfloat">
     <ul>
-        <li class="fl box-s active">
+        <li class="fl box-s@(activeMenu == "Index" ? " active" : "")">
             <a href="@Url.RouteUrl("BonusApp_HomePage")">
                 <span class="icon1"></span>
                 <p>首页</p>
             </a>
         </li>
-        <li class="fl box-s">
+        <li class="fl box-s@(activeMenu == "Comment" ? " active" : "")">
             <a href="@Url.RouteUrl("BonusApp_Comments")">
                 <span class="icon2"></span>
                 <p>评论</p>
             </a>
         </li>
-        <li class="fl box-s">
+        <li class="fl box-s@(activeMenu == "User" ? " active" : "")">
             <a href="@Url.RouteUrl("BonusApp_UserCenter")">
                 <span class="icon3"></span>
                 <p>我</p>

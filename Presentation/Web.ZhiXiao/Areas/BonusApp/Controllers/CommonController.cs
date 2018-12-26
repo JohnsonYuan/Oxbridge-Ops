@@ -15,7 +15,7 @@ using Nop.Services.Security;
 using Nop.Web.Framework.Controllers;
 using Web.ZhiXiao.Factories;
 
-namespace Web.ZhiXiao.Areas.BunusApp.Controllers
+namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 {
     public class CommonController : BasePublicController
     {

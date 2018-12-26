@@ -2,12 +2,14 @@
 @using Nop.Web.Framework.UI
 @{
     //CSS resources
+
     Html.AppendCssFileParts("~/Content/bonus/css/page.css");
     Html.AppendCssFileParts("~/Content/bonus/css/base.css");
 
     //scripts
-    Html.AppendScriptParts("~/Scripts/bonus/js/rem.js");
-    Html.AppendScriptParts("~/Scripts//jquery-1.10.2.min.js");
+    Html.AppendScriptParts("~/Scripts/bonus/public.common.js");
+    Html.AppendScriptParts("~/Scripts/bonus/totop.min.js");
+    Html.AppendScriptParts("~/Scripts/jquery-1.10.2.min.js");
 
     var appSetting = EngineContext.Current.Resolve<Nop.Core.Domain.BonusApp.Configuration.BonusAppSettings>();
 
@@ -36,8 +38,8 @@
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     @Html.NopHeadCustom()
-    @Html.NopCssFiles(this.Url, ResourceLocation.Head, false)
-    @Html.NopScripts(this.Url, ResourceLocation.Head, false)
+    @Html.NopCssFiles(this.Url, ResourceLocation.Head, true)
+    @*@Html.NopScripts(this.Url, ResourceLocation.Head, false)*@
     <link rel="shortcut icon" href="@(webHelper.GetStoreLocation())favicon.ico" />
 </head>
 <body>
@@ -46,5 +48,9 @@
     <!--footer star-->
     @Html.Partial("_Menu")
     <!--footer end-->
+    <div class="totop">&uarr;</div>
+
+    @Html.NopScripts(this.Url, ResourceLocation.Head, false)
+    @RenderSection("scripts", false)
 </body>
 </html>

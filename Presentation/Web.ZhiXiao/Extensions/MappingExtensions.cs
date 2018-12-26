@@ -1,8 +1,10 @@
-﻿using Nop.Admin.Models.Localization;
+﻿using System;
+using Nop.Admin.Models.Localization;
 using Nop.Admin.Models.Logging;
 using Nop.Admin.Models.News;
 using Nop.Admin.Models.Settings;
 using Nop.Admin.Models.Stores;
+using Nop.Core;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Logging;
@@ -10,11 +12,24 @@ using Nop.Core.Domain.News;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Domain.ZhiXiao;
 using Nop.Models.Customers;
+using Nop.Web.Framework.Mvc;
 
 namespace Nop.Extensions
 {
     public static class MappingExtensions
     {
+        /// <summary>
+        /// Execute a mapping from the source object to a new destination object. The source type is inferred from the source object
+        /// </summary>
+        /// <typeparam name="TDestination">Destination object type</typeparam>
+        /// <param name="source">Source object to map from</param>
+        /// <returns>Mapped destination object</returns>
+        private static TDestination Map<TDestination>(this object source)
+        {
+            //use AutoMapper for mapping objects
+            return Core.Infrastructure.Mapper.AutoMapperConfiguration.Mapper.Map<TDestination>(source);
+        }
+
         public static TDestination MapTo<TSource, TDestination>(this TSource source)
         {
             return Core.Infrastructure.Mapper.AutoMapperConfiguration.Mapper.Map<TSource, TDestination>(source);
@@ -24,6 +39,79 @@ namespace Nop.Extensions
         {
             return Core.Infrastructure.Mapper.AutoMapperConfiguration.Mapper.Map(source, destination);
         }
+
+        
+        #region Model-Entity mapping
+
+        /// <summary>
+        /// Execute a mapping from the entity to a new model
+        /// </summary>
+        /// <typeparam name="TModel">Model type</typeparam>
+        /// <param name="entity">Entity to map from</param>
+        /// <returns>Mapped model</returns>
+        public static TModel ToModel<TModel>(this BaseEntity entity) where TModel : BaseNopEntityModel
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            return entity.Map<TModel>();
+        }
+
+        /// <summary>
+        /// Execute a mapping from the entity to the existing model
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        /// <typeparam name="TModel">Model type</typeparam>
+        /// <param name="entity">Entity to map from</param>
+        /// <param name="model">Model to map into</param>
+        /// <returns>Mapped model</returns>
+        public static TModel ToModel<TEntity, TModel>(this TEntity entity, TModel model) 
+            where TEntity : BaseEntity where TModel : BaseNopEntityModel
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            return entity.MapTo(model);
+        }
+
+        /// <summary>
+        /// Execute a mapping from the model to a new entity
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        /// <param name="model">Model to map from</param>
+        /// <returns>Mapped entity</returns>
+        public static TEntity ToEntity<TEntity>(this BaseNopEntityModel model) where TEntity : BaseEntity
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            return model.Map<TEntity>();
+        }
+
+        /// <summary>
+        /// Execute a mapping from the model to the existing entity
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        /// <typeparam name="TModel">Model type</typeparam>
+        /// <param name="model">Model to map from</param>
+        /// <param name="entity">Entity to map into</param>
+        /// <returns>Mapped entity</returns>
+        public static TEntity ToEntity<TEntity, TModel>(this TModel model, TEntity entity)
+            where TEntity : BaseEntity where TModel : BaseNopEntityModel
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            return model.MapTo(entity);
+        }
+
+        #endregion
 
         #region Customer roles
 

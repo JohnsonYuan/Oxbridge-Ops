@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Web.ZhiXiao.Areas.BonusApp.Models.PoolItemModel>
+
+@foreach (var poolItem in Model)
+{
+    <text>
+        <div class="list clearfloat fl">
+            <div class="clearfloat">
+                <div class="zuo clearfloat fl">
+                    <ul>
+                        <li class="tu">
+                            <a href="brcenter.html">
+                                <span></span>
+                                <img src="@poolItem.CustomerAvatar">
+                            </a>
+                        </li>
+                        <li>@poolItem.CustomerName</li>
+                        <li>
+                            <p class="you clearfloat fr" style="float: none;">
+                                ¥ @poolItem.Money
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="you clearfloat fr">
+                    第@(poolItem.OrderNumber)位
+                </div>
+            </div>
+
+            <div class="time clearfloat fr">
+                @poolItem.DisplayDateTime
+            </div>
+        </div>
+    </text>
+}
+

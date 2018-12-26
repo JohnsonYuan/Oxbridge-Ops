@@ -1,38 +1,48 @@
-using System;
+锘縰sing System;
+using System.Linq;
 using System.Web.Mvc;
 using Nop.Core;
-using Nop.Core.Domain.BonusApp.Configuration;
-using Nop.Core.Domain.BonusApp.Customers;
 using Nop.Core.Domain.BonusApp.Logging;
 using Nop.Core.Infrastructure;
-using Nop.Services.BonusApp.Configuration;
+using Nop.Extensions;
 using Nop.Services.BonusApp.Customers;
 using Nop.Services.BonusApp.Logging;
-using Nop.Services.Security;
+using Nop.Services.Helpers;
 using Nop.Services.ZhiXiao.BonusApp;
+using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
+using Web.ZhiXiao.Areas.BonusApp.Models;
 
-namespace Web.ZhiXiao.Areas.BunusApp.Controllers
+namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 {
     public class HomeController : BasePublicController
     {
         #region Fields
 
-        private IWebHelper _webHelper;
+        private const int PAGE_SIZE = 15;
+
+        private IBonusAppService _appService;
         private IBonusApp_CustomerService _customerService;
         private IBonusApp_CustomerActivityService _customerActivityService;
+
+        private IDateTimeHelper _dateTimeHelper;
+        private IWebHelper _webHelper;
 
         #endregion
 
         #region Ctor
 
         public HomeController(
+            IBonusAppService appService,
             IBonusApp_CustomerService customerService,
             IBonusApp_CustomerActivityService customerActivityService,
+            IDateTimeHelper dateTimeHelper,
             IWebHelper webHelper)
         {
+            this._appService = appService;
             this._customerService = customerService;
             this._customerActivityService = customerActivityService;
+            this._dateTimeHelper = dateTimeHelper;
             this._webHelper = webHelper;
         }
 
@@ -40,118 +50,140 @@ namespace Web.ZhiXiao.Areas.BunusApp.Controllers
 
         #region Utilities
 
+        /// <summary>
+        /// 棣栭〉
+        /// </summary>
+        /// <param name="status"></param>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        private PoolItemListModel PreparePoolIListModel(BonusApp_MoneyReturnStatus status, int pageNumber)
+        {
+            var pageIndex = pageNumber - 1;
+            var moneyLogs = _customerActivityService.GetMoneyLogByType(status, pageIndex, PAGE_SIZE);
+
+            // 绗竴椤电涓�鏉′负1, 绗簩椤电涓�鏉′负1*PAGE_SIZE-1
+            var firstItemNumber = pageIndex * PAGE_SIZE + 1;
+            var model = new PoolItemListModel
+            {
+                Data = moneyLogs.Select((logItem, index) =>
+                    new PoolItemModel
+                    {
+                        OrderNumber = index + firstItemNumber,
+                        CustomerAvatar = logItem.Customer.AvatarUrl,
+                        CustomerName = logItem.Customer.Nickname,
+                        Money = (double)logItem.ReturnMoney,
+                        DisplayDateTime = _dateTimeHelper.ConvertToUserTime(logItem.CreatedOnUtc, DateTimeKind.Utc).ToString("yyyy-MM-dd HH:mm")
+                    }),
+                TotalCount = moneyLogs.TotalCount,
+                TotalPages = moneyLogs.TotalPages
+            };
+
+            return model;
+        }
+        private HomePageModel PrepareHomePageModel(BonusApp_MoneyReturnStatus status, int pageNumber)
+        {
+            HomePageModel model = new HomePageModel();
+            model.BonusAppStatus = _appService.GetAppStatus();
+            model.Status = status;
+            model.PoolItems = PreparePoolIListModel(status, pageNumber);
+            return model;
+        }
+
+        /// <summary>
+        /// 璇勮
+        /// </summary>
+        /// <param name="page"></param>
+        /// <returns></returns>
+        private CommentListModel PrepareCommentListModel(int pageNumber)
+        {
+            var pageIndex = pageNumber - 1;
+            var comments = _customerService.GetAllCustomerComments(pageIndex: pageIndex, pageSize: PAGE_SIZE);
+
+            var model = new CommentListModel
+            {
+                Data = comments.Select(x =>
+                {
+                    var m = x.ToModel<CommentModel>();
+                    m.CreatedOn = x.CreatedOnUtc.RelativeFormat(true, "yyyy-MM-dd");
+                    return m;
+                }),
+                TotalCount = comments.TotalCount,
+                TotalPages = comments.TotalPages
+            };
+
+            return model;
+        }
+
         #endregion
 
-        public ActionResult Index()
+        #region Methods
+
+        #region HomePage
+
+        /// <summary>
+        /// Home Page
+        /// </summary>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public ActionResult Index(BonusApp_MoneyReturnStatus status = BonusApp_MoneyReturnStatus.Waiting)
+        {
+            var model = PrepareHomePageModel(status, 1);
+            return View(model);
+        }
+        /// <summary>
+        /// Home Page - ajax load data
+        /// </summary>
+        /// <param name="status"></param>
+        /// <param name="page"></param>
+        /// <returns></returns>
+        public ActionResult LoadUser(BonusApp_MoneyReturnStatus status, int page = 1)
+        {
+            if (page < 1)
+                page = 1;
+
+            var model = PreparePoolIListModel(status, page);
+            return PartialView("_PoolItems", model.Data);
+        }
+
+        #endregion
+
+        #region Comment
+
+        public ActionResult Comment()
+        {
+            var firstPageModel = PrepareCommentListModel(1);
+            return View(firstPageModel);
+        }
+
+        public ActionResult LoadComment(int page = 1)
+        {
+            var model = PrepareCommentListModel(page);
+            return PartialView("_CommentItems", model.Data);
+        }
+
+        #endregion
+
+        #region UserSettings
+
+        public ActionResult UserCenter()
         {
             return View();
         }
 
+        #endregion
+
+        #endregion
+
         public ActionResult Index2()
         {
-            return Content(_webHelper.GetThisPageUrl(false));
+            var service = EngineContext.Current.Resolve<IBonusApp_CustomerActivityService>();
+            var log = service.GetFirstWaitingLog();
+            return Content(log.Customer.Nickname);
         }
 
         public ActionResult Index3()
         {
-            return Content(Request.ServerVariables["HTTP_HOST"]);
-        }
-
-        public ActionResult TestData()
-        {
-            // 0. init app status and customer
-            var appService = EngineContext.Current.Resolve<IBonusAppService>();
-            var appStatus = new Nop.Core.Domain.BonusApp.BonusAppStatus
-            {
-                CurrentMoney = 0,
-                WaitingUserCount = 0,
-                CompleteUserCount = 0,
-                MoneyPaied = 0
-            };
-            appService.InsertBonusAppStatus(appStatus);
-
-            // 1. pool setting
-            var settingService = EngineContext.Current.Resolve<IBonusApp_SettingService>();
-            var defaultSetting = new BonusAppSettings
-            {
-                SiteTitle = "奖金池系统",
-                // 存入奖金池比例
-                SaveToAppMoneyPercent = 0.2,
-                // 用户返回金额比例
-                UserReturnMoneyPercent = 1,
-                Withdraw_Rate = 1,
-                CustomerPasswordSalt = "Z3GP1bc="
-            };
-            settingService.SaveSetting(defaultSetting);
-
-            // 2. Log type (TODO)
-            var activityService = EngineContext.Current.Resolve<IBonusApp_CustomerActivityService>();
-            BonusApp_ActivityLogType logType = new BonusApp_ActivityLogType
-            {
-                Enabled = true,
-                SystemKeyword = "AddNewCustomer",
-                Name = "Add a new customer"
-            };
-            activityService.InsertActivityType(logType);
-
-            logType = new BonusApp_ActivityLogType
-            {
-                Enabled = true,
-                SystemKeyword = "Bonus_MoneyReturn",
-                Name = "奖金池返还金额"
-            };
-            activityService.InsertActivityType(logType);
-
-            logType = new BonusApp_ActivityLogType
-            {
-                Enabled = true,
-                SystemKeyword = "Bonus_PoolAdd",
-                Name = "奖金池增加"
-            };
-            activityService.InsertActivityType(logType);
-
-            logType = new BonusApp_ActivityLogType
-            {
-                Enabled = true,
-                SystemKeyword = "Bonus_PoolMinus",
-                Name = "奖金池减少"
-            };
-            activityService.InsertActivityType(logType);
-
-            // 3. customers and money log
-            var customerService = EngineContext.Current.Resolve<IBonusApp_CustomerService>();
-            var encryService = EngineContext.Current.Resolve<IEncryptionService>();
-
-            const int totalUserCount = 80;
-
-            for (int i = 0; i < totalUserCount; i++)
-            {
-                var randomMoney = CommonHelper.GenerateRandomInteger(20, 5000);
-
-                var waitingCustomer = new BonusApp_Customer
-                {
-                    Username = "testUser_" + i,
-                    Password = encryService.CreatePasswordHash("123456", defaultSetting.CustomerPasswordSalt, "md5"),
-                    AvatarUrl = (i % 3 == 0 ? "/Content/bonus/img/41.png" : "/Content/bonus/img/42.png"),
-                    Nickname = "waiting_" + i,
-                    PhoneNumber = "1345644",
-                    Active = true,
-                    Deleted = false,
-                    LastIpAddress = "",
-                    CreatedOnUtc = DateTime.UtcNow,
-                    LastActivityDateUtc = DateTime.UtcNow.AddMinutes(CommonHelper.GenerateRandomInteger(-300, 0)),
-                    Money = 0,
-                };
-                customerService.InsertCustomer(waitingCustomer);
-
-                // log and update pool money
-                activityService.InsertMoneyLog(waitingCustomer, randomMoney, "金额 {0}", randomMoney);
-
-                // check to see if need return money
-                appService.ReturnUserMoneyIfNeeded();
-            }
-
-            return Content("Success");
+            return Content(Request.UserHostAddress + "<br/>" + Request.ServerVariables["HTTP_HOST"]);
         }
     }
 }

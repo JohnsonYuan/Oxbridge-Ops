@@ -149,11 +149,14 @@
     <Content Include="App_Data\Localization\zhs.nopres.xml" />
     <Content Include="App_Data\Notes.txt" />
     <Content Include="App_Data\Settings.txt" />
-    <Compile Include="Areas\BonusApp\Models\CustomerModel.cs" />
+    <Compile Include="Areas\BonusApp\Controllers\HomeController.cs" />
+    <Compile Include="Areas\BonusApp\Controllers\InstallController.cs" />
+    <Compile Include="Areas\BonusApp\Mapper\AutoMapperConfiguration.cs" />
+    <Compile Include="Areas\BonusApp\Models\CommentIndexPageMoodel.cs" />
+    <Compile Include="Areas\BonusApp\Models\CommentListModel.cs" />
     <Compile Include="Areas\BonusApp\Models\HomePageModel.cs" />
     <Content Include="Areas\YiJiaYi_Manage\Views\Log\List.cshtml" />
     <Content Include="Areas\YiJiaYi_Manage\Views\Log\View.cshtml" />
-    <Content Include="Content\bonus\base.css" />
     <Content Include="Content\bonus\css\base.css" />
     <Content Include="Content\bonus\css\fonts\icofont.svg" />
     <Content Include="Content\bonus\css\icofont.css" />
@@ -161,8 +164,6 @@
     <Content Include="Content\bonus\css\other.css" />
     <Content Include="Content\bonus\css\page.css" />
     <Content Include="Content\bonus\fonts\icofont.svg" />
-    <Content Include="Content\bonus\icofont.css" />
-    <Content Include="Content\bonus\icofont.min.css" />
     <Content Include="Content\bonus\img\1.jpg" />
     <Content Include="Content\bonus\img\10.png" />
     <Content Include="Content\bonus\img\10_#_00cc7d.png" />
@@ -190,7 +191,6 @@
     <Content Include="Content\bonus\img\34.png" />
     <Content Include="Content\bonus\img\35.png" />
     <Content Include="Content\bonus\img\41.png" />
-    <Content Include="Content\bonus\img\42.jpg" />
     <Content Include="Content\bonus\img\43.png" />
     <Content Include="Content\bonus\img\44.png" />
     <Content Include="Content\bonus\img\46.png" />
@@ -231,13 +231,12 @@
     <Content Include="Content\bonus\img\que.png" />
     <Content Include="Content\bonus\img\tishi.png" />
     <Content Include="Content\bonus\img\wx.png" />
-    <Content Include="Content\bonus\other.css" />
-    <Content Include="Content\bonus\page.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Images\ajax-loading.gif" />
     <Content Include="Content\Images\ajax_loader_small.gif" />
     <Content Include="Content\Images\bg.jpg" />
+    <Content Include="Content\Images\loading.gif" />
     <Content Include="Content\Images\logo-mini.png" />
     <Content Include="Content\Images\flags\cn.png" />
     <Content Include="Content\Images\flags\us.png" />
@@ -892,7 +891,9 @@
     <Content Include="Scripts\admin.search.js" />
     <Content Include="Scripts\adminLTE\app.js" />
     <Content Include="Scripts\adminLTE\app.min.js" />
-    <Content Include="Scripts\bonus\rem.js" />
+    <Content Include="Scripts\bonus\infinite-scroll.pkgd.min.js" />
+    <Content Include="Scripts\bonus\public.common.js" />
+    <Content Include="Scripts\bonus\totop.min.js" />
     <Content Include="Scripts\bootstrap-touchspin\jquery.bootstrap-touchspin.js" />
     <Content Include="Scripts\bootstrap-touchspin\jquery.bootstrap-touchspin.min.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -969,6 +970,10 @@
     <Content Include="Content\bonus\css\fonts\icofont.ttf" />
     <Content Include="Content\bonus\css\fonts\icofont.woff" />
     <Content Include="Content\bonus\css\fonts\icofont.woff2" />
+    <Content Include="Areas\BonusApp\Views\Home\_PoolItems.cshtml" />
+    <Content Include="Areas\BonusApp\Views\Home\Comment.cshtml" />
+    <Content Include="Areas\BonusApp\Views\Home\UserCenter.cshtml" />
+    <Content Include="Areas\BonusApp\Views\Home\_CommentItems.cshtml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap\bootstrap.js" />
@@ -1417,7 +1422,6 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\BonusApp\BonusAppAreaRegistration.cs" />
     <Compile Include="Areas\BonusApp\Controllers\CommonController.cs" />
-    <Compile Include="Areas\BonusApp\Controllers\HomeController.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\AdminAreaRegistration.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\ActivityLogController.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\CommonController.cs" />
@@ -1656,6 +1660,7 @@
     <Content Include="Views\Shared\_TeamTreeView.cshtml" />
     <Content Include="Views\Common\AccessDenied.cshtml" />
     <Content Include="Views\Customer\RegisterTest.cshtml" />
+    <Content Include="Views\web.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

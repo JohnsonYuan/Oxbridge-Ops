@@ -21,7 +21,7 @@ namespace Nop.Web.Infrastructure.Mvc.Routes
         public bool Match(HttpContextBase httpContext, Route route, string parameterName, RouteValueDictionary values, RouteDirection routeDirection)
         {
             return _host.IsMatch(httpContext.Request.ServerVariables["HTTP_HOST"])
-                && httpContext.Request.UserAgent.Contains("Edge");  // 本地测试 验证增加Edge浏览器条件
+                && httpContext.Request.UserAgent.Contains("Chrome");  // 本地测试 验证增加Edge浏览器条件
         }
     }
 }

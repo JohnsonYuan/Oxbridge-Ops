@@ -3,9 +3,9 @@ using Nop.Core.Configuration;
 using Nop.Core.Infrastructure;
 using Nop.Web.Infrastructure.Mvc.Routes;
 
-namespace Web.ZhiXiao.Areas.BunusApp
+namespace Web.ZhiXiao.Areas.BonusApp
 {
-    public class BunusAppAreaRegistration : AreaRegistration
+    public class BonusAppAreaRegistration : AreaRegistration
     {
         public override string AreaName
         {
@@ -25,32 +25,32 @@ namespace Web.ZhiXiao.Areas.BunusApp
                             "",
                             new { controller = "Home", action = "Index" },
                             new { host = new BonusAppHostRouteConstraint(bonusAppDomain) },
-                            new[] { "Web.ZhiXiao.Areas.BunusApp.Controllers" });
+                            new[] { "Web.ZhiXiao.Areas.BonusApp.Controllers" });
 
             context.MapRoute("BonusApp_Login",
                             "login",
                             new { controller = "Common", action = "Login" },
                             new { host = new BonusAppHostRouteConstraint(bonusAppDomain) },
-                            new[] { "Web.ZhiXiao.Areas.BunusApp.Controllers" });
+                            new[] { "Web.ZhiXiao.Areas.BonusApp.Controllers" });
 
             context.MapRoute("BonusApp_UserCenter",
                             "user",
                             new { controller = "Home", action = "UserCenter" },
                             new { host = new BonusAppHostRouteConstraint(bonusAppDomain) },
-                            new[] { "Web.ZhiXiao.Areas.BunusApp.Controllers" });
+                            new[] { "Web.ZhiXiao.Areas.BonusApp.Controllers" });
 
             context.MapRoute("BonusApp_Comments",
                                      "comment",
                                      new { controller = "Home", action = "Comment" },
                                      new { host = new BonusAppHostRouteConstraint(bonusAppDomain) },
-                                     new[] { "Web.ZhiXiao.Areas.BunusApp.Controllers" });
+                                     new[] { "Web.ZhiXiao.Areas.BonusApp.Controllers" });
 
             context.MapRoute(
                 "BonusApp_default",
                 "{controller}/{action}/{id}",
                 new { id = UrlParameter.Optional },
                 new { host = new BonusAppHostRouteConstraint(bonusAppDomain) },
-                new[] { "Web.ZhiXiao.Areas.BunusApp.Controllers" }
+                new[] { "Web.ZhiXiao.Areas.BonusApp.Controllers" }
             );
         }
     }
