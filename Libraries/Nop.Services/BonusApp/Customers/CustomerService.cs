@@ -16,6 +16,7 @@ namespace Nop.Services.BonusApp.Customers
         #region Fields
 
         private readonly IRepository<BonusApp_Customer> _customerRepository;
+        private readonly IRepository<BonusApp_CustomerComment> _customerCommentRepository;
         private readonly IDataProvider _dataProvider;
         private readonly IDbContext _dbContext;
         private readonly ICacheManager _cacheManager;
@@ -28,6 +29,7 @@ namespace Nop.Services.BonusApp.Customers
 
         public BonusApp_CustomerService(ICacheManager cacheManager,
             IRepository<BonusApp_Customer> customerRepository,
+            IRepository<BonusApp_CustomerComment> customerCommentRepository,
             IDataProvider dataProvider,
             IDbContext dbContext,
             IEventPublisher eventPublisher,
@@ -35,6 +37,7 @@ namespace Nop.Services.BonusApp.Customers
         {
             this._cacheManager = cacheManager;
             this._customerRepository = customerRepository;
+            this._customerCommentRepository = customerCommentRepository;
 
             this._dataProvider = dataProvider;
             this._dbContext = dbContext;
@@ -51,6 +54,7 @@ namespace Nop.Services.BonusApp.Customers
         public IPagedList<BonusApp_Customer> GetAllCustomers(DateTime? createdFromUtc = null, DateTime? createdToUtc = null, string username = null, string phone = null, string ipAddress = null, int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = _customerRepository.Table;
+
             if (createdFromUtc.HasValue)
                 query = query.Where(c => createdFromUtc.Value <= c.CreatedOnUtc);
             if (createdToUtc.HasValue)
@@ -254,7 +258,117 @@ namespace Nop.Services.BonusApp.Customers
             //event notification
             _eventPublisher.EntityUpdated(customer);
         }
-        
+
+        #endregion
+
+        #region Comments
+
+        public IPagedList<BonusApp_CustomerComment> GetAllCustomerComments(DateTime? createdFromUtc = null,
+            DateTime? createdToUtc = null,
+            int? customerId = null,
+            string ipAddress = null,
+            bool? enabled = true,
+            int pageIndex = 0,
+            int pageSize = int.MaxValue)
+        {
+            var query = _customerCommentRepository.Table;
+
+            if (createdFromUtc.HasValue)
+                query = query.Where(c => createdFromUtc.Value <= c.CreatedOnUtc);
+            if (createdToUtc.HasValue)
+                query = query.Where(c => createdToUtc.Value >= c.CreatedOnUtc);
+
+            if (customerId.HasValue)
+                query = query.Where(al => customerId.Value == al.CustomerId);
+
+            if (enabled.HasValue)
+                query = query.Where(c => c.Enabled == enabled);
+
+            //search by IpAddress
+            if (!String.IsNullOrWhiteSpace(ipAddress) && CommonHelper.IsValidIpAddress(ipAddress))
+            {
+                query = query.Where(w => w.IpAddress == ipAddress);
+            }
+            
+            query = query.OrderByDescending(c => c.CreatedOnUtc);
+            query = query.IncludeProperties(c => c.Customer);
+
+            var comments = new PagedList<BonusApp_CustomerComment>(query, pageIndex, pageSize);
+            return comments;
+        }
+
+        /// <summary>
+        /// Insert a customer
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        public virtual void InsertComment(BonusApp_CustomerComment comment)
+        {
+            if (comment == null)
+                throw new ArgumentNullException("comment");
+
+            _customerCommentRepository.Insert(comment);
+
+            //event notification
+            _eventPublisher.EntityInserted(comment);
+        }
+
+
+
+        /// <summary>
+        /// Updates the customer
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        public virtual void UpdateCustomer(BonusApp_CustomerComment comment)
+        {
+            if (comment == null)
+                throw new ArgumentNullException("comment");
+
+            _customerCommentRepository.Update(comment);
+
+            //event notification
+            _eventPublisher.EntityUpdated(comment);
+        }
+
+        public virtual void DisableComment(BonusApp_CustomerComment comment)
+        {
+            if (comment == null)
+                throw new ArgumentNullException("comment");
+
+            comment.Enabled = false;
+            _customerCommentRepository.Update(comment);
+
+            //event notification
+            _eventPublisher.EntityUpdated(comment);
+        }
+
+        /// <summary>
+        /// Delete a customer
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        public virtual void DeleteCustomer(BonusApp_CustomerComment comment)
+        {
+            if (comment == null)
+                throw new ArgumentNullException("comment");
+            
+            _customerCommentRepository.Delete(comment);
+
+            //event notification
+            _eventPublisher.EntityDeleted(comment);
+        }
+
+        /// <summary>
+        /// Gets a customer
+        /// </summary>
+        /// <param name="customerId">Customer identifier</param>
+        /// <returns>A customer</returns>
+        public virtual BonusApp_CustomerComment GetCommentById(int commentId)
+        {
+            if (commentId == 0)
+                return null;
+
+            return _customerCommentRepository.GetById(commentId);
+        }
+
         #endregion
 
         #endregion

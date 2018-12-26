@@ -60,49 +60,50 @@ namespace Nop.Web.Framework
             var ts = new TimeSpan(DateTime.UtcNow.Ticks - source.Ticks);
             double delta = ts.TotalSeconds;
 
-            if (delta > 0)
+            // 增加限制delta < 2592000(30天) 限制显示到30天前按照相对时间显示
+            if (delta > 0 && delta < 2592000)
             {
                 if (delta < 60) // 60 (seconds)
                 {
-                    result = ts.Seconds == 1 ? "one second ago" : ts.Seconds + " seconds ago";
+                    result = ts.Seconds == 1 ? "1秒前" : ts.Seconds + "秒前";
                 }
                 else if (delta < 120) //2 (minutes) * 60 (seconds)
                 {
-                    result = "a minute ago";
+                    result = "1分钟前";
                 }
                 else if (delta < 2700) // 45 (minutes) * 60 (seconds)
                 {
-                    result = ts.Minutes + " minutes ago";
+                    result = ts.Minutes + "分钟前";
                 }
                 else if (delta < 5400) // 90 (minutes) * 60 (seconds)
                 {
-                    result = "an hour ago";
+                    result = "1小时前";
                 }
                 else if (delta < 86400) // 24 (hours) * 60 (minutes) * 60 (seconds)
                 {
                     int hours = ts.Hours;
                     if (hours == 1)
                         hours = 2;
-                    result = hours + " hours ago";
+                    result = hours + "小时前";
                 }
                 else if (delta < 172800) // 48 (hours) * 60 (minutes) * 60 (seconds)
                 {
-                    result = "yesterday";
+                    result = "昨天";
                 }
                 else if (delta < 2592000) // 30 (days) * 24 (hours) * 60 (minutes) * 60 (seconds)
                 {
-                    result = ts.Days + " days ago";
+                    result = ts.Days + "天前";
                 }
-                else if (delta < 31104000) // 12 (months) * 30 (days) * 24 (hours) * 60 (minutes) * 60 (seconds)
-                {
-                    int months = Convert.ToInt32(Math.Floor((double)ts.Days / 30));
-                    result = months <= 1 ? "one month ago" : months + " months ago";
-                }
-                else
-                {
-                    int years = Convert.ToInt32(Math.Floor((double)ts.Days / 365));
-                    result = years <= 1 ? "one year ago" : years + " years ago";
-                }
+                //else if (delta < 31104000) // 12 (months) * 30 (days) * 24 (hours) * 60 (minutes) * 60 (seconds)
+                //{
+                //    int months = Convert.ToInt32(Math.Floor((double)ts.Days / 30));
+                //    result = months <= 1 ? "1个月前" : months + "月前";
+                //}
+                //else
+                //{
+                //    int years = Convert.ToInt32(Math.Floor((double)ts.Days / 365));
+                //    result = years <= 1 ? "1年前" : years + "年前";
+                //}
             }
             else
             {

@@ -10,7 +10,7 @@ namespace Nop.Data.Mapping.BonusApp.Logging
     {
         public BonusApp_ActivityLogMap()
         {
-            //this.ToTable("ActivityLog");
+            this.ToTable("BonusApp_ActivityLog");
             this.HasKey(al => al.Id);
             this.Property(al => al.Comment).IsRequired();
             this.Property(al => al.IpAddress).HasMaxLength(200);

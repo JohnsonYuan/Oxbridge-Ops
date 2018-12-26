@@ -28,33 +28,32 @@ namespace Nop.Core.Domain.BonusApp.Logging
 #region Bonus info
 
         // 用户消费金额
-        public double Money { get; set; }
+        public decimal Money { get; set; }
         // 返还用户金额(目前设置为 用户消费金额)
-        public double ReturnMoney { get; set; }
+        public decimal ReturnMoney { get; set; }
         // 返还状态
         public int MoneyReturnStatusId { get; set; }
 
         /// <summary>
         /// 奖金池改变前金额
         /// </summary>
-        public double AppMoneyBefore { get; set; }
+        public decimal AppMoneyBefore { get; set; }
 
         /// <summary>
         /// 奖金池增加金额 Money * 20%
         /// </summary>
-        public double AppMoneyDelta { get; set; }
+        public decimal AppMoneyDelta { get; set; }
 
         /// <summary>
         /// 奖金池改变后金额 AppMoneyBefore + AppMoneyDelta
         /// </summary>
-        public double AppMoneyAfter { get; set; }
+        public decimal AppMoneyAfter { get; set; }
 
 #endregion
 
         /// <summary>
         /// Gets the 返还状态
         /// </summary>
-
         public BonusApp_MoneyReturnStatus MoneyReturnStatus
         {
             get

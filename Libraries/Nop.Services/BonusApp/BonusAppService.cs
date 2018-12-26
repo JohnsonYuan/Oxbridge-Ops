@@ -12,15 +12,12 @@ namespace Nop.Services.ZhiXiao.BonusApp
     {
         private readonly IRepository<BonusAppStatus> _bonusAppStatusRepository;
         private readonly IBonusApp_CustomerService _customerService;
-        private readonly IBonusApp_CustomerActivityService _activityService;
 
         public BonusAppService(IRepository<BonusAppStatus> bonusAppStatusRepository,
-            IBonusApp_CustomerService customerService,
-            IBonusApp_CustomerActivityService activityService)
+            IBonusApp_CustomerService customerService)
         {
             this._bonusAppStatusRepository = bonusAppStatusRepository;
             this._customerService = customerService;
-            this._activityService = activityService;
         }
 
         /// <summary>
@@ -72,7 +69,7 @@ namespace Nop.Services.ZhiXiao.BonusApp
         /// <summary>
         /// Return money if needed.
         /// </summary>
-        public void ReturnUserMoneyIfNeeded()
+        public void ReturnUserMoneyIfNeeded(IBonusApp_CustomerActivityService activityService)
         {
             var appStatus = GetAppStatus();
 
@@ -80,30 +77,40 @@ namespace Nop.Services.ZhiXiao.BonusApp
                 return;
 
             // has waiting request?
-            var firstWaitingUser = _activityService.GetFirstWaitingLog();
+            var firstWaitingLog = activityService.GetFirstWaitingLog();
 
-            if (firstWaitingUser == null)
+            if (firstWaitingLog == null)
                 return;
 
             // can return money to user
-            if (appStatus.CurrentMoney >= firstWaitingUser.ReturnMoney)
+            if (appStatus.CurrentMoney >= firstWaitingLog.ReturnMoney)
             {
                 // request complete
-                firstWaitingUser.MoneyReturnStatus = Core.Domain.BonusApp.Logging.BonusApp_MoneyReturnStatus.Complete;
+                firstWaitingLog.MoneyReturnStatus = Core.Domain.BonusApp.Logging.BonusApp_MoneyReturnStatus.Complete;
                 // return money to user
-                firstWaitingUser.Customer.Money += firstWaitingUser.ReturnMoney;
+                firstWaitingLog.Customer.Money += firstWaitingLog.ReturnMoney;
                 // update
-                _activityService.UpdateMoneyLog(firstWaitingUser);
+                activityService.UpdateMoneyLog(firstWaitingLog);
+
+                // 奖金池log
+                activityService.InsertActivity(firstWaitingLog.Customer,
+                    BonusAppConstants.LogType_Bonus_PoolMinus,
+                    "用户{0}({1}) 返回金额{2}, 奖金池-{3}, {4} -> {5}",
+                    firstWaitingLog.Customer.Nickname, firstWaitingLog.Customer.Id,
+                    firstWaitingLog.ReturnMoney, // 返回金额{2}
+                    appStatus.CurrentMoney, // 奖金池-{3}
+                    appStatus.CurrentMoney,
+                    appStatus.CurrentMoney - firstWaitingLog.ReturnMoney);
 
                 // update pool
-                appStatus.CurrentMoney -= firstWaitingUser.ReturnMoney;
+                appStatus.CurrentMoney -= firstWaitingLog.ReturnMoney;
                 appStatus.WaitingUserCount -= 1;
                 appStatus.CompleteUserCount += 1;
-                appStatus.MoneyPaied += firstWaitingUser.ReturnMoney;
+                appStatus.MoneyPaied += firstWaitingLog.ReturnMoney;
                 _bonusAppStatusRepository.Update(appStatus);
 
                 // recursive check if can return money to next user 
-                ReturnUserMoneyIfNeeded();
+                ReturnUserMoneyIfNeeded(activityService);
             }
         }
     }

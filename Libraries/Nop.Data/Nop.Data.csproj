@@ -73,11 +73,11 @@
     <Compile Include="Initializers\SqlCeInitializer.cs" />
     <Compile Include="Mapping\BonusApp\BonusAppStatusMap.cs" />
     <Compile Include="Mapping\BonusApp\Configuration\SettingMap.cs" />
+    <Compile Include="Mapping\BonusApp\Customers\CustomerComment.cs" />
     <Compile Include="Mapping\BonusApp\Customers\CustomerMap.cs" />
     <Compile Include="Mapping\BonusApp\Logging\ActivityLogMap.cs" />
     <Compile Include="Mapping\BonusApp\Logging\ActivityLogTypeMap.cs" />
     <Compile Include="Mapping\BonusApp\Logging\MoneyLogMap.cs" />
-
     <Compile Include="Mapping\Common\AddressMap.cs" />
     <Compile Include="Mapping\Common\GenericAttributeMap.cs" />
     <Compile Include="Mapping\Configuration\SettingMap.cs" />

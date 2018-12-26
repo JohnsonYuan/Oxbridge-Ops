@@ -1,4 +1,5 @@
 using Nop.Core.Domain.BonusApp;
+using Nop.Services.BonusApp.Logging;
 
 namespace Nop.Services.ZhiXiao.BonusApp
 {
@@ -18,6 +19,6 @@ namespace Nop.Services.ZhiXiao.BonusApp
         /// <param name="bonusAppStatus">BonusAppStatus</param>
         void DeleteActivityType(BonusAppStatus bonusAppStatus);
         BonusAppStatus GetAppStatus();
-        void ReturnUserMoneyIfNeeded();
+        void ReturnUserMoneyIfNeeded(IBonusApp_CustomerActivityService activityService);
     }
 }

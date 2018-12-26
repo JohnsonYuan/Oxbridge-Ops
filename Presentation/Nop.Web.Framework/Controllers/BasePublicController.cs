@@ -1,4 +1,6 @@
-﻿namespace Nop.Web.Framework.Controllers
+﻿using System.Web.Mvc;
+
+namespace Nop.Web.Framework.Controllers
 {
     //[CheckAffiliate]
     //[StoreClosed]
@@ -8,5 +10,9 @@
     //[WwwRequirement]
     public abstract partial class BasePublicController : BaseController
     {
+        public ActionResult ScrollEndContent()
+        {
+            return Content(".pagination__next");
+        }
     }
 }

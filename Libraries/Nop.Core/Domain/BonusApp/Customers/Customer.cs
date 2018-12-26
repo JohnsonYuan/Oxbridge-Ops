@@ -77,7 +77,7 @@ namespace Nop.Core.Domain.BonusApp.Customers
 
         #region Bonus properties
                   
-        public double Money { get; set; }
+        public decimal Money { get; set; }
 
         #endregion
 

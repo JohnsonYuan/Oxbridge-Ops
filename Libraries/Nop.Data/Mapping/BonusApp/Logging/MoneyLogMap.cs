@@ -12,12 +12,18 @@ namespace Nop.Data.Mapping.BonusApp.Logging
         {
             this.Property(al => al.Comment).IsRequired();
             this.Property(al => al.IpAddress).HasMaxLength(200);
+            
+            this.Property(al => al.Money).HasPrecision(18, 2);
+            this.Property(al => al.ReturnMoney).HasPrecision(18, 2);
+            this.Property(al => al.AppMoneyBefore).HasPrecision(18, 2);
+            this.Property(al => al.AppMoneyDelta).HasPrecision(18, 2);
+            this.Property(al => al.AppMoneyAfter).HasPrecision(18, 2);
 
             this.HasRequired(al => al.Customer)
                 .WithMany()
                 .HasForeignKey(al => al.CustomerId);
                 
-            this.Ignore(m => m.MoneyReturnStatusId);
+            this.Ignore(m => m.MoneyReturnStatus);
         }
     }
 }

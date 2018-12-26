@@ -112,6 +112,7 @@
     <Compile Include="Domain\BonusApp\Configuration\ISettings.cs" />
     <Compile Include="Domain\BonusApp\Configuration\Setting.cs" />
     <Compile Include="Domain\BonusApp\Configuration\BonusAppSettings.cs" />
+    <Compile Include="Domain\BonusApp\Customers\CustomerComment.cs" />
     <Compile Include="Domain\BonusApp\Customers\Customer.cs" />
     <Compile Include="Domain\BonusApp\Logging\ActivityLog.cs" />
     <Compile Include="Domain\BonusApp\Logging\ActivityLogType.cs" />

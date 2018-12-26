@@ -41,4 +41,26 @@ namespace Nop.Web.Framework.Mvc
     {
         public virtual int Id { get; set; }
     }
+
+    public abstract partial class BasePagedListModel<T> : BaseNopModel where T : BaseNopModel
+    {
+        /// <summary>
+        /// Gets or sets data records
+        /// </summary>
+        public IEnumerable<T> Data { get; set; }
+
+        /// <summary>
+        /// Gets or sets total records number
+        /// </summary>
+        public int TotalCount { get; set; }
+        /// <summary>
+        /// Gets or sets total pages count
+        /// </summary>
+        public int TotalPages { get; set; }
+
+        /// <summary>
+        /// Gets or sets an extra data
+        /// </summary>
+        public object ExtraData { get; set; }
+    }
 }

@@ -7,6 +7,8 @@ namespace Nop.Data.Mapping.BonusApp.Customers
         public CustomerMap()
         {
             this.ToTable("BonusApp_Customer");
+
+            this.Property(c => c.Money).HasPrecision(18, 2);
         }
     }
 }

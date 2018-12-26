@@ -1,6 +1,3 @@
-using System;
-using Nop.Core.Domain.BonusApp.Customers;
-
 namespace Nop.Core.Domain.BonusApp
 {
     /// <summary>
@@ -9,7 +6,7 @@ namespace Nop.Core.Domain.BonusApp
     public class BonusAppStatus : BaseEntity
     {
         // Current money in app
-        public double CurrentMoney { get; set; }
+        public decimal CurrentMoney { get; set; }
     
         // User count waiting for app to return money.
         public int WaitingUserCount { get; set; }
@@ -17,6 +14,9 @@ namespace Nop.Core.Domain.BonusApp
         // User count app returned money
         public int CompleteUserCount { get; set;}
         // Money app has returned
-        public double MoneyPaied { get; set; }
+        public decimal MoneyPaied { get; set; }
+        
+        // All user's money in app
+        public decimal AllUserMoney { get; set; }
     }
 }

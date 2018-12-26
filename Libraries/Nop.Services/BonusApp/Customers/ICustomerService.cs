@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Nop.Core;
 using Nop.Core.Domain.BonusApp.Customers;
+using Nop.Core.Domain.BonusApp.Logging;
 
 namespace Nop.Services.BonusApp.Customers
 {
@@ -92,6 +93,45 @@ namespace Nop.Services.BonusApp.Customers
         /// </summary>
         /// <param name="customer">Customer</param>
         void UpdateCustomer(BonusApp_Customer customer);
+
+        #endregion
+
+        #region Comment
+
+        IPagedList<BonusApp_CustomerComment> GetAllCustomerComments(DateTime? createdFromUtc = null,
+            DateTime? createdToUtc = null,
+            int? customerId = null,
+            string ipAddress = null,
+            bool? enabled = true,
+            int pageIndex = 0,
+            int pageSize = int.MaxValue);
+
+        /// <summary>
+        /// Insert a customer
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        void InsertComment(BonusApp_CustomerComment comment);
+
+        /// <summary>
+        /// Updates the customer
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        void UpdateCustomer(BonusApp_CustomerComment comment);
+
+        void DisableComment(BonusApp_CustomerComment comment);
+
+        /// <summary>
+        /// Delete a customer
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        void DeleteCustomer(BonusApp_CustomerComment comment);
+
+        /// <summary>
+        /// Gets a customer
+        /// </summary>
+        /// <param name="customerId">Customer identifier</param>
+        /// <returns>A customer</returns>
+        BonusApp_CustomerComment GetCommentById(int commentId);
 
         #endregion
     }

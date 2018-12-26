@@ -9,7 +9,7 @@ using Nop.Core.Domain.BonusApp.Configuration;
 using Nop.Core.Domain.BonusApp.Customers;
 using Nop.Core.Domain.BonusApp.Logging;
 using Nop.Data;
-using Nop.Services.Common;
+using Nop.Services.ZhiXiao.BonusApp;
 
 namespace Nop.Services.BonusApp.Logging
 {
@@ -28,6 +28,15 @@ namespace Nop.Services.BonusApp.Logging
         /// Key pattern to clear cache
         /// </summary>
         private const string ACTIVITYTYPE_PATTERN_KEY = "Nop.BonusApp.activitytype.";
+
+        /// <summary>
+        /// Key for caching
+        /// </summary>
+        private const string MONEYLOG_ALL_KEY = "Nop.BonusApp.moneylog.all";
+        /// <summary>
+        /// Key pattern to clear cache
+        /// </summary>
+        private const string MONEYLOG_PATTERN_KEY = "Nop.BonusApp.moneylog.";
 
         #endregion
 
@@ -48,6 +57,7 @@ namespace Nop.Services.BonusApp.Logging
         private readonly IDataProvider _dataProvider;
         private readonly BonusAppSettings _bonusAppSettings;
         private readonly IWebHelper _webHelper;
+        private readonly IBonusAppService _bonusAppService;
         #endregion
 
         #region Ctor
@@ -73,7 +83,7 @@ namespace Nop.Services.BonusApp.Logging
             IDbContext dbContext, IDataProvider dataProvider,
             BonusAppSettings bonusAppSettings,
             IWebHelper webHelper,
-            IGenericAttributeService genericAttributeService)
+            IBonusAppService bonusAppService)
         {
             this._cacheManager = cacheManager;
             this._bonusAppStatusRepository = bonusAppStatusRepository;
@@ -85,6 +95,7 @@ namespace Nop.Services.BonusApp.Logging
             this._dataProvider = dataProvider;
             this._bonusAppSettings = bonusAppSettings;
             this._webHelper = webHelper;
+            this._bonusAppService = bonusAppService;
         }
 
         #endregion
@@ -127,6 +138,17 @@ namespace Nop.Services.BonusApp.Logging
                     };
                     result.Add(altForCaching);
                 }
+                return result;
+            });
+        }
+
+        protected virtual IList<BonusApp_MoneyLog> GetAllMoneyLogsCached()
+        {
+            //cache
+            string key = string.Format(MONEYLOG_ALL_KEY);
+            return _cacheManager.Get(key, () =>
+            {
+                var result = GetAllMoneyLogs();
                 return result;
             });
         }
@@ -396,7 +418,7 @@ namespace Nop.Services.BonusApp.Logging
         /// <param name="comment">The activity comment</param>
         /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
         /// <returns>Money log item</returns>
-        public virtual BonusApp_MoneyLog InsertMoneyLog(BonusApp_Customer customer, double moneyDelta, string comment, params object[] commentParams)
+        public virtual BonusApp_MoneyLog InsertMoneyLog(BonusApp_Customer customer, decimal moneyDelta, string comment, params object[] commentParams)
         {
             // bonus pool info
             var bonusPoolInfo = _bonusAppStatusRepository.Table.FirstOrDefault();
@@ -419,11 +441,11 @@ namespace Nop.Services.BonusApp.Logging
                 moneyLog.IpAddress = _webHelper.GetCurrentIpAddress();
                 // Bonus info
                 moneyLog.Money = moneyDelta;
-                moneyLog.ReturnMoney = Math.Round(moneyDelta * _bonusAppSettings.UserReturnMoneyPercent, 2);   // current return 100%
+                moneyLog.ReturnMoney = Math.Round(moneyDelta * (decimal)_bonusAppSettings.UserReturnMoneyPercent, 2);   // current return 100%
                 moneyLog.MoneyReturnStatusId = (int)BonusApp_MoneyReturnStatus.Waiting;
 
                 // Bonus pool info
-                double moneySaveToPool = moneyDelta * _bonusAppSettings.SaveToAppMoneyPercent;
+                decimal moneySaveToPool = Math.Round(moneyDelta * (decimal)_bonusAppSettings.SaveToAppMoneyPercent, 2);
                 moneyLog.AppMoneyBefore = bonusPoolInfo.CurrentMoney;
                 moneyLog.AppMoneyDelta = moneySaveToPool;
                 moneyLog.AppMoneyAfter = bonusPoolInfo.CurrentMoney + moneySaveToPool;
@@ -431,11 +453,27 @@ namespace Nop.Services.BonusApp.Logging
                 // insert money log
                 _moneyLogRepository.Insert(moneyLog);
 
+                // 奖金池金额增加 log
+                InsertActivity(customer,
+                    BonusAppConstants.LogType_Bonus_PoolAdd,
+                    "用户{0}({1}) 消费{2}, 奖金池+{3}, {4} -> {5}",
+                    customer.Nickname, customer.Id,
+                    moneyDelta, // 消费{2}
+                    moneyLog.AppMoneyDelta, // +{3}
+                    moneyLog.AppMoneyBefore,
+                    moneyLog.AppMoneyAfter);
+
                 // update pool info
                 bonusPoolInfo.CurrentMoney += moneySaveToPool;
                 bonusPoolInfo.WaitingUserCount += 1;
+                bonusPoolInfo.AllUserMoney += moneyDelta; // all user's money
                 _bonusAppStatusRepository.Update(bonusPoolInfo);
 
+                // 是否需要返还金额
+                _bonusAppService.ReturnUserMoneyIfNeeded(this);
+
+                // clear cache
+                _cacheManager.RemoveByPattern(ACTIVITYTYPE_PATTERN_KEY);
                 return moneyLog;
             }
         }
@@ -450,6 +488,8 @@ namespace Nop.Services.BonusApp.Logging
                 throw new ArgumentNullException("moneyLog");
 
             _moneyLogRepository.Update(moneyLog);
+            // clear cache
+            _cacheManager.RemoveByPattern(ACTIVITYTYPE_PATTERN_KEY);
         }
 
         /// <summary>
@@ -462,6 +502,8 @@ namespace Nop.Services.BonusApp.Logging
                 throw new ArgumentNullException("moneyLog");
 
             _moneyLogRepository.Delete(moneyLog);
+            // clear cache
+            _cacheManager.RemoveByPattern(ACTIVITYTYPE_PATTERN_KEY);
         }
 
         /// <summary>
@@ -476,7 +518,7 @@ namespace Nop.Services.BonusApp.Logging
         /// <param name="ipAddress">IP address; null or empty to load all activities</param>
         /// <returns>Money log items</returns>
         public virtual IPagedList<BonusApp_MoneyLog> GetAllMoneyLogs(DateTime? createdOnFrom = null,
-            DateTime? createdOnTo = null, int? customerId = null, int moneyReturnStatusId = 0,
+            DateTime? createdOnTo = null, int? customerId = null, BonusApp_MoneyReturnStatus? moneyReturnStatus = null,
             int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null)
         {
             var query = _moneyLogRepository.Table;
@@ -486,12 +528,14 @@ namespace Nop.Services.BonusApp.Logging
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
                 query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
-            if (moneyReturnStatusId > 0)
-                query = query.Where(al => moneyReturnStatusId == al.MoneyReturnStatusId);
+            if (moneyReturnStatus.HasValue)
+                query = query.Where(al => (int)moneyReturnStatus == al.MoneyReturnStatusId);
             if (customerId.HasValue)
                 query = query.Where(al => customerId.Value == al.CustomerId);
+            // load customer info
+            query = query.IncludeProperties(al => al.Customer);
 
-            query = query.OrderByDescending(al => al.CreatedOnUtc);
+            query = query.OrderBy(al => al.CreatedOnUtc);
 
             var moneyLog = new PagedList<BonusApp_MoneyLog>(query, pageIndex, pageSize);
             return moneyLog;
@@ -505,12 +549,63 @@ namespace Nop.Services.BonusApp.Logging
         /// <returns></returns>
         public BonusApp_MoneyLog GetFirstWaitingLog()
         {
+            // 默认orderby CreatedOnUtc asc
+            //var allLogs = GetAllMoneyLogsCached();
+
+            //return allLogs.FirstOrDefault(l => l.MoneyReturnStatus == BonusApp_MoneyReturnStatus.Waiting);
+            var statusId = (int)BonusApp_MoneyReturnStatus.Waiting;
             var query = from l in _moneyLogRepository.Table
-                        where l.MoneyReturnStatus == BonusApp_MoneyReturnStatus.Waiting
+                        where l.MoneyReturnStatusId == statusId
                         orderby l.CreatedOnUtc ascending
                         select l;
 
             return query.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Return waiting/complete users
+        /// </summary>
+        /// <param name="moneyStatus"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public IPagedList<BonusApp_MoneyLog> GetMoneyLogByType(
+            BonusApp_MoneyReturnStatus moneyReturnStatus,
+            int pageIndex = 0, int pageSize = int.MaxValue)
+        {
+            var allLogs = GetAllMoneyLogsCached();
+
+            var query = allLogs.Where(x => x.MoneyReturnStatus == moneyReturnStatus)
+                .OrderBy(al => al.CreatedOnUtc);
+
+            // Include customer
+            // query = query.IncludeProperties(al => al.Customer);
+
+            var moneyLog = new PagedList<BonusApp_MoneyLog>(query.AsQueryable(), pageIndex, pageSize);
+            return moneyLog;
+        }
+
+        /// <summary>
+        /// Waiting log
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public IPagedList<BonusApp_MoneyLog> GetWaitingMoneyLog(int pageIndex = 0, int pageSize = int.MaxValue)
+        {
+            return GetMoneyLogByType(BonusApp_MoneyReturnStatus.Waiting,
+                pageIndex: pageIndex,
+                pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Complete log
+        /// </summary>
+        public IPagedList<BonusApp_MoneyLog> GetCompleteMoneyLog(int pageIndex = 0, int pageSize = int.MaxValue)
+        {
+            return GetMoneyLogByType(BonusApp_MoneyReturnStatus.Complete,
+                pageIndex: pageIndex,
+                pageSize: pageSize);
         }
 
         #endregion
