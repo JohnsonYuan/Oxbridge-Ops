@@ -11,7 +11,7 @@ namespace Nop.Web.Framework.Controllers
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited=true, AllowMultiple=true)]
     public class CustomerAuthorizeAttribute : FilterAttribute, IAuthorizationFilter
     {
-        private readonly bool _dontValidate;
+        protected readonly bool _dontValidate;
 
 
         public CustomerAuthorizeAttribute()
@@ -24,7 +24,7 @@ namespace Nop.Web.Framework.Controllers
             this._dontValidate = dontValidate;
         }
 
-        private void HandleUnauthorizedRequest(AuthorizationContext filterContext)
+        protected virtual void HandleUnauthorizedRequest(AuthorizationContext filterContext)
         {
             filterContext.Result = new HttpUnauthorizedResult();
         }
@@ -44,7 +44,7 @@ namespace Nop.Web.Framework.Controllers
             return false;
         }
 
-        public void OnAuthorization(AuthorizationContext filterContext)
+        public virtual void OnAuthorization(AuthorizationContext filterContext)
         {
             if (_dontValidate)
                 return;

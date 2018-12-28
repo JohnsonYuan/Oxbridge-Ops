@@ -1,17 +1,74 @@
-﻿
+﻿@model Nop.Models.Customers.LoginModel
 @{
-    Layout = null;
+    Html.AddCssFileParts("~/Content/bonus/css/other.css");
+    Html.AddCssFileParts("~/Content/bonus/css/icofont.min.css");
+    Html.AddCssFileParts("~/Content/sweetalert2/sweetalert2.min.css");
+
+    Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/sweetalert2/sweetalert2.min.js");
+
+    ViewBag.Title = "登陆";
+    ViewBag.HideMenu = true;
 }
 
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Login</title>
-</head>
-<body>
-    <div> 
+<div class="login clearfloat box-s">
+    <h3>会员登录</h3>
+    <h3 id="summary"></h3>
+    <div class="list clearfloat">
+        <ul>
+            <li class="ra3">
+                <p class="fl clearfloat">
+                    <span class="opa5"></span>
+                    <i class="icofont-ui-user"></i>
+                </p>
+                <div class="nr clearfloat fl">
+                    <span class="opa3"></span>
+                    <input type="text" id="username" name="username" placeholder="用户名" />
+                </div>
+            </li>
+            <li class="ra3">
+                <p class="fl clearfloat">
+                    <span class="opa5"></span>
+                    <i class="icofont-ui-password"></i>
+                </p>
+                <div class="nr clearfloat fl">
+                    <span class="opa3"></span>
+                    <input type="password" id="password" name="password" placeholder="密码" />
+                </div>
+            </li>
+        </ul>
     </div>
-</body>
-</html>
+    <div class="login-btn">
+        <button type="submit">@T("Account.Login.LoginButton")</button>
+        <a href="@Url.RouteUrl("Register")" class="btn">
+            <span class="opa5"></span>
+            <samp>注册</samp>
+        </a>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $("button").click(function () {
+            var name = $('#username').val();
+            if (!name) {
+                SAlert('请输入用户名');
+                return;
+            }
+            var pwd = $('#password').val();
+            if (!pwd) {
+                SAlert('请输入密码');
+                return;
+            }
+
+            $.post('@Url.RouteUrl("Login")', {
+                Username: name,
+                Password: pwd
+            }, function (response) {
+                if (!response.Result)
+                    SAlert(response.Message);
+                else
+                    window.location.href = '@Url.RouteUrl("BonusApp_HomePage")';
+            });
+        })
+    </script>
+}

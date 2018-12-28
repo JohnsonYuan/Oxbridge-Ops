@@ -17,12 +17,22 @@
             @Html.Partial("_CommentItems", Model.Data)
             <!--/comment-->
         </div>
-        <div class="clearfloat view-more-button">
-            <a href="javascript:void(0);">
-                加载...
-                <span><img src="~/Content/bonus/img/54.png" /></span>
-            </a>
+        @*<div class="clearfloat view-more-button">
+                <a href="javascript:void(0);">
+                    加载...
+                    <span><img src="~/Content/bonus/img/54.png" /></span>
+                </a>
+            </div>*@
+    </div>
+    
+    <div class="page-load-status">
+        <div class="loader-ellips infinite-scroll-request">
+            <span class="loader-ellips__dot"></span>
+            <span class="loader-ellips__dot"></span>
+            <span class="loader-ellips__dot"></span>
+            <span class="loader-ellips__dot"></span>
         </div>
+        <p class="infinite-scroll-last">加载完毕</p>
     </div>
     <!--liebiao end-->
 </div>
@@ -36,10 +46,10 @@
             path: getPath,
             append: '.list',
             history: false,
-            //status: '.page-load-status',
-            button: '.view-more-button',
+            status: '.page-load-status',
+            //button: '.view-more-button',
             // load pages on button click
-            scrollThreshold: false,
+            //scrollThreshold: false,
         });
 
         function getPath() {

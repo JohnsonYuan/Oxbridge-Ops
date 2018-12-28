@@ -265,3 +265,13 @@ html{font-size:10px}
 .footer ul li.active p{
 	color: #f58611;
 }
+.swal2-container #swal2-header {
+  display: none;
+}
+.swal2-container #swal2-title, #swal2-content {
+  font-size: .6rem;
+  margin-bottom: 0;
+}
+.swal2-container .swal2-popup {
+  border-radius: .1125em;
+}

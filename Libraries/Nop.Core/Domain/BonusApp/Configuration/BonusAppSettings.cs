@@ -32,6 +32,15 @@ namespace Nop.Core.Domain.BonusApp.Configuration
         [DisplayName("用户提现比例")]
         public double Withdraw_Rate { get; set; } = 0.95;
 
+
+        [DisplayName("Authentication Cookie Name")]
+        public string AuthCookieName { get; set; }  // YiJiaYi.BONUS
+
+        /// <summary>
+        /// mdt salt
+        /// </summary>
+        [DisplayName("hash format")]
+        public string HashedPasswordFormat { get; set; } = "MD5";
         /// <summary>
         /// mdt salt
         /// </summary>

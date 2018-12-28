@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
+using System.Web.Security;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Data;
 using Nop.Core.Domain.BonusApp.Configuration;
 using Nop.Core.Domain.BonusApp.Customers;
+using Nop.Core.Domain.Customers;
 using Nop.Data;
 using Nop.Services.Events;
+using Nop.Services.Security;
 
 namespace Nop.Services.BonusApp.Customers
 {
@@ -20,8 +24,10 @@ namespace Nop.Services.BonusApp.Customers
         private readonly IDataProvider _dataProvider;
         private readonly IDbContext _dbContext;
         private readonly ICacheManager _cacheManager;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly IEventPublisher _eventPublisher; 
+        private readonly IEncryptionService _encryptionService;
         private readonly BonusAppSettings _bonusAppSettings;
+        private readonly HttpContextBase _httpContext;
 
         #endregion
 
@@ -33,7 +39,9 @@ namespace Nop.Services.BonusApp.Customers
             IDataProvider dataProvider,
             IDbContext dbContext,
             IEventPublisher eventPublisher,
-            BonusAppSettings bonusAppSettings)
+            IEncryptionService encryptionService,
+            BonusAppSettings bonusAppSettings,
+            HttpContextBase httpContext)
         {
             this._cacheManager = cacheManager;
             this._customerRepository = customerRepository;
@@ -42,7 +50,9 @@ namespace Nop.Services.BonusApp.Customers
             this._dataProvider = dataProvider;
             this._dbContext = dbContext;
             this._eventPublisher = eventPublisher;
+            this._encryptionService = encryptionService;
             this._bonusAppSettings = bonusAppSettings;
+            this._httpContext = httpContext;
         }
 
         #endregion
@@ -259,6 +269,67 @@ namespace Nop.Services.BonusApp.Customers
             _eventPublisher.EntityUpdated(customer);
         }
 
+        #endregion
+
+        #region Login
+
+        public virtual CustomerLoginResults ValidateCustomer(string username, string password)
+        {
+            var customer = GetCustomerByUsername(username);
+            
+            if (customer == null)
+                return CustomerLoginResults.CustomerNotExist;
+            if (customer.Deleted)
+                return CustomerLoginResults.Deleted;
+            if (!customer.Active)
+                return CustomerLoginResults.NotActive;
+
+            var hashedPwd = _encryptionService.CreatePasswordHash(password, _bonusAppSettings.CustomerPasswordSalt, _bonusAppSettings.HashedPasswordFormat);
+
+            var pwdMatch = customer.Password.Equals(hashedPwd);
+            if (!pwdMatch)
+                return CustomerLoginResults.WrongPassword;
+
+            return CustomerLoginResults.Successful;
+        }
+
+        public virtual void SignIn(BonusApp_Customer customer, bool createPersistentCookie)
+        {
+            var now = DateTime.UtcNow.ToLocalTime();
+
+            var ticket = new FormsAuthenticationTicket(
+                1 /*version*/,
+                customer.Username,
+                now,
+                now.Add(FormsAuthentication.Timeout),
+                createPersistentCookie,
+                customer.Username,
+                FormsAuthentication.FormsCookiePath);
+
+            var encryptedTicket = FormsAuthentication.Encrypt(ticket);
+
+            // add cookie: _bonusAppSettings.AuthCookieName
+            var cookie = new HttpCookie(_bonusAppSettings.AuthCookieName, encryptedTicket);
+            cookie.HttpOnly = true;
+            if (ticket.IsPersistent)
+            {
+                cookie.Expires = ticket.Expiration;
+            }
+            cookie.Secure = FormsAuthentication.RequireSSL;
+            cookie.Path = FormsAuthentication.FormsCookiePath;
+            if (FormsAuthentication.CookieDomain != null)
+            {
+                cookie.Domain = FormsAuthentication.CookieDomain;
+            }
+
+            _httpContext.Response.Cookies.Add(cookie);
+        }
+
+        public virtual void SignOut()
+        {
+            _httpContext.Response.Cookies.Remove(_bonusAppSettings.AuthCookieName);
+        }
+     
         #endregion
 
         #region Comments

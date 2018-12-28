@@ -2,6 +2,7 @@ using System;
 using System.Web;
 using System.Web.Security;
 using Nop.Core.Domain.BonusApp;
+using Nop.Core.Domain.BonusApp.Configuration;
 using Nop.Core.Domain.BonusApp.Customers;
 using Nop.Services.BonusApp.Customers;
 
@@ -13,7 +14,8 @@ namespace Nop.Services.BonusApp.Authentication
     public class BonusAppFormsAuthenticationService : IBonusAppFormsAuthenticationService
     {
         #region Fields
-
+        
+        private readonly BonusAppSettings _bonusAppSettings;
         private readonly HttpContextBase _httpContext;
         private readonly IBonusApp_CustomerService _customerService;
         private readonly TimeSpan _expirationTimeSpan;
@@ -31,9 +33,12 @@ namespace Nop.Services.BonusApp.Authentication
         /// <param name="httpContext">HTTP context</param>
         /// <param name="customerService">Customer service</param>
         /// <param name="customerSettings">Customer settings</param>
-        public BonusAppFormsAuthenticationService(HttpContextBase httpContext,
+        public BonusAppFormsAuthenticationService(
+            BonusAppSettings bonusAppSettings,
+            HttpContextBase httpContext,
             IBonusApp_CustomerService customerService)
         {
+            this._bonusAppSettings = bonusAppSettings;
             this._httpContext = httpContext;
             this._customerService = customerService;
             this._expirationTimeSpan = FormsAuthentication.Timeout;
@@ -86,7 +91,7 @@ namespace Nop.Services.BonusApp.Authentication
             var encryptedTicket = FormsAuthentication.Encrypt(ticket);
 
             // use bonus app cookie name
-            var cookie = new HttpCookie(BonusAppConstants.AuthCookieName, encryptedTicket);
+            var cookie = new HttpCookie(_bonusAppSettings.AuthCookieName, encryptedTicket);
             cookie.HttpOnly = true;
             if (ticket.IsPersistent)
             {
@@ -109,7 +114,7 @@ namespace Nop.Services.BonusApp.Authentication
         public virtual void SignOut()
         {
             _cachedCustomer = null;
-            FormsAuthentication.SignOut();
+            _httpContext.Response.Cookies.Remove(_bonusAppSettings.AuthCookieName);
         }
 
         /// <summary>
@@ -131,7 +136,7 @@ namespace Nop.Services.BonusApp.Authentication
                 return null;
             }
 
-            var ticket = ExtractTicketFromCookie(_httpContext, BonusAppConstants.AuthCookieName);
+            var ticket = ExtractTicketFromCookie(_httpContext, _bonusAppSettings.AuthCookieName);
 
             // See if the ticket was created: No => exit immediately
             if (ticket == null || ticket.Expired)

@@ -77,7 +77,9 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 // 用户返回金额比例
                 UserReturnMoneyPercent = 1,
                 Withdraw_Rate = 1,
-                CustomerPasswordSalt = "Z3GP1bc="
+                CustomerPasswordSalt = "Z3GP1bc=",
+                HashedPasswordFormat = "MD5",
+                AuthCookieName = "YiJiaYi.BONUS"
             };
             _settingService.SaveSetting(defaultSetting);
 
@@ -118,7 +120,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 var waitingCustomer = new BonusApp_Customer
                 {
                     Username = "testUser_" + i,
-                    Password = _encryptionService.CreatePasswordHash("123456", defaultSetting.CustomerPasswordSalt, "md5"),
+                    Password = _encryptionService.CreatePasswordHash("123456", defaultSetting.CustomerPasswordSalt, defaultSetting.HashedPasswordFormat),
                     AvatarUrl = (i % 3 == 0 ? "/Content/bonus/img/41.png" : "/Content/bonus/img/42.png"),
                     Nickname = "waiting_" + i,
                     PhoneNumber = "1345644",

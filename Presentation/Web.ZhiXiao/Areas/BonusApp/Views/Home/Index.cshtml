@@ -2,7 +2,9 @@
 
 @using Nop.Core.Domain.BonusApp.Logging;
 
-@{ 
+@{
+    var currentCustomer = EngineContext.Current.Resolve<IWorkContext>().CurrentBonusAppCustomer;
+
     var isWaitingType = Model.Status == BonusApp_MoneyReturnStatus.Waiting;
 
     // 当前选中的不显示url, 未选中的url
@@ -15,7 +17,7 @@
     <!-- 收益 star -->
     <div class="top clearfloat">
         <div class="one clearfloat box-s">
-            奖金池
+            你好, @currentCustomer.Nickname
         </div>
         <div class="three clearfloat">
             <div class="zuo clearfloat fl">

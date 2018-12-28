@@ -149,6 +149,8 @@
     <Content Include="App_Data\Localization\zhs.nopres.xml" />
     <Content Include="App_Data\Notes.txt" />
     <Content Include="App_Data\Settings.txt" />
+    <Compile Include="Areas\BonusApp\Controllers\BaseUserController.cs" />
+    <Compile Include="Areas\BonusApp\Controllers\BonusAppBaseController.cs" />
     <Compile Include="Areas\BonusApp\Controllers\HomeController.cs" />
     <Compile Include="Areas\BonusApp\Controllers\InstallController.cs" />
     <Compile Include="Areas\BonusApp\Mapper\AutoMapperConfiguration.cs" />
@@ -163,6 +165,7 @@
     <Content Include="Content\bonus\css\icofont.min.css" />
     <Content Include="Content\bonus\css\other.css" />
     <Content Include="Content\bonus\css\page.css" />
+    <Content Include="Content\sweetalert2\sweetalert2.min.css" />
     <Content Include="Content\bonus\fonts\icofont.svg" />
     <Content Include="Content\bonus\img\1.jpg" />
     <Content Include="Content\bonus\img\10.png" />
@@ -893,6 +896,7 @@
     <Content Include="Scripts\adminLTE\app.min.js" />
     <Content Include="Scripts\bonus\infinite-scroll.pkgd.min.js" />
     <Content Include="Scripts\bonus\public.common.js" />
+    <Content Include="Scripts\sweetalert2\sweetalert2.min.js" />
     <Content Include="Scripts\bonus\totop.min.js" />
     <Content Include="Scripts\bootstrap-touchspin\jquery.bootstrap-touchspin.js" />
     <Content Include="Scripts\bootstrap-touchspin\jquery.bootstrap-touchspin.min.js" />
@@ -974,6 +978,7 @@
     <Content Include="Areas\BonusApp\Views\Home\Comment.cshtml" />
     <Content Include="Areas\BonusApp\Views\Home\UserCenter.cshtml" />
     <Content Include="Areas\BonusApp\Views\Home\_CommentItems.cshtml" />
+    <Content Include="Areas\BonusApp\Views\Common\Register.cshtml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap\bootstrap.js" />
@@ -1422,6 +1427,8 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\BonusApp\BonusAppAreaRegistration.cs" />
     <Compile Include="Areas\BonusApp\Controllers\CommonController.cs" />
+    <Compile Include="Areas\BonusApp\Models\UI\Response.cs" />
+    <Compile Include="Areas\BonusApp\Mvc\BonusAppCustomerAuthorizeAttribute.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\AdminAreaRegistration.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\ActivityLogController.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\CommonController.cs" />
@@ -1669,6 +1676,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Areas\BonusApp\Views\BaseUser\" />
     <Folder Include="Areas\BunusApp_Manage\" />
     <Folder Include="Content\lib\Roxy_Fileman\tmp\" />
     <Folder Include="Content\uploaded\" />

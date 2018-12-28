@@ -10,12 +10,11 @@ using Nop.Services.BonusApp.Logging;
 using Nop.Services.Helpers;
 using Nop.Services.ZhiXiao.BonusApp;
 using Nop.Web.Framework;
-using Nop.Web.Framework.Controllers;
 using Web.ZhiXiao.Areas.BonusApp.Models;
 
 namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 {
-    public class HomeController : BasePublicController
+    public class HomeController : BaseUserController
     {
         #region Fields
 

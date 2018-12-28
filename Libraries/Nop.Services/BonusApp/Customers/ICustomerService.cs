@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Nop.Core;
 using Nop.Core.Domain.BonusApp.Customers;
 using Nop.Core.Domain.BonusApp.Logging;
+using Nop.Core.Domain.Customers;
 
 namespace Nop.Services.BonusApp.Customers
 {
@@ -93,6 +94,12 @@ namespace Nop.Services.BonusApp.Customers
         /// </summary>
         /// <param name="customer">Customer</param>
         void UpdateCustomer(BonusApp_Customer customer);
+
+        #endregion
+
+        #region Login
+
+        CustomerLoginResults ValidateCustomer(string username, string password);
 
         #endregion
 

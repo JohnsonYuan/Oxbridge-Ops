@@ -27,9 +27,21 @@ namespace Web.ZhiXiao.Areas.BonusApp
                             new { host = new BonusAppHostRouteConstraint(bonusAppDomain) },
                             new[] { "Web.ZhiXiao.Areas.BonusApp.Controllers" });
 
+            context.MapRoute("BonusApp_Register",
+                            "register",
+                            new { controller = "Common", action = "Register" },
+                            new { host = new BonusAppHostRouteConstraint(bonusAppDomain) },
+                            new[] { "Web.ZhiXiao.Areas.BonusApp.Controllers" });
+
             context.MapRoute("BonusApp_Login",
                             "login",
                             new { controller = "Common", action = "Login" },
+                            new { host = new BonusAppHostRouteConstraint(bonusAppDomain) },
+                            new[] { "Web.ZhiXiao.Areas.BonusApp.Controllers" });
+
+            context.MapRoute("BonusApp_Logout",
+                            "logout",
+                            new { controller = "Common", action = "Logout" },
                             new { host = new BonusAppHostRouteConstraint(bonusAppDomain) },
                             new[] { "Web.ZhiXiao.Areas.BonusApp.Controllers" });
 

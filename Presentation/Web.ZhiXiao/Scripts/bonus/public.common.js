@@ -24,6 +24,16 @@
     });
 })(document, window);
 
+function SAlert(msg) {
+    Swal({
+        position: 'top',
+        padding: '0.3rem',
+        title: msg,
+        showConfirmButton: false,
+        timer: 1000
+      });
+}
+
 function loadingScrollData(container, url, params) {
     var isPreviousEventComplete = true, isDataAvailable = true;
 

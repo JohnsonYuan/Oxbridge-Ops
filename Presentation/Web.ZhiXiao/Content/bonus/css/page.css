@@ -1776,7 +1776,7 @@
 .loading-img { text-align:center; }
 .page-load-status {
     display: none; /* hidden by default */
-    padding-top: 20px;
+    padding-top: 15px;
     border-top: 1px solid #DDD;
     text-align: center;
     color: #777;
@@ -1795,8 +1795,8 @@
 
 .loader-ellips__dot {
     display: block;
-    width: 1em;
-    height: 1em;
+    width: .5em;
+    height: .5em;
     border-radius: 0.5em;
     background: #555; /* change color here */
     position: absolute;
