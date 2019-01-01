@@ -10,6 +10,7 @@ using Nop.Services.BonusApp.Logging;
 using Nop.Services.Helpers;
 using Nop.Services.ZhiXiao.BonusApp;
 using Nop.Web.Framework;
+using Web.ZhiXiao.Areas.BonusApp.Factories;
 using Web.ZhiXiao.Areas.BonusApp.Models;
 
 namespace Web.ZhiXiao.Areas.BonusApp.Controllers
@@ -26,6 +27,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 
         private IDateTimeHelper _dateTimeHelper;
         private IWebHelper _webHelper;
+        private IWorkContext _workContext;
 
         #endregion
 
@@ -36,13 +38,15 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             IBonusApp_CustomerService customerService,
             IBonusApp_CustomerActivityService customerActivityService,
             IDateTimeHelper dateTimeHelper,
-            IWebHelper webHelper)
+            IWebHelper webHelper,
+            IWorkContext workContext)
         {
             this._appService = appService;
             this._customerService = customerService;
             this._customerActivityService = customerActivityService;
             this._dateTimeHelper = dateTimeHelper;
             this._webHelper = webHelper;
+            this._workContext = workContext;
         }
 
         #endregion
@@ -68,7 +72,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                     new PoolItemModel
                     {
                         OrderNumber = index + firstItemNumber,
-                        CustomerAvatar = logItem.Customer.AvatarUrl,
+                        CustomerAvatar = logItem.Customer.AvatarFileName,
                         CustomerName = logItem.Customer.Nickname,
                         Money = (double)logItem.ReturnMoney,
                         DisplayDateTime = _dateTimeHelper.ConvertToUserTime(logItem.CreatedOnUtc, DateTimeKind.Utc).ToString("yyyy-MM-dd HH:mm")
@@ -164,25 +168,10 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 
         #region UserSettings
 
-        public ActionResult UserCenter()
-        {
-            return View();
-        }
+        
 
         #endregion
 
         #endregion
-
-        public ActionResult Index2()
-        {
-            var service = EngineContext.Current.Resolve<IBonusApp_CustomerActivityService>();
-            var log = service.GetFirstWaitingLog();
-            return Content(log.Customer.Nickname);
-        }
-
-        public ActionResult Index3()
-        {
-            return Content(Request.UserHostAddress + "<br/>" + Request.ServerVariables["HTTP_HOST"]);
-        }
     }
 }

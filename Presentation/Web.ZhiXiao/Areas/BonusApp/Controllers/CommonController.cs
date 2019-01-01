@@ -1,9 +1,13 @@
 using System;
+using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using Nop.Core;
 using Nop.Core.Domain;
+using Nop.Core.Domain.BonusApp;
+using Nop.Core.Domain.BonusApp.Customers;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Infrastructure;
 using Nop.Models.Customers;
 using Nop.Services.Authentication;
 using Nop.Services.BonusApp.Authentication;
@@ -14,6 +18,7 @@ using Nop.Services.Customers;
 using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
+using Nop.Services.Media;
 using Nop.Services.Security;
 using Web.ZhiXiao.Factories;
 
@@ -27,7 +32,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ILogger _logger;
         private readonly IWorkContext _workContext;
-        private readonly IPermissionService _permissionService;
+        private readonly IEncryptionService _encryptionService;
         private readonly IBonusApp_CustomerService _customerService;
 
         private readonly IBonusAppFormsAuthenticationService _authenticationService;
@@ -47,6 +52,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             IDateTimeHelper dateTimeHelper,
             ILogger logger,
             IWorkContext workContext,
+            IEncryptionService encryptionService,
             IPermissionService permissionService,
             IBonusApp_CustomerService customerService,
             IBonusAppFormsAuthenticationService bonusAppAuthenticationService,
@@ -63,7 +69,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             this._dateTimeHelper = dateTimeHelper;
             this._logger = logger;
             this._workContext = workContext;
-            this._permissionService = permissionService;
+            this._encryptionService = encryptionService;
             this._customerService = customerService;
             this._authenticationService = bonusAppAuthenticationService;
             this._localizationService = localizationService;
@@ -104,7 +110,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                         _authenticationService.SignIn(customer, model.RememberMe);
 
                         //activity log
-                        _customerActivityService.InsertActivity(customer, "PublicStore.Login", _localizationService.GetResource("ActivityLog.PublicStore.Login"));
+                        _customerActivityService.InsertActivity(customer, BonusAppConstants.LogType_User_Login, _localizationService.GetResource("ActivityLog.PublicStore.Login"));
 
                         return SuccessJson("登陆成功");
                     }
@@ -127,12 +133,118 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
         public virtual ActionResult Logout()
         {
             //activity log
-            _customerActivityService.InsertActivity("PublicStore.Logout", _localizationService.GetResource("ActivityLog.PublicStore.Logout"));
+            _customerActivityService.InsertActivity(BonusAppConstants.LogType_User_Logout, _localizationService.GetResource("ActivityLog.PublicStore.Logout"));
 
             //standard logout 
             _authenticationService.SignOut();
 
             return RedirectToRoute("login");
+        }
+
+        #endregion
+
+        #region Register
+
+        public ActionResult Register()
+        {
+            return View();
+        }
+        /// <summary>
+        /// 注册时候的username password
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult Register([Bind(Include="Username,Password")]LoginModel model)
+        {
+            if (string.IsNullOrEmpty(model.Username))
+                return ErrorJson("请输入用户名");
+            if (string.IsNullOrEmpty(model.Password))
+                return ErrorJson("请输入密码");
+
+            var result = new CustomerRegistrationResult();
+            // validate model
+            var modelError = _customerService.Register(model.Username, model.Password);
+            if (!string.IsNullOrEmpty(modelError))
+            {
+                return ErrorJson(modelError);
+            }
+
+            return SuccessJson("注册成功");
+        }
+
+        #endregion
+
+        #region Upload picture
+
+        [HttpPost]
+        //do not validate request token (XSRF)
+        public virtual ActionResult AsyncUpload()
+        {
+            var pictureService = EngineContext.Current.Resolve<PictureService>();
+
+            Stream stream = null;
+            var fileName = "";
+            var contentType = "";
+            if (String.IsNullOrEmpty(Request["file"]))
+            {
+                // IE
+                HttpPostedFileBase httpPostedFile = Request.Files[0];
+                if (httpPostedFile == null)
+                    throw new ArgumentException("No file uploaded");
+                stream = httpPostedFile.InputStream;
+                fileName = Path.GetFileName(httpPostedFile.FileName);
+                contentType = httpPostedFile.ContentType;
+            }
+            else
+            {
+                //Webkit, Mozilla
+                stream = Request.InputStream;
+                fileName = Request["file"];
+            }
+
+            var fileBinary = new byte[stream.Length];
+            stream.Read(fileBinary, 0, fileBinary.Length);
+            
+            var fileExtension = Path.GetExtension(fileName);
+            if (!String.IsNullOrEmpty(fileExtension))
+                fileExtension = fileExtension.ToLowerInvariant();
+
+            if (String.IsNullOrEmpty(contentType))
+            {
+                switch (fileExtension)
+                {
+                    case ".bmp":
+                        contentType = MimeTypes.ImageBmp;
+                        break;
+                    case ".gif":
+                        contentType = MimeTypes.ImageGif;
+                        break;
+                    case ".jpeg":
+                    case ".jpg":
+                    case ".jpe":
+                    case ".jfif":
+                    case ".pjpeg":
+                    case ".pjp":
+                        contentType = MimeTypes.ImageJpeg;
+                        break;
+                    case ".png":
+                        contentType = MimeTypes.ImagePng;
+                        break;
+                    case ".tiff":
+                    case ".tif":
+                        contentType = MimeTypes.ImageTiff;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            //when returning JSON the mime-type must be set to text/plain
+            //otherwise some browsers will pop-up a "Save As" dialog.
+            return Json(new { success = true,
+                imageUrl = pictureService.SavePicture(fileBinary, contentType, 100) },
+                MimeTypes.TextPlain);
         }
 
         #endregion

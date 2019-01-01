@@ -269,6 +269,26 @@ namespace Nop.Services.BonusApp.Customers
             _eventPublisher.EntityUpdated(customer);
         }
 
+        /// <summary>
+        /// Update password
+        /// </summary>
+        /// <param name="customer"></param>
+        /// <param name="newPassword"></param>
+        public virtual void UpdateCustomerPassword(BonusApp_Customer customer, string newPassword)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            if (string.IsNullOrEmpty(newPassword))
+                throw new ArgumentNullException("newPassword");
+
+            customer.Password = _encryptionService.CreatePasswordHash(newPassword, _bonusAppSettings.CustomerPasswordSalt, _bonusAppSettings.HashedPasswordFormat);
+            _customerRepository.Update(customer);
+
+            //event notification
+            _eventPublisher.EntityUpdated(customer);
+        }
+
         #endregion
 
         #region Login
@@ -293,43 +313,61 @@ namespace Nop.Services.BonusApp.Customers
             return CustomerLoginResults.Successful;
         }
 
-        public virtual void SignIn(BonusApp_Customer customer, bool createPersistentCookie)
+        #endregion
+
+        #region Register
+
+        /// <summary>
+        /// Register new customer
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public virtual string Register(string username, string password)
         {
-            var now = DateTime.UtcNow.ToLocalTime();
-
-            var ticket = new FormsAuthenticationTicket(
-                1 /*version*/,
-                customer.Username,
-                now,
-                now.Add(FormsAuthentication.Timeout),
-                createPersistentCookie,
-                customer.Username,
-                FormsAuthentication.FormsCookiePath);
-
-            var encryptedTicket = FormsAuthentication.Encrypt(ticket);
-
-            // add cookie: _bonusAppSettings.AuthCookieName
-            var cookie = new HttpCookie(_bonusAppSettings.AuthCookieName, encryptedTicket);
-            cookie.HttpOnly = true;
-            if (ticket.IsPersistent)
+            // 验证新用户(CustomerModel)的是否重复
+            if (!String.IsNullOrWhiteSpace(username))
             {
-                cookie.Expires = ticket.Expiration;
-            }
-            cookie.Secure = FormsAuthentication.RequireSSL;
-            cookie.Path = FormsAuthentication.FormsCookiePath;
-            if (FormsAuthentication.CookieDomain != null)
-            {
-                cookie.Domain = FormsAuthentication.CookieDomain;
+                var cust2 = GetCustomerByUsername(username);
+                if (cust2 != null)
+                    return "用户名已经使用";
             }
 
-            _httpContext.Response.Cookies.Add(cookie);
+            {
+                var cust2 = GetCustomerByNickName(username);
+                if (cust2 != null)
+                    return ("昵称已经使用");
+            }
+
+            //if (!String.IsNullOrWhiteSpace(model.))
+            //{
+            //    var cust2 = _customerService.GetCustomerByPhoneNumber(model.Username);
+            //    if (cust2 != null)
+            //        return ("手机号已经使用");
+            //}
+
+            BonusApp_Customer customer = new BonusApp_Customer
+            {
+                CustomerGuid = Guid.NewGuid(),
+                AvatarFileName = "default-avatar.jpg",
+                // 邮箱默认后缀为@yourStore.com
+                Username = username,
+                Password = _encryptionService.CreatePasswordHash(password, _bonusAppSettings.CustomerPasswordSalt, _bonusAppSettings.HashedPasswordFormat),
+                Nickname = username,    //todo
+                PhoneNumber = username, //todo
+                Money = 0,
+                //VendorId = model.VendorId,
+                Active = true,
+                Deleted = false,
+                CreatedOnUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow,
+            };
+
+            InsertCustomer(customer);
+
+            return string.Empty;
         }
 
-        public virtual void SignOut()
-        {
-            _httpContext.Response.Cookies.Remove(_bonusAppSettings.AuthCookieName);
-        }
-     
         #endregion
 
         #region Comments

@@ -8,9 +8,11 @@ using Nop.Services.BonusApp.Authentication;
 using Nop.Services.BonusApp.Configuration;
 using Nop.Services.BonusApp.Customers;
 using Nop.Services.BonusApp.Logging;
+using Nop.Services.Media;
 using Nop.Services.ZhiXiao.BonusApp;
+using Web.ZhiXiao.Areas.BonusApp.Factories;
 
-namespace Nop.Services.BonusApp
+namespace Web.ZhiXiao.Areas.BonusApp
 {
     public class BonusAppDependencyRegister : IDependencyRegistrar
     {
@@ -36,6 +38,12 @@ namespace Nop.Services.BonusApp
 
             builder.RegisterType<BonusAppFormsAuthenticationService>()
                 .As<IBonusAppFormsAuthenticationService>().InstancePerLifetimeScope();
+            
+            builder.RegisterType<PictureService>()
+                .As<IPictureService>().InstancePerLifetimeScope();
+
+            // factory
+            builder.RegisterType<CustomerModelFactory>().AsSelf().InstancePerLifetimeScope();
         }
     }
 }

@@ -51,5 +51,60 @@ namespace Nop.Services.BonusApp.Logging
         /// Complete log
         /// </summary>
         IPagedList<BonusApp_MoneyLog> GetCompleteMoneyLog(int pageIndex = 0, int pageSize = int.MaxValue);
+
+        #region Withdraw
+
+        BonusApp_WithdrawLog InsertWithdraw(double amount, string comment, params object[] commentParams);
+
+        /// <summary>
+        /// Inserts an withdraw log item
+        /// </summary>
+        /// <param name="customer">The customer</param>
+        /// <param name="amount">The withdraw amount</param>
+        /// <param name="comment">The activity comment</param>
+        /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
+        /// <returns>Withdraw log item</returns>
+        BonusApp_WithdrawLog InsertWithdraw(BonusApp_Customer customer, double amount, string comment, params object[] commentParams);
+
+        /// <summary>
+        /// Update withdraw log item
+        /// </summary>
+        /// <param name="BonusApp_WithdrawLog"></param>
+        void UpdateWithdrawLog(BonusApp_WithdrawLog withdrawLog);
+
+        /// <summary>
+        /// Deletes an withdraw log item
+        /// </summary>
+        /// <param name="BonusApp_WithdrawLog">Activity log type</param>
+        void DeleteWithdraw(BonusApp_WithdrawLog withdrawLog);
+
+        /// <summary>
+        /// Gets all activity log items
+        /// </summary>
+        /// <param name="createdOnFrom">Log item creation from; null to load all activities</param>
+        /// <param name="createdOnTo">Log item creation to; null to load all activities</param>
+        /// <param name="customerId">Customer identifier; null to load all activities</param>
+        /// <param name="activityLogTypeId">Activity log type identifier</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
+        /// <param name="ipAddress">IP address; null or empty to load all activities</param>
+        /// <returns>Activity log items</returns>
+        IPagedList<BonusApp_WithdrawLog> GetAllWithdraws(DateTime? createdOnFrom = null,
+            DateTime? createdOnTo = null, int? customerId = null, bool? isDone = false,
+            int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null);
+
+        /// <summary>
+        /// Gets an withdraw log item
+        /// </summary>
+        /// <param name="withdrawLogId">withdrawLog log identifier</param>
+        /// <returns>Activity log item</returns>
+        BonusApp_WithdrawLog GetWithdrawById(int withdrawLogId);
+
+        /// <summary>
+        /// Clears Withdraw log
+        /// </summary>
+        void ClearAllWithdraws();
+
+        #endregion
     }
 }

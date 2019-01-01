@@ -47,7 +47,7 @@ namespace Web.ZhiXiao.Areas.BonusApp
 
             context.MapRoute("BonusApp_UserCenter",
                             "user",
-                            new { controller = "Home", action = "UserCenter" },
+                            new { controller = "User", action = "Index" },
                             new { host = new BonusAppHostRouteConstraint(bonusAppDomain) },
                             new[] { "Web.ZhiXiao.Areas.BonusApp.Controllers" });
 

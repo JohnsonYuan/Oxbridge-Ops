@@ -1,0 +1,113 @@
+﻿@model Web.ZhiXiao.Areas.BonusApp.Models.CustomerModel
+
+@{
+    Html.SetActiveMenuItemSystemName("User");
+
+    Html.AddCssFileParts("~/Content/sweetalert2/sweetalert2.min.css");
+
+    Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/sweetalert2/sweetalert2.min.js");
+}
+
+<div class="main clearfloat">
+    <div class="h-top clearfloat box-s">
+        <div class="tu clearfloat fl">
+            <img src="@Model.Avatar" />
+        </div>
+        <input type="file" id="f_upload" style="display: none" />
+        <button id="changeAvatar" class="btn db clearfloat fr ra3">修改头像</button>
+    </div>
+    <div class="warp warpthree clearfloat">
+        <div class="recharge clearfloat">
+            <div class="czhi clearfloat box-s">
+                <p>原密码</p>
+                <input type="password" id="oldPwd" value="" placeholder="请输入原密码" />
+            </div>
+            <div class="czhi clearfloat box-s">
+                <p>新密码</p>
+                <input type="password" id="newPwd" value="" placeholder="请输入新密码" />
+            </div>
+            <div class="czhi clearfloat box-s">
+                <p>重复密码</p>
+                <input type="password" id="newPwd2" value="" placeholder="重复新密码" />
+            </div>
+            <!--<a href="#" class="center-btn center-btntwo db ra3">点击上传文件</a>-->
+            <div class="bottom clearfloat">
+                <button id="changePwd" class="db fl btn ra3">修改密码</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        $("#changePwd").click(function () {
+            var oldPwd = $('#oldPwd').val();
+            if (!oldPwd) {
+                SAlert('请输入原密码');
+                return;
+            }
+            var pwd = $('#newPwd').val();
+            if (!pwd) {
+                SAlert('请输入新密码');
+                return;
+            }
+
+            var pwd2 = $('#newPwd2').val();
+            if (!pwd2) {
+                SAlert('请再次输入新密码');
+                return;
+            }
+
+            if (pwd != pwd2) {
+                SAlert('两次密码不一致');
+                return;
+            }
+
+            $.post('@Url.Content("~/User/UpdatePwd")', {
+                oldPwd: oldPwd,
+                newPwd: pwd,
+                newPwd2: pwd2
+            }, function (response) {
+                if (!response.Result)
+                    SAlert(response.Message);
+                else
+                    SAlert(response.Data);
+            });
+        });
+
+
+    $("#changeAvatar").on('change', function () {
+        var fileupload = $("#f_upload");
+        fileupload.click();
+            var file, img;
+            if ((file = this.files[0])) {
+                sendFile(file);
+                $(".avatar").html("<img src='" + responseJSON.imageUrl + "'/>");
+            }
+        });
+
+        function sendFile(file) {
+            var formData = new FormData();
+            formData.append('file', file);
+            $.ajax({
+                type: 'post',
+                url: '@Url.Content("~/Common/AsyncUpload")',
+                data: formData,
+                success: function (status) {
+                    if (responseJSON.success) {
+                        $(".avatar").html("<img src='" + responseJSON.imageUrl + "'/>");
+                    }
+                    //if (status != 'error') {
+                    //    var my_path = "MediaUploader/" + status;
+                    //    $("#myUploadedImg").attr("src", my_path);
+                    //}
+                },
+                processData: false,
+                contentType: false,
+                error: function () {
+                    alert("Whoops something went wrong!");
+                }
+            });
+        }
+    </script>
+}

@@ -29,7 +29,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Mapper
                   //customer roles
                   cfg.CreateMap<BonusApp_CustomerComment, CommentModel>()
                     .ForMember(dest => dest.CustomerNickName, mo => mo.MapFrom(src => src.Customer.Nickname))
-                    .ForMember(dest => dest.CustomerAvatar, mo => mo.MapFrom(src => src.Customer.AvatarUrl))
+                    .ForMember(dest => dest.CustomerAvatar, mo => mo.MapFrom(src => src.Customer.AvatarFileName))
                     .ForMember(dest => dest.CreatedOn, mo => mo.Ignore());
               };
 

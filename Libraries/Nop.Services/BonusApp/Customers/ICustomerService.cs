@@ -94,12 +94,20 @@ namespace Nop.Services.BonusApp.Customers
         /// </summary>
         /// <param name="customer">Customer</param>
         void UpdateCustomer(BonusApp_Customer customer);
-
+        
+        void UpdateCustomerPassword(BonusApp_Customer customer, string newPassword);
+        
         #endregion
 
         #region Login
 
         CustomerLoginResults ValidateCustomer(string username, string password);
+
+        #endregion
+
+        #region Register
+
+        string Register(string username, string password);
 
         #endregion
 

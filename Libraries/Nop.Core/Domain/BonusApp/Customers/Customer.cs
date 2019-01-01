@@ -33,7 +33,7 @@ namespace Nop.Core.Domain.BonusApp.Customers
         /// <summary>
         /// Gets or sets the avatar url
         /// </summary>
-        public string AvatarUrl { get; set; }
+        public string AvatarFileName { get; set; }
 
         /// <summary>
         /// Gets or sets the nickname

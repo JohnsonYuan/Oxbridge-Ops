@@ -18,6 +18,17 @@ CREATE TABLE [dbo].[BonusApp_ActivityLogType]
       [Enabled] [BIT] NOT NULL ,
       PRIMARY KEY ( [Id] )
     );
+CREATE TABLE [dbo].[BonusApp_WithdrawLog] (
+  [Id] int IDENTITY(1,1) NOT NULL,
+  [CustomerId] int NOT NULL,
+  [Comment] nvarchar(max) COLLATE Chinese_PRC_CI_AS NOT NULL,
+  [Amount] [DECIMAL](18, 2) NOT NULL ,
+  [IsDone] bit NOT NULL,
+  [CreatedOnUtc] datetime NOT NULL,
+  [CompleteOnUtc] datetime NULL,
+  [IpAddress] nvarchar(200) COLLATE Chinese_PRC_CI_AS NULL
+)
+GO
 CREATE TABLE [dbo].[BonusApp_Customer]
     (
       [Id] [INT] NOT NULL
@@ -25,16 +36,16 @@ CREATE TABLE [dbo].[BonusApp_Customer]
       [CustomerGuid] [UNIQUEIDENTIFIER] NOT NULL ,
       [Username] [NVARCHAR](MAX) NULL ,
       [Password] [NVARCHAR](MAX) NULL ,
-      [AvatarUrl] [NVARCHAR](MAX) NULL ,
+      [AvatarFileName] [NVARCHAR](MAX) NULL ,
       [Nickname] [NVARCHAR](MAX) NULL ,
       [PhoneNumber] [NVARCHAR](MAX) NULL ,
-      [Active] [BIT] NOT NULL ,
-      [Deleted] [BIT] NOT NULL ,
+      [Active] [BIT] NOT NULL default(1),
+      [Deleted] [BIT] NOT NULL default(0),
       [LastIpAddress] [NVARCHAR](MAX) NULL ,
       [CreatedOnUtc] [DATETIME] NOT NULL ,
       [LastLoginDateUtc] [DATETIME] NULL ,
       [LastActivityDateUtc] [DATETIME] NOT NULL ,
-      [Money] [DECIMAL](18, 2) NOT NULL ,
+      [Money] [DECIMAL](18, 2) NOT NULL default(0),
       PRIMARY KEY ( [Id] )
     );
 CREATE TABLE [dbo].[BonusApp_CustomerComment]
@@ -88,5 +99,6 @@ CREATE TABLE [dbo].[BonusApp_Status]
 
 ALTER TABLE [dbo].[BonusApp_ActivityLog] ADD CONSTRAINT [BonusApp_ActivityLog_ActivityLogType] FOREIGN KEY ([ActivityLogTypeId]) REFERENCES [dbo].[BonusApp_ActivityLogType]([Id]) ON DELETE CASCADE;
 ALTER TABLE [dbo].[BonusApp_ActivityLog] ADD CONSTRAINT [BonusApp_ActivityLog_Customer] FOREIGN KEY ([CustomerId]) REFERENCES [dbo].[BonusApp_Customer]([Id]) ON DELETE CASCADE;
+ALTER TABLE [dbo].[BonusApp_WithdrawLog] ADD CONSTRAINT [BonusApp_WithdrawLog_Customer] FOREIGN KEY ([CustomerId]) REFERENCES [dbo].[BonusApp_Customer]([Id]) ON DELETE CASCADE;
 ALTER TABLE [dbo].[BonusApp_CustomerComment] ADD CONSTRAINT [BonusApp_CustomerComment_Customer] FOREIGN KEY ([CustomerId]) REFERENCES [dbo].[BonusApp_Customer]([Id]) ON DELETE CASCADE;
 ALTER TABLE [dbo].[BonusApp_MoneyLog] ADD CONSTRAINT [BonusApp_MoneyLog_Customer] FOREIGN KEY ([CustomerId]) REFERENCES [dbo].[BonusApp_Customer]([Id]) ON DELETE CASCADE;

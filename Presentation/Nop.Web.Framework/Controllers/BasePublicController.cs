@@ -10,9 +10,5 @@ namespace Nop.Web.Framework.Controllers
     //[WwwRequirement]
     public abstract partial class BasePublicController : BaseController
     {
-        public ActionResult ScrollEndContent()
-        {
-            return Content(".pagination__next");
-        }
     }
 }

@@ -92,8 +92,6 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             };
             _customerActivityService.InsertActivityType(logType);
 
-            _customerActivityService.InsertActivityType(logType);
-
             logType = new BonusApp_ActivityLogType
             {
                 Enabled = true,
@@ -110,6 +108,30 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             };
             _customerActivityService.InsertActivityType(logType);
 
+            logType = new BonusApp_ActivityLogType
+            {
+                Enabled = true,
+                SystemKeyword = BonusAppConstants.LogType_User_Login,
+                Name = "登陆"
+            };
+            _customerActivityService.InsertActivityType(logType);
+            
+            logType = new BonusApp_ActivityLogType
+            {
+                Enabled = true,
+                SystemKeyword = BonusAppConstants.LogType_User_Logout,
+                Name = "退出"
+            };
+            _customerActivityService.InsertActivityType(logType);
+
+            logType = new BonusApp_ActivityLogType
+            {
+                Enabled = true,
+                SystemKeyword = BonusAppConstants.LogType_User_ChangePwd,
+                Name = "修改密码"
+            };
+            _customerActivityService.InsertActivityType(logType);
+
             // 3. customers and money log
             const int totalUserCount = 80;
 
@@ -121,7 +143,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 {
                     Username = "testUser_" + i,
                     Password = _encryptionService.CreatePasswordHash("123456", defaultSetting.CustomerPasswordSalt, defaultSetting.HashedPasswordFormat),
-                    AvatarUrl = (i % 3 == 0 ? "/Content/bonus/img/41.png" : "/Content/bonus/img/42.png"),
+                    AvatarFileName = (i % 3 == 0 ? "default_0.png" : "default_0.png"),
                     Nickname = "waiting_" + i,
                     PhoneNumber = "1345644",
                     Active = true,

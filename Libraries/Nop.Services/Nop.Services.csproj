@@ -34,6 +34,9 @@
       <HintPath>..\..\packages\Autofac.4.4.0\lib\net45\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="ImageResizer, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ImageResizer.4.2.5\lib\net45\ImageResizer.dll</HintPath>
+    </Reference>
     <Reference Include="MaxMind.Db, Version=2.0.0.0, Culture=neutral, PublicKeyToken=66afa4cc5ae853ac, processorArchitecture=MSIL">
       <HintPath>..\..\packages\MaxMind.Db.2.4.0\lib\net45\MaxMind.Db.dll</HintPath>
     </Reference>
@@ -49,6 +52,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
@@ -84,7 +88,6 @@
   <ItemGroup>
     <Compile Include="Authentication\FormsAuthenticationService.cs" />
     <Compile Include="Authentication\IAuthenticationService.cs" />
-    <Compile Include="BonusApp\BonusAppDependencyRegister.cs" />
     <Compile Include="Common\Cache\CustomerCacheEventConsumer.cs" />
     <Compile Include="Common\GenericAttributeExtensions.cs" />
     <Compile Include="Common\GenericAttributeService.cs" />
@@ -143,10 +146,13 @@
     <Compile Include="Localization\LocalizedEntityService.cs" />
     <Compile Include="Directory\GeoLookupService.cs" />
     <Compile Include="Directory\IGeoLookupService.cs" />
+    <Compile Include="Media\IPictureService.cs" />
+    <Compile Include="Media\ResizeType.cs" />
     <Compile Include="News\INewsService.cs" />
     <Compile Include="News\NewsService.cs" />
     <Compile Include="Orders\IRewardPointService.cs" />
     <Compile Include="Orders\RewardPointService.cs" />
+    <Compile Include="Media\PictureService.cs" />
     <Compile Include="Security\EncryptionService.cs" />
     <Compile Include="Security\IEncryptionService.cs" />
     <Compile Include="Security\IPermissionProvider.cs" />

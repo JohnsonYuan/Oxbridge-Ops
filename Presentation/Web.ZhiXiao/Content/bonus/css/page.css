@@ -1,15 +1,15 @@
 
 /* Rating Star */
 .star-ratings-css {
-  unicode-bidi: bidi-override;
-  color: #c5c5c5;
-  font-size: 20px;
-  height: 22px;
-  width: 100px;
-  margin: 0 auto;
-  position: relative;
-  padding: 0;
-  text-shadow: 0px 1px 0 #a2a2a2;
+    unicode-bidi: bidi-override;
+    color: #c5c5c5;
+    font-size: 20px;
+    height: 22px;
+    .recharge .bottom width: 100px;
+    margin: 0 auto;
+    position: relative;
+    padding: 0;
+    text-shadow: 0px 1px 0 #a2a2a2;
 }
 .star-ratings-css span {
 	color: #c5c5c5;
@@ -1747,9 +1747,9 @@
  .recharge .guize{width: 96%; margin: 3% auto; background-color: #fff; border: 1px solid #e1e1e1; padding: 0 3%;}
  .recharge .guize h3{width: 100%; border-bottom: 1px solid #e1e1e1; height: 1.5rem; line-height: 1.5rem; font-size: .5rem; color: #333333; text-align: center; font-weight: normal;}
  .recharge .guize .content{padding: 5% 0; color: #666666; font-size: .4rem; line-height: .8rem; text-indent: 2em;}
- .recharge .bottom{width: 96%; margin: 0 auto 5%;}
- .recharge .bottom .btn{width: 48%; text-align: center; height: 1.5rem; line-height: 1.5rem; background-color: #ff8b23; font-size: .5rem; color: #fff;}
- .recharge .bottom .btn:last-child{background-color: #d4d4d4; color: #666666;}
+ .recharge .bottom{width: 96%; margin: 3% auto;}
+ .recharge .bottom .btn{width: 100%; text-align: center; height: 1.5rem; line-height: 1.5rem; background-color: #ff8b23; font-size: .5rem; color: #fff;}
+ /*.recharge .bottom .btn:last-child{background-color: #d4d4d4; color: #666666;}*/
  .recharge .guize .contenttwo{text-indent: 0;}
  .recharge .jfzy{width: 96%; margin: 3% auto;}
  .recharge .jfzy ul li{width: 100%; color: #666666; font-size: .35rem; line-height: .8rem;}
@@ -1758,13 +1758,13 @@
  * */
  .h-top{width: 100%; background-color: #25cb83;  padding: 5% 5%;}
  .h-top .tu{width: 20%;}
- .h-top .tu img{width: 100%;}
+ .h-top .tu img{width: 100%; border-radius: 50%;}
  .h-top .content{width: 60%; margin-left: 5%;}
  .h-top .content p{color: #fff; line-height: .6rem;}
  .h-top .content p.hname{font-size: .5rem;}
  .h-top .content p.htel,
  .h-top .content p.hpthy{font-size: .4rem;}
- .h-top .btn{width: 15%; text-align: center; height: 1rem; background-color: #fff; color: #25cb83; font-size: .45rem; line-height: 1rem; margin-top: 3%;}
+ .h-top .btn{padding: 2px 12px; text-align: center; height: 1rem; background-color: #fff; color: #25cb83; font-size: .4rem; line-height: 1rem; margin-top: 3%;}
  .h-top p.hpthy img {width: .4rem;}
  
  .cash{width: 100%; background-color: #fff; }

@@ -149,13 +149,16 @@
     <Content Include="App_Data\Localization\zhs.nopres.xml" />
     <Content Include="App_Data\Notes.txt" />
     <Content Include="App_Data\Settings.txt" />
+    <Compile Include="Areas\BonusApp\BonusAppDependencyRegister.cs" />
     <Compile Include="Areas\BonusApp\Controllers\BaseUserController.cs" />
     <Compile Include="Areas\BonusApp\Controllers\BonusAppBaseController.cs" />
     <Compile Include="Areas\BonusApp\Controllers\HomeController.cs" />
     <Compile Include="Areas\BonusApp\Controllers\InstallController.cs" />
+    <Compile Include="Areas\BonusApp\Controllers\UserController.cs" />
+    <Compile Include="Areas\BonusApp\Factories\CustomerModelFactory.cs" />
     <Compile Include="Areas\BonusApp\Mapper\AutoMapperConfiguration.cs" />
-    <Compile Include="Areas\BonusApp\Models\CommentIndexPageMoodel.cs" />
     <Compile Include="Areas\BonusApp\Models\CommentListModel.cs" />
+    <Compile Include="Areas\BonusApp\Models\CustomerModel.cs" />
     <Compile Include="Areas\BonusApp\Models\HomePageModel.cs" />
     <Content Include="Areas\YiJiaYi_Manage\Views\Log\List.cshtml" />
     <Content Include="Areas\YiJiaYi_Manage\Views\Log\View.cshtml" />
@@ -243,7 +246,6 @@
     <Content Include="Content\Images\logo-mini.png" />
     <Content Include="Content\Images\flags\cn.png" />
     <Content Include="Content\Images\flags\us.png" />
-    <Content Include="Content\Images\google-maps.gif" />
     <Content Include="Content\Images\logo.png" />
     <Content Include="Content\Images\search-icon.png" />
     <Content Include="Content\Images\throbber-synchronizing.gif" />
@@ -886,6 +888,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Content\styles.css" />
     <Content Include="Content\styles.rtl.css" />
+    <Content Include="Content\upload\default-avatar.jpg" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -976,9 +979,12 @@
     <Content Include="Content\bonus\css\fonts\icofont.woff2" />
     <Content Include="Areas\BonusApp\Views\Home\_PoolItems.cshtml" />
     <Content Include="Areas\BonusApp\Views\Home\Comment.cshtml" />
-    <Content Include="Areas\BonusApp\Views\Home\UserCenter.cshtml" />
+    <Content Include="Areas\BonusApp\Views\User\Index.cshtml" />
     <Content Include="Areas\BonusApp\Views\Home\_CommentItems.cshtml" />
     <Content Include="Areas\BonusApp\Views\Common\Register.cshtml" />
+    <Content Include="Areas\BonusApp\Views\User\Edit.cshtml" />
+    <Content Include="Areas\BonusApp\Views\User\TiXian.cshtml" />
+    <Content Include="Areas\BonusApp\Views\User\Log.cshtml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap\bootstrap.js" />
@@ -1427,7 +1433,9 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\BonusApp\BonusAppAreaRegistration.cs" />
     <Compile Include="Areas\BonusApp\Controllers\CommonController.cs" />
+    <Compile Include="Areas\BonusApp\Models\RegisterModel.cs" />
     <Compile Include="Areas\BonusApp\Models\UI\Response.cs" />
+    <Compile Include="Areas\BonusApp\Models\WithdrawLogModel.cs" />
     <Compile Include="Areas\BonusApp\Mvc\BonusAppCustomerAuthorizeAttribute.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\AdminAreaRegistration.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\ActivityLogController.cs" />
@@ -1676,10 +1684,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Areas\BonusApp\Views\BaseUser\" />
     <Folder Include="Areas\BunusApp_Manage\" />
     <Folder Include="Content\lib\Roxy_Fileman\tmp\" />
-    <Folder Include="Content\uploaded\" />
     <Folder Include="db_backups\" />
     <Folder Include="Validators\Log\" />
   </ItemGroup>

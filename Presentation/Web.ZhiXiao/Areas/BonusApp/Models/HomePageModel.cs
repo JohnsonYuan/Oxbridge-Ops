@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Nop.Core.Domain.BonusApp;
+﻿using Nop.Core.Domain.BonusApp;
 using Nop.Core.Domain.BonusApp.Logging;
 using Nop.Web.Framework.Mvc;
 
