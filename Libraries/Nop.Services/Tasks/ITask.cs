@@ -5,6 +5,8 @@
     /// </summary>
     public partial interface ITask
     {
+        string Name { get; }
+
         /// <summary>
         /// Executes a task
         /// </summary>

@@ -5,7 +5,6 @@
     color: #c5c5c5;
     font-size: 20px;
     height: 22px;
-    .recharge .bottom width: 100px;
     margin: 0 auto;
     position: relative;
     padding: 0;
@@ -310,8 +309,8 @@
 }
 
 .liebiao .content .list .zuo img {
-	max-height: 1.5rem;
-	max-width: 1.5rem;
+	height: 1.5rem;
+	width: 1.5rem;
 }
 
 .liebiao .content .list .you {
@@ -657,8 +656,8 @@
 }
 
 .paihang .content .list .zuo ul li.tu img {
-	max-width: 1.5rem;
-	max-height: 1.5rem;
+	width: 1.5rem;
+	height: 1.5rem;
 }
 
 .paihang .content .list .you {
@@ -789,7 +788,7 @@
 /**/
 .center-bottom .top:last-child {
 	border-bottom: none;
-}*/
+}
 
 
 /*我的账户*/
@@ -918,7 +917,7 @@
 }
 
 .czhi .top .list .you .tit img {
-	display: inline-block;
+	/*display: inline-block;*/
 	width: .5rem;
 	float: left;
 	margin-top: .25rem;

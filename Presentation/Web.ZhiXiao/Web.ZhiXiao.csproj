@@ -1442,6 +1442,7 @@
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\LogController.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\NewsController.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\OnlineCustomerController.cs" />
+    <Compile Include="Controllers\KeepAliveController.cs" />
     <Compile Include="Controllers\PreferencesController.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\RoxyFilemanController.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\Controllers\SecurityController.cs" />

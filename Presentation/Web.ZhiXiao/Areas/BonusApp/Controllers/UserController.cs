@@ -187,6 +187,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             var avatarFileName = pictureService.SavePicture(fileBinary, contentType, 100);
             _workContext.CurrentBonusAppCustomer.AvatarFileName = avatarFileName;
             _customerService.UpdateCustomer(_workContext.CurrentBonusAppCustomer);
+            _customerActivityService.ClearMoneyLogCache();  // 更换头像, log缓存需要更新
             //when returning JSON the mime-type must be set to text/plain
             //otherwise some browsers will pop-up a "Save As" dialog.
             return Json(new { success = true,

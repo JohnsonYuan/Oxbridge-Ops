@@ -14,6 +14,8 @@ namespace Nop.Services.Logging
             this._logger = logger;
         }
 
+        public string Name => "ClearLog";
+
         /// <summary>
         /// Executes a task
         /// </summary>

@@ -56,6 +56,15 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 
         #endregion
 
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            // 禁用安装
+            if (_appService.GetAppStatus() != null)
+            {
+                filterContext.Result = new HttpStatusCodeResult(404);
+            }
+        }
+
         public ActionResult Index()
         {
             // 0. init app status and customer

@@ -387,6 +387,12 @@ namespace Nop.Services.BonusApp.Logging
             }
         }
 
+        public virtual void ClearMoneyLogCache()
+        {
+            // clear cache
+            _cacheManager.RemoveByPattern(MONEYLOG_PATTERN_KEY);
+        }
+
         /// <summary>
         /// Inserts an money log item
         /// </summary>
@@ -476,7 +482,7 @@ namespace Nop.Services.BonusApp.Logging
                 _bonusAppService.ReturnUserMoneyIfNeeded(this);
 
                 // clear cache
-                _cacheManager.RemoveByPattern(ACTIVITYTYPE_PATTERN_KEY);
+                _cacheManager.RemoveByPattern(MONEYLOG_PATTERN_KEY);
                 return moneyLog;
             }
         }
@@ -553,7 +559,17 @@ namespace Nop.Services.BonusApp.Logging
         {
             // 当前log status的排序
             string tableName = _dbContext.GetTableName<BonusApp_MoneyLog>();
-            var result = _dbContext.SqlQuery<int>(string.Format("SELECT CONVERT(INT, ROW_NUMBER() OVER(ORDER BY id ASC)) FROM {0} WHERE MoneyReturnStatusId={1} ORDER BY CreatedOnUtc ASC", tableName, log.MoneyReturnStatusId));
+            /*
+             * // 计算当前log的排序
+             SELECT t.num FROM (
+                SELECT CONVERT(INT,ROW_NUMBER() OVER(ORDER BY CreatedOnUtc asc)) AS num, Id FROM BonusApp_MoneyLog 
+                ) t
+                WHERE t.Id=15
+             */
+            var result = _dbContext.SqlQuery<int>(string.Format("SELECT t.num FROM (SELECT CONVERT(INT,ROW_NUMBER() OVER(ORDER BY CreatedOnUtc asc)) AS num, Id FROM {0} WHERE MoneyReturnStatusId={1}) t WHERE t.Id={2}", 
+                tableName, 
+                log.MoneyReturnStatusId,
+                log.Id));
             return result.FirstOrDefault();
         }
 

@@ -27,6 +27,7 @@ namespace Nop.Services.BonusApp.Logging
         /// <param name="log"></param>
         /// <returns></returns>
         int GetMoneyLogOrderNumber(BonusApp_MoneyLog log);
+        void ClearMoneyLogCache();
         BonusApp_ActivityLog InsertActivity(BonusApp_Customer customer, string systemKeyword, string comment, params object[] commentParams);
         BonusApp_ActivityLog InsertActivity(string systemKeyword, string comment, params object[] commentParams);
         void InsertActivityType(BonusApp_ActivityLogType activityLogType);

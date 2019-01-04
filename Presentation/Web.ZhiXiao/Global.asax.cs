@@ -4,7 +4,10 @@ using Nop.Core.Data;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Common;
 using Nop.Core.Infrastructure;
+using Nop.Services.Common;
+using Nop.Services.Infrastructure;
 using Nop.Services.Logging;
+using Nop.Services.Tasks;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Mvc;
 using StackExchange.Profiling;
@@ -55,6 +58,14 @@ namespace Web.ZhiXiao
 
             if (databaseInstalled)
             {
+                var webHelper = EngineContext.Current.Resolve<IWebHelper>();
+
+                // 本地测试不需要keep alive
+                var keeyAliveTask = EngineContext.Current.ContainerManager.ResolveUnregistered<KeepAliveTask>();
+                // TaskThread.Instance.Seconds = 10; // 测试10s
+                TaskThread.Instance.AddTask(keeyAliveTask); // 默认timer为10分钟
+                TaskThread.Instance.InitTimer();
+
                 //miniprofiler
                 if (EngineContext.Current.Resolve<StoreInformationSettings>().DisplayMiniProfilerInPublicStore)
                 {
@@ -65,8 +76,10 @@ namespace Web.ZhiXiao
                 try
                 {
                     //log
+                    var machineName = EngineContext.Current.Resolve<IMachineNameProvider>();
+
                     var logger = EngineContext.Current.Resolve<ILogger>();
-                    logger.Information("Application started", null, null);
+                    logger.Information("Application started from: " + machineName.GetMachineName(), null, null);
                 }
                 catch (Exception)
                 {
@@ -101,14 +114,14 @@ namespace Web.ZhiXiao
                 return;
 
             //miniprofiler
-#if !DEBUG
+#if DEBUG
             if (EngineContext.Current.Resolve<StoreInformationSettings>().DisplayMiniProfilerInPublicStore)
-#endif
             {
                 MiniProfiler.Start();
                 //store a value indicating whether profiler was started
                 HttpContext.Current.Items["nop.MiniProfilerStarted"] = true;
             }
+#endif
         }
 
         protected void Application_EndRequest(object sender, EventArgs e)
