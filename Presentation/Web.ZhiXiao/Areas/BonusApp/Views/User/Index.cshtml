@@ -2,6 +2,12 @@
 
 @{
     Html.SetActiveMenuItemSystemName("User");
+
+    Html.AddCssFileParts("~/Content/sweetalert2/sweetalert2.min.css");
+
+    Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/sweetalert2/sweetalert2.min.js");
+
+    ViewBag.Title = "个人中心";
 }
 
 <div class="main clearfloat">
@@ -12,9 +18,9 @@
         <div class="content clearfloat fl">
             <p class="hname">@Model.NickName</p>
             @*<p class="htel">13035059866</p>*@
-            <p></p>
             <p class="hpthy">资金: ¥@Model.Money</p>
         </div>
+        <a href='@Url.RouteUrl("BonusApp_Logout")' class="btn db clearfloat fr ra3">退出</a>
     </div>
     @*<div class="cash clearfloat">
             <div class="shang xia clearfloat">
@@ -41,7 +47,7 @@
                     <a href="@Url.Action("TiXian", "User")">
                         <p class="tu">
                             <span></span>
-                            <img src="~/Content/bonus/img/33.png">
+                            <img src="~/Content/bonus/img/29.png">
                         </p>
                         <p class="tit">
                             申请提现
@@ -49,13 +55,24 @@
                     </a>
                 </li>
                 <li>
-                    <a href="@Url.Action("Log", "User")">
+                    <a href="@Url.Action("TiXianLog", "User")">
                         <p class="tu">
                             <span></span>
-                            <img src="~/Content/bonus/img/32.png" />
+                            <img src="~/Content/bonus/img/33.png" />
                         </p>
                         <p class="tit">
                             提现记录
+                        </p>
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("MoneyLog", "User")">
+                        <p class="tu">
+                            <span></span>
+                            <img src="~/Content/bonus/img/50.png">
+                        </p>
+                        <p class="tit">
+                            资金记录
                         </p>
                     </a>
                 </li>
@@ -70,8 +87,22 @@
                         </p>
                     </a>
                 </li>
+                <li>
+                    <a href="@Url.Action("Comment", "User")">
+                        <p class="tu">
+                            <span></span>
+                            <img src="~/Content/bonus/img/66.png">
+                        </p>
+                        <p class="tit">
+                            发表评论
+                        </p>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
 </div>
+
+@section scripts {
+}
 

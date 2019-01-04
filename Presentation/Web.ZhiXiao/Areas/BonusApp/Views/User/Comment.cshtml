@@ -1,0 +1,80 @@
+﻿@model Web.ZhiXiao.Areas.BonusApp.Models.CustomerModel
+
+@{
+    Html.SetActiveMenuItemSystemName("User");
+    
+    Html.AddCssFileParts("~/Content/bonus/css/icofont.min.css");
+    Html.AddCssFileParts("~/Content/sweetalert2/sweetalert2.min.css");
+    
+    Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/sweetalert2/sweetalert2.min.js");
+    Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/starrr/starrr.js");
+
+    ViewBag.Title = "评论";
+}
+
+<div class="main clearfloat">
+    <div class="warp warpthree clearfloat">
+            <div class="h-top h-topone clearfloat box-s">
+                <p>发表评论</p>
+            </div>
+            <div class="comment clearfloat">
+                <div class="czhi content clearfloat box-s">
+                    <p>评论内容</p>
+                    <textarea id="content" required="" placeholder="输入评论..."></textarea>
+                </div>
+                <div class="czhi clearfloat box-s">
+					<p>评分</p>
+					<input type="hidden" id="rate" placeholder="评分" />
+            
+        <div class='starrr' id='rateStar'></div>
+				</div>
+                <!--<a href="#" class="center-btn center-btntwo db ra3">点击上传文件</a>-->
+                <div class="bottom clearfloat">
+                    <button class="db fl btn ra3">评论</button>
+                </div>
+            </div>
+        </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#rateStar').starrr({
+                rating: 5,
+                change: function (e, value) {
+                    if (value) {
+                        $('#rate').val(value);
+                    } else {
+                        //...
+                    }
+                }
+            });
+        });
+
+        $("button").click(function () {
+            var content = $('#content').val();
+            if (!content) {
+                SAlert('请输入评论内容');
+                return;
+            }
+
+            var rate = $('#rate').val();
+            if (!rate) {
+                SAlert('请选择评分');
+                return;
+            }
+
+            postLoading('@Url.Content("~/User/Comment")', {
+                content: content,
+                rate: rate,
+            }, function (response) {
+                if (!response.Result)
+                    SAlert(response.Message);
+                else
+                    SSuccess(response.Data, function () {
+                        $('#content').val('');
+
+                    });
+            });
+        });
+    </script>
+}

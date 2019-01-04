@@ -1,12 +1,14 @@
 ﻿
 @{
+    Html.AddCssFileParts("~/Content/bonus/css/other.css");
     Html.AddCssFileParts("~/Content/bonus/css/icofont.min.css");
+    Html.AddCssFileParts("~/Content/sweetalert2/sweetalert2.min.css");
+    
+    Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/sweetalert2/sweetalert2.min.js");
 
     ViewBag.Title = "注册";
     ViewBag.HideMenu = true;
 }
-
-<h2>Register</h2>
 
 <div class="login clearfloat box-s">
     <h3>会员注册</h3>
@@ -19,7 +21,7 @@
                 </p>
                 <div class="nr clearfloat fl">
                     <span class="opa3"></span>
-                    <input type="text" name="" id="" value="" placeholder="用户名" />
+                    <input type="text" name="username" id="username" placeholder="用户名" />
                 </div>
             </li>
             <li class="ra3">
@@ -29,7 +31,7 @@
                 </p>
                 <div class="nr clearfloat fl">
                     <span class="opa3"></span>
-                    <input type="text" name="" id="" value="" placeholder="登录密码" />
+                    <input type="password" name="password" id="password" value="" placeholder="登录密码" />
                 </div>
             </li>
             <li class="ra3">
@@ -39,15 +41,53 @@
                 </p>
                 <div class="nr clearfloat fl">
                     <span class="opa3"></span>
-                    <input type="text" name="" id="" value="" placeholder="登录密码2" />
+                    <input type="password" name="password2" id="password2" value="" placeholder="重复密码" />
                 </div>
             </li>
         </ul>
     </div>
     <div class="login-btn">
-        <a href="register.html">
+        <button>
             <span class="opa5"></span>
             <samp>注册</samp>
-        </a>
+        </button>
     </div>
 </div>
+
+@section scripts {
+    <script>
+        $("button").click(function () {
+            var name = $('#username').val();
+            if (!name) {
+                SAlert('请输入用户名');
+                return;
+            }
+            var pwd = $('#password').val();
+            if (!pwd) {
+                SAlert('请输入密码');
+                return;
+            }
+
+            var pwd2 = $('#password2').val();
+            if (!pwd2) {
+                SAlert('请再次输入密码');
+                return;
+            }
+
+            if (pwd != pwd2) {
+                SAlert('两次密码不一致');
+                return;
+            }
+
+            postLoading('@Url.RouteUrl("BonusApp_Register")', {
+                Username: name,
+                Password: pwd
+            }, function (response) {
+                if (!response.Result)
+                    SAlert(response.Message);
+                else
+                    window.location.href = '@Url.RouteUrl("BonusApp_HomePage")';
+            });
+        });
+    </script>
+}

@@ -126,12 +126,13 @@ namespace Nop.Services.BonusApp.Customers
         /// </summary>
         /// <param name="customer">Customer</param>
         void InsertComment(BonusApp_CustomerComment comment);
+        void InsertComment(BonusApp_Customer customer, string content, int rate);
 
         /// <summary>
         /// Updates the customer
         /// </summary>
         /// <param name="customer">Customer</param>
-        void UpdateCustomer(BonusApp_CustomerComment comment);
+        void UpdateComment(BonusApp_CustomerComment comment);
 
         void DisableComment(BonusApp_CustomerComment comment);
 

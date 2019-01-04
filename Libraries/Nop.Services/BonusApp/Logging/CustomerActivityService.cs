@@ -544,6 +544,19 @@ namespace Nop.Services.BonusApp.Logging
             return moneyLog;
         }
 
+        /// <summary>
+        /// 当前log的排序id
+        /// </summary>
+        /// <param name="log"></param>
+        /// <returns></returns>
+        public virtual int GetMoneyLogOrderNumber(BonusApp_MoneyLog log)
+        {
+            // 当前log status的排序
+            string tableName = _dbContext.GetTableName<BonusApp_MoneyLog>();
+            var result = _dbContext.SqlQuery<int>(string.Format("SELECT CONVERT(INT, ROW_NUMBER() OVER(ORDER BY id ASC)) FROM {0} WHERE MoneyReturnStatusId={1} ORDER BY CreatedOnUtc ASC", tableName, log.MoneyReturnStatusId));
+            return result.FirstOrDefault();
+        }
+
         #region Bonus Logic
 
         /// <summary>
@@ -622,7 +635,7 @@ namespace Nop.Services.BonusApp.Logging
         /// <param name="comment">The activity comment</param>
         /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
         /// <returns>Activity log item</returns>
-        public virtual BonusApp_WithdrawLog InsertWithdraw(double amount, string comment, params object[] commentParams)
+        public virtual BonusApp_WithdrawLog InsertWithdraw(decimal amount, string comment, params object[] commentParams)
         {
             return InsertWithdraw(_workContext.CurrentBonusAppCustomer, amount, comment, commentParams);
         }
@@ -635,7 +648,7 @@ namespace Nop.Services.BonusApp.Logging
         /// <param name="comment">The activity comment</param>
         /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
         /// <returns>Withdraw log item</returns>
-        public virtual BonusApp_WithdrawLog InsertWithdraw(BonusApp_Customer customer, double amount, string comment, params object[] commentParams)
+        public virtual BonusApp_WithdrawLog InsertWithdraw(BonusApp_Customer customer, decimal amount, string comment, params object[] commentParams)
         {
             if (customer == null)
                 return null;

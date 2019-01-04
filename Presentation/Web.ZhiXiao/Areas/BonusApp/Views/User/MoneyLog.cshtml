@@ -1,0 +1,50 @@
+﻿@model IEnumerable<Web.ZhiXiao.Areas.BonusApp.Models.Log.MoneyLogModel>
+
+@{
+    Html.SetActiveMenuItemSystemName("User");
+
+    ViewBag.Title = "资金记录";
+}
+<div class="shouyi main clearfloat">
+    <!-- title -->
+    <div class="top clearfloat">
+        <div class="one clearfloat box-s">
+            资金记录
+        </div>
+    </div>
+    <!-- paihang star -->
+    <div class="paihang clearfloat">
+        <div class="content clearfloat">
+            @foreach (var item in Model)
+            {
+                <text>
+                <div class="list clearfloat fl">
+                    <div class="clearfloat">
+                        <div class="zuo clearfloat fl">
+                            <ul>
+                                <li>¥ @item.ReturnMoney</li>
+                                <li>
+                                    <p class="you clearfloat fr" style="float: none;">
+                                        @(item.MoneyReturnStatus == Nop.Core.Domain.BonusApp.Logging.BonusApp_MoneyReturnStatus.Complete ? "已完成" : "排队中")(第@(item.OrderNum)位)
+                                    </p>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="you time clearfloat fr">
+                            @item.CreatedOnUtc.ToString("yyyy-MM-dd HH:mm")
+                        </div>
+                    </div>
+                </div>
+                </text>
+            }
+        </div>
+    </div>
+    <!-- paihang end -->
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+       
+    </script>
+}

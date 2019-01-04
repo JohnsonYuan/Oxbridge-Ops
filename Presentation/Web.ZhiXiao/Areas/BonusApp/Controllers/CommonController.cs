@@ -155,7 +155,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult Register([Bind(Include="Username,Password")]LoginModel model)
+        public ActionResult Register([Bind(Include = "Username,Password")]LoginModel model)
         {
             if (string.IsNullOrEmpty(model.Username))
                 return ErrorJson("请输入用户名");
@@ -169,82 +169,19 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             {
                 return ErrorJson(modelError);
             }
+            
+            //standard logout 
+            _authenticationService.SignOut();
+
+            var customer = _customerService.GetCustomerByUsername(model.Username);
+
+            //sign in new customer
+            _authenticationService.SignIn(customer, model.RememberMe);
+
+            //activity log
+            _customerActivityService.InsertActivity(customer, BonusAppConstants.LogType_User_Login, _localizationService.GetResource("ActivityLog.PublicStore.Login"));
 
             return SuccessJson("注册成功");
-        }
-
-        #endregion
-
-        #region Upload picture
-
-        [HttpPost]
-        //do not validate request token (XSRF)
-        public virtual ActionResult AsyncUpload()
-        {
-            var pictureService = EngineContext.Current.Resolve<PictureService>();
-
-            Stream stream = null;
-            var fileName = "";
-            var contentType = "";
-            if (String.IsNullOrEmpty(Request["file"]))
-            {
-                // IE
-                HttpPostedFileBase httpPostedFile = Request.Files[0];
-                if (httpPostedFile == null)
-                    throw new ArgumentException("No file uploaded");
-                stream = httpPostedFile.InputStream;
-                fileName = Path.GetFileName(httpPostedFile.FileName);
-                contentType = httpPostedFile.ContentType;
-            }
-            else
-            {
-                //Webkit, Mozilla
-                stream = Request.InputStream;
-                fileName = Request["file"];
-            }
-
-            var fileBinary = new byte[stream.Length];
-            stream.Read(fileBinary, 0, fileBinary.Length);
-            
-            var fileExtension = Path.GetExtension(fileName);
-            if (!String.IsNullOrEmpty(fileExtension))
-                fileExtension = fileExtension.ToLowerInvariant();
-
-            if (String.IsNullOrEmpty(contentType))
-            {
-                switch (fileExtension)
-                {
-                    case ".bmp":
-                        contentType = MimeTypes.ImageBmp;
-                        break;
-                    case ".gif":
-                        contentType = MimeTypes.ImageGif;
-                        break;
-                    case ".jpeg":
-                    case ".jpg":
-                    case ".jpe":
-                    case ".jfif":
-                    case ".pjpeg":
-                    case ".pjp":
-                        contentType = MimeTypes.ImageJpeg;
-                        break;
-                    case ".png":
-                        contentType = MimeTypes.ImagePng;
-                        break;
-                    case ".tiff":
-                    case ".tif":
-                        contentType = MimeTypes.ImageTiff;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            //when returning JSON the mime-type must be set to text/plain
-            //otherwise some browsers will pop-up a "Save As" dialog.
-            return Json(new { success = true,
-                imageUrl = pictureService.SavePicture(fileBinary, contentType, 100) },
-                MimeTypes.TextPlain);
         }
 
         #endregion

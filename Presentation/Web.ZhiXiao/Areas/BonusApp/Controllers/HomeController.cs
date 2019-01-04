@@ -8,6 +8,7 @@ using Nop.Extensions;
 using Nop.Services.BonusApp.Customers;
 using Nop.Services.BonusApp.Logging;
 using Nop.Services.Helpers;
+using Nop.Services.Media;
 using Nop.Services.ZhiXiao.BonusApp;
 using Nop.Web.Framework;
 using Web.ZhiXiao.Areas.BonusApp.Factories;
@@ -23,7 +24,8 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 
         private IBonusAppService _appService;
         private IBonusApp_CustomerService _customerService;
-        private IBonusApp_CustomerActivityService _customerActivityService;
+        private IBonusApp_CustomerActivityService _customerActivityService;      
+        private IPictureService _pictureService;
 
         private IDateTimeHelper _dateTimeHelper;
         private IWebHelper _webHelper;
@@ -37,6 +39,8 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             IBonusAppService appService,
             IBonusApp_CustomerService customerService,
             IBonusApp_CustomerActivityService customerActivityService,
+            IPictureService pictureService,
+
             IDateTimeHelper dateTimeHelper,
             IWebHelper webHelper,
             IWorkContext workContext)
@@ -44,6 +48,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             this._appService = appService;
             this._customerService = customerService;
             this._customerActivityService = customerActivityService;
+            this._pictureService = pictureService;
             this._dateTimeHelper = dateTimeHelper;
             this._webHelper = webHelper;
             this._workContext = workContext;
@@ -72,7 +77,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                     new PoolItemModel
                     {
                         OrderNumber = index + firstItemNumber,
-                        CustomerAvatar = logItem.Customer.AvatarFileName,
+                        CustomerAvatar = _pictureService.GetPictureUrl(logItem.Customer.AvatarFileName),
                         CustomerName = logItem.Customer.Nickname,
                         Money = (double)logItem.ReturnMoney,
                         DisplayDateTime = _dateTimeHelper.ConvertToUserTime(logItem.CreatedOnUtc, DateTimeKind.Utc).ToString("yyyy-MM-dd HH:mm")
@@ -107,6 +112,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 Data = comments.Select(x =>
                 {
                     var m = x.ToModel<CommentModel>();
+                    m.CustomerAvatar = _pictureService.GetPictureUrl(x.Customer.AvatarFileName);
                     m.CreatedOn = x.CreatedOnUtc.RelativeFormat(true, "yyyy-MM-dd");
                     return m;
                 }),
@@ -163,12 +169,6 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             var model = PrepareCommentListModel(page);
             return PartialView("_CommentItems", model.Data);
         }
-
-        #endregion
-
-        #region UserSettings
-
-        
 
         #endregion
 

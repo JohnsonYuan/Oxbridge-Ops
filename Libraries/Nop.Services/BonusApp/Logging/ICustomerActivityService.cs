@@ -21,6 +21,12 @@ namespace Nop.Services.BonusApp.Logging
         IPagedList<BonusApp_ActivityLog> GetAllActivitiesByTypes(string[] logTypeSystemNames, DateTime? createdOnFrom = null, DateTime? createdOnTo = null, int? customerId = null, int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null);
         IList<BonusApp_ActivityLogType> GetAllActivityTypes();
         IPagedList<BonusApp_MoneyLog> GetAllMoneyLogs(DateTime? createdOnFrom = null, DateTime? createdOnTo = null, int? customerId = null, BonusApp_MoneyReturnStatus? moneyReturnStatus = null, int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null);
+        /// <summary>
+        /// µ±Ç°logµÄÅÅÐòid
+        /// </summary>
+        /// <param name="log"></param>
+        /// <returns></returns>
+        int GetMoneyLogOrderNumber(BonusApp_MoneyLog log);
         BonusApp_ActivityLog InsertActivity(BonusApp_Customer customer, string systemKeyword, string comment, params object[] commentParams);
         BonusApp_ActivityLog InsertActivity(string systemKeyword, string comment, params object[] commentParams);
         void InsertActivityType(BonusApp_ActivityLogType activityLogType);
@@ -54,7 +60,7 @@ namespace Nop.Services.BonusApp.Logging
 
         #region Withdraw
 
-        BonusApp_WithdrawLog InsertWithdraw(double amount, string comment, params object[] commentParams);
+        BonusApp_WithdrawLog InsertWithdraw(decimal amount, string comment, params object[] commentParams);
 
         /// <summary>
         /// Inserts an withdraw log item
@@ -64,7 +70,7 @@ namespace Nop.Services.BonusApp.Logging
         /// <param name="comment">The activity comment</param>
         /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
         /// <returns>Withdraw log item</returns>
-        BonusApp_WithdrawLog InsertWithdraw(BonusApp_Customer customer, double amount, string comment, params object[] commentParams);
+        BonusApp_WithdrawLog InsertWithdraw(BonusApp_Customer customer, decimal amount, string comment, params object[] commentParams);
 
         /// <summary>
         /// Update withdraw log item

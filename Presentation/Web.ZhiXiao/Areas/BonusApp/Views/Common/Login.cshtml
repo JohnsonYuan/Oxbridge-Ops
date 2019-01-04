@@ -60,7 +60,7 @@
                 return;
             }
 
-            $.post('@Url.RouteUrl("Login")', {
+            postLoading('@Url.RouteUrl("Login")', {
                 Username: name,
                 Password: pwd
             }, function (response) {

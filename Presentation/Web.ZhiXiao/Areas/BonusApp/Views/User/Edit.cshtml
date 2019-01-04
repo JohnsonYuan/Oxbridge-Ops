@@ -6,11 +6,13 @@
     Html.AddCssFileParts("~/Content/sweetalert2/sweetalert2.min.css");
 
     Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/sweetalert2/sweetalert2.min.js");
+
+    ViewBag.Title = "信息修改";
 }
 
 <div class="main clearfloat">
     <div class="h-top clearfloat box-s">
-        <div class="tu clearfloat fl">
+        <div id="avatar" class="tu clearfloat fl">
             <img src="@Model.Avatar" />
         </div>
         <input type="file" id="f_upload" style="display: none" />
@@ -63,7 +65,7 @@
                 return;
             }
 
-            $.post('@Url.Content("~/User/UpdatePwd")', {
+            postLoading('@Url.Content("~/User/UpdatePwd")', {
                 oldPwd: oldPwd,
                 newPwd: pwd,
                 newPwd2: pwd2
@@ -75,15 +77,16 @@
             });
         });
 
-
-    $("#changeAvatar").on('change', function () {
-        var fileupload = $("#f_upload");
-        fileupload.click();
-            var file, img;
-            if ((file = this.files[0])) {
-                sendFile(file);
-                $(".avatar").html("<img src='" + responseJSON.imageUrl + "'/>");
-            }
+        $("#changeAvatar").on('click', function () {
+            var fileupload = $("#f_upload");
+            fileupload.click();
+            fileupload.on('change', function () {
+                var file, img;
+                if ((file = this.files[0])) {
+                    sendFile(file);
+                    $(this).val('');
+                }
+            });
         });
 
         function sendFile(file) {
@@ -91,22 +94,23 @@
             formData.append('file', file);
             $.ajax({
                 type: 'post',
-                url: '@Url.Content("~/Common/AsyncUpload")',
+                url: '@Url.Content("~/User/ChangeAvatar")',
                 data: formData,
-                success: function (status) {
+                beforeSend: function () {
+                    $('body').preloader();
+                },
+                success: function (responseJSON) {
                     if (responseJSON.success) {
-                        $(".avatar").html("<img src='" + responseJSON.imageUrl + "'/>");
+                        $("#avatar").html("<img src='" + responseJSON.imageUrl + "'/>");
                     }
-                    //if (status != 'error') {
-                    //    var my_path = "MediaUploader/" + status;
-                    //    $("#myUploadedImg").attr("src", my_path);
-                    //}
                 },
                 processData: false,
                 contentType: false,
                 error: function () {
-                    alert("Whoops something went wrong!");
+                    alert("上传出错!");
                 }
+            }).always(function () {
+                $('body').preloader('remove');
             });
         }
     </script>

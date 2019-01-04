@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.BonusApp;
 using Nop.Core.Infrastructure;
+using Nop.Extensions;
 using Nop.Services.BonusApp.Customers;
 using Nop.Services.BonusApp.Logging;
 using Nop.Services.Helpers;
@@ -12,6 +15,7 @@ using Nop.Services.Media;
 using Nop.Services.ZhiXiao.BonusApp;
 using Web.ZhiXiao.Areas.BonusApp.Factories;
 using Web.ZhiXiao.Areas.BonusApp.Models;
+using Web.ZhiXiao.Areas.BonusApp.Models.Log;
 
 namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 {
@@ -112,6 +116,86 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 
         #endregion
 
+        #region Upload picture
+
+        [HttpPost]
+        //do not validate request token (XSRF)
+        public virtual ActionResult ChangeAvatar()
+        {
+            var pictureService = EngineContext.Current.Resolve<IPictureService>();
+            Stream stream = null;
+            var fileName = "";
+            var contentType = "";
+            if (String.IsNullOrEmpty(Request["file"]))
+            {
+                // IE
+                HttpPostedFileBase httpPostedFile = Request.Files[0];
+                if (httpPostedFile == null)
+                    throw new ArgumentException("No file uploaded");
+                stream = httpPostedFile.InputStream;
+                fileName = Path.GetFileName(httpPostedFile.FileName);
+                contentType = httpPostedFile.ContentType;
+            }
+            else
+            {
+                //Webkit, Mozilla
+                stream = Request.InputStream;
+                fileName = Request["file"];
+            }
+
+            var fileBinary = new byte[stream.Length];
+            stream.Read(fileBinary, 0, fileBinary.Length);
+            
+            var fileExtension = Path.GetExtension(fileName);
+            if (!String.IsNullOrEmpty(fileExtension))
+                fileExtension = fileExtension.ToLowerInvariant();
+
+            if (String.IsNullOrEmpty(contentType))
+            {
+                switch (fileExtension)
+                {
+                    case ".bmp":
+                        contentType = MimeTypes.ImageBmp;
+                        break;
+                    case ".gif":
+                        contentType = MimeTypes.ImageGif;
+                        break;
+                    case ".jpeg":
+                    case ".jpg":
+                    case ".jpe":
+                    case ".jfif":
+                    case ".pjpeg":
+                    case ".pjp":
+                        contentType = MimeTypes.ImageJpeg;
+                        break;
+                    case ".png":
+                        contentType = MimeTypes.ImagePng;
+                        break;
+                    case ".tiff":
+                    case ".tif":
+                        contentType = MimeTypes.ImageTiff;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // delete old picture
+            pictureService.DeleteUploadPicture(_workContext.CurrentBonusAppCustomer.AvatarFileName);
+
+            // avatar file name
+            var avatarFileName = pictureService.SavePicture(fileBinary, contentType, 100);
+            _workContext.CurrentBonusAppCustomer.AvatarFileName = avatarFileName;
+            _customerService.UpdateCustomer(_workContext.CurrentBonusAppCustomer);
+            //when returning JSON the mime-type must be set to text/plain
+            //otherwise some browsers will pop-up a "Save As" dialog.
+            return Json(new { success = true,
+                imageUrl = pictureService.GetPictureUrl(avatarFileName) },
+                MimeTypes.ApplicationJson);
+        }
+
+        #endregion
+
         #region tixian and log
 
         public ActionResult TiXian()
@@ -123,14 +207,14 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
         [HttpPost]
         public ActionResult TiXian(decimal money,
             string account,
-            string type)
+            string method)
         {
             if (string.IsNullOrEmpty(account))
                 return ErrorJson("请输入提现账号");
-            if (string.IsNullOrEmpty(type))
+            if (string.IsNullOrEmpty(method))
                 return ErrorJson("请输入提现类型");
 
-            var moneyRegex = new Regex(@"^\d*(\.\d{1,2})?$");
+            var moneyRegex = new Regex(@"^\d+(\.\d{1,2})?$");
             if (!moneyRegex.IsMatch(money.ToString()))
                 return ErrorJson("提现金额最多两位小数");
 
@@ -147,20 +231,33 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 return ErrorJson("提现金额超出当前余额");
 
             _customerActivityService.InsertWithdraw(customer,
-                (double)actualAmount,
-                "提现申请金额{0}, 账号: {1}, 类型: {2}",
+                actualAmount,
+                "提现申请金额{0}, 账号: {1}, 提现方式: {2}",
                 actualAmount,
                 account,
-                type);
+                method);
+
+            var userMoneyAfterTiXian = customer.Money - actualAmount;
+
+            // log 记录金额变化
+            _customerActivityService.InsertActivity(BonusAppConstants.LogType_User_TiXian,
+                "提现申请, 原金额: {0}, 提现金额: {1}, 提现后金额: {2}",
+                customer.Money,
+                actualAmount,
+                userMoneyAfterTiXian);
 
             // update user money
-            _workContext.CurrentBonusAppCustomer.Money -= actualAmount;
-            _customerService.UpdateCustomer(_workContext.CurrentBonusAppCustomer);
+            customer.Money = userMoneyAfterTiXian;
+            _customerService.UpdateCustomer(customer);
 
-            return View();
+            return SuccessJson("提现申请提交, 请等待管理员处理");
         }
 
-        public ActionResult Log()
+        /// <summary>
+        /// 提现记录
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult TiXianLog()
         {
             var withdrawLogs = _customerActivityService.GetAllWithdraws(customerId: _workContext.CurrentBonusAppCustomer.Id);
             var model = withdrawLogs.Select(x => new WithdrawLogModel
@@ -173,6 +270,46 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 IpAddress = x.IpAddress,
             });
             return View(model);
+        }
+
+        /// <summary>
+        /// 资金记录
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult MoneyLog()
+        {
+            var withdrawLogs = _customerActivityService.GetAllMoneyLogs(customerId: _workContext.CurrentBonusAppCustomer.Id);
+            var model = withdrawLogs.Select(x =>
+            {
+                var m = x.ToModel<MoneyLogModel>();
+                m.OrderNum = _customerActivityService.GetMoneyLogOrderNumber(x);
+                return m;
+            });
+            return View(model);
+        }
+
+        #endregion
+
+        #region Comment
+        
+        public ActionResult Comment()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Comment(string content,
+            int rate)
+        {   
+            if (string.IsNullOrEmpty(content))
+                return ErrorJson("请输入评论内容");
+
+            if (rate <= 0 || rate > 5)
+                rate = 5;   // rating default 5
+
+            _customerService.InsertComment(_workContext.CurrentBonusAppCustomer, content, rate);
+            
+            return SuccessJson("评论成功");
         }
 
         #endregion

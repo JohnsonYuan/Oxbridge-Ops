@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using AutoMapper;
 using Nop.Core.Domain.BonusApp.Customers;
+using Nop.Core.Domain.BonusApp.Logging;
 using Nop.Core.Infrastructure.Mapper;
 using Web.ZhiXiao.Areas.BonusApp.Models;
+using Web.ZhiXiao.Areas.BonusApp.Models.Log;
 
 namespace Web.ZhiXiao.Areas.BonusApp.Mapper
 {
@@ -29,8 +28,10 @@ namespace Web.ZhiXiao.Areas.BonusApp.Mapper
                   //customer roles
                   cfg.CreateMap<BonusApp_CustomerComment, CommentModel>()
                     .ForMember(dest => dest.CustomerNickName, mo => mo.MapFrom(src => src.Customer.Nickname))
-                    .ForMember(dest => dest.CustomerAvatar, mo => mo.MapFrom(src => src.Customer.AvatarFileName))
+                    .ForMember(dest => dest.CustomerAvatar, mo => mo.Ignore())
                     .ForMember(dest => dest.CreatedOn, mo => mo.Ignore());
+
+                  cfg.CreateMap<BonusApp_MoneyLog, MoneyLogModel>();
               };
 
             return action;

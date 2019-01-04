@@ -131,6 +131,15 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 Name = "修改密码"
             };
             _customerActivityService.InsertActivityType(logType);
+            
+            logType = new BonusApp_ActivityLogType
+            {
+                Enabled = true,
+                SystemKeyword = BonusAppConstants.LogType_User_TiXian,
+                Name = "用户提现"
+            };
+            _customerActivityService.InsertActivityType(logType);
+
 
             // 3. customers and money log
             const int totalUserCount = 80;

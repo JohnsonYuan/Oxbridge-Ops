@@ -37,10 +37,16 @@
     <!--liebiao end-->
 </div>
 
+@Html.Partial("_ToTop")
 
 @section scripts {
     <script src="~/Scripts/bonus/infinite-scroll.pkgd.min.js"></script>
     <script>
+        // scroll top
+        $('.totop').tottTop({
+            scrollTop: 100
+        });
+
         var $container = $('.content').infiniteScroll({
             // options 'news/blog-p{{#}}.html'
             path: getPath,

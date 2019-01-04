@@ -14,7 +14,7 @@ namespace Nop.Services.BonusApp.Authentication
     public class BonusAppFormsAuthenticationService : IBonusAppFormsAuthenticationService
     {
         #region Fields
-        
+
         private readonly BonusAppSettings _bonusAppSettings;
         private readonly HttpContextBase _httpContext;
         private readonly IBonusApp_CustomerService _customerService;
@@ -114,7 +114,17 @@ namespace Nop.Services.BonusApp.Authentication
         public virtual void SignOut()
         {
             _cachedCustomer = null;
+
+            string cookieValue = String.Empty;
+            HttpCookie cookie = new HttpCookie(_bonusAppSettings.AuthCookieName, cookieValue);
+            cookie.HttpOnly = true;
+            cookie.Expires = new System.DateTime(1999, 10, 12);
+
+            // remove from server
             _httpContext.Response.Cookies.Remove(_bonusAppSettings.AuthCookieName);
+
+            // remove cookie from client
+            _httpContext.Response.Cookies.Add(cookie);
         }
 
         /// <summary>
@@ -128,7 +138,7 @@ namespace Nop.Services.BonusApp.Authentication
 
             // _httpContext.User 直销系统使用
             if (_httpContext == null ||
-                _httpContext.Request == null 
+                _httpContext.Request == null
                 // || !_httpContext.Request.IsAuthenticated
                 // || !(_httpContext.User.Identity is FormsIdentity)
                 )
@@ -186,7 +196,7 @@ namespace Nop.Services.BonusApp.Authentication
             {
                 return null;
             }
-        
+
             return ticket;
         }
 

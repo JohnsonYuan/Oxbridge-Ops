@@ -445,7 +445,7 @@
 }
 
 .main {
-	margin-bottom: 1.8rem;
+	margin-bottom: 1.6rem;
 	width: 100%;
 	overflow: hidden;
 }
@@ -568,7 +568,7 @@
 .paihang {
 	width: 100%;
 	background-color: #fff;
-	margin-top: 1%;
+	/*margin-top: 1%;*/
 	border-top: 1px solid #E6E6E6;
 }
 
@@ -583,7 +583,7 @@
 }
 .paihang p.tit.active {
     font-weight: bold;
-    background: #f7f76d;
+    background: #FF9922;
 }
 
 .paihang .contentTitle p {
@@ -596,6 +596,9 @@
 }
 .paihang .contentTitle p img {
 	width: .35rem;
+}
+.paihang .contentTitle p.active a {
+	color: white;
 }
 .paihang .contentTitle p a {
 	color: #666666;
@@ -738,8 +741,9 @@
 }
 
 .center-bottom .top ul li {
-	width: 33%;
+	width: 49%;
 	text-align: center;
+	border-bottom: 1px solid #E6E6E6;
 	border-right: 1px solid #E6E6E6;
 	padding: 9% 0;
 	float: left;
@@ -779,13 +783,13 @@
 	color: #333333;
 }
 
-.center-bottom .top ul li:last-child {
-	border-right: none;
-}
-
+.center-bottom .top ul li:nth-child(even) {
+        border-right: none;
+    }
+/**/
 .center-bottom .top:last-child {
 	border-bottom: none;
-}
+}*/
 
 
 /*我的账户*/
@@ -1753,18 +1757,32 @@
  .recharge .guize .contenttwo{text-indent: 0;}
  .recharge .jfzy{width: 96%; margin: 3% auto;}
  .recharge .jfzy ul li{width: 100%; color: #666666; font-size: .35rem; line-height: .8rem;}
+
+ /*comment*/
+ .comment{width: 100%;}
+ .comment .czhi:first-child{margin-top: 0; height: 4rem;}
+ .comment .czhi{width: 100%; padding: 0 3%; background-color: #fff; height: 1.5rem; line-height: 1.5rem; margin-top: 1%;}
+ .comment .czhi p,
+ .comment .czhi span{width: 20%; float: left; font-size: .4rem; color: #333333;}
+ .comment .czhi input{margin: 0; padding: 0; height: 1.5rem; float: left; width: 70%; border: none; font-size: .4rem; color: #333333;}
+ .comment .czhi textarea{line-height: .8rem; margin: 0; height: 100%; float: left; width: 70%; border: none; font-size: .4rem; color: #333333;}
+ .comment .czhi span{display: block; width: 10%; text-align: right;}
+ .comment .czhi i{font-size: .8rem; color: #c2c2c2;}
+ .comment .bottom{width: 96%; margin: 3% auto;}
+ .comment .bottom .btn{width: 100%; text-align: center; height: 1.5rem; line-height: 1.5rem; background-color: #ff8b23; font-size: .5rem; color: #fff;}
+
 /*
  center--------------------------------------------------------------------------------------
  * */
- .h-top{width: 100%; background-color: #25cb83;  padding: 5% 5%;}
+ .h-top{width: 100%; background-color: #FF9922;  padding: 3% 5%;}
  .h-top .tu{width: 20%;}
- .h-top .tu img{width: 100%; border-radius: 50%;}
- .h-top .content{width: 60%; margin-left: 5%;}
+ .h-top .tu img{width: 2.2rem; height: 2.2rem; border-radius: 50%;}
+ .h-top .content{width: 50%; margin-left: 5%;}
  .h-top .content p{color: #fff; line-height: .6rem;}
  .h-top .content p.hname{font-size: .5rem;}
  .h-top .content p.htel,
- .h-top .content p.hpthy{font-size: .4rem;}
- .h-top .btn{padding: 2px 12px; text-align: center; height: 1rem; background-color: #fff; color: #25cb83; font-size: .4rem; line-height: 1rem; margin-top: 3%;}
+ .h-top .content p.hpthy{font-size: .4rem; margin-top: 10px;}
+ .h-top .btn{padding: 2px 12px; text-align: center; height: 1rem; background-color: #fff; color: #FF9922; font-size: .4rem; line-height: 1rem; margin-top: 3%;}
  .h-top p.hpthy img {width: .4rem;}
  
  .cash{width: 100%; background-color: #fff; }
@@ -1862,3 +1880,13 @@
     padding: 0 20px;
     font-size: 18px;
 }
+
+/*starr*/
+.starrr {
+  display: inline-block; }
+  .starrr a {
+    font-size: 1rem;
+    padding: 0 1px;
+    cursor: pointer;
+    color: #FFD119;
+    text-decoration: none; }

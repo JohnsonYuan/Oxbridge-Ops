@@ -1,5 +1,4 @@
-﻿using System;
-using Nop.Core.Domain.BonusApp.Logging;
+﻿using Nop.Core.Domain.BonusApp.Logging;
 
 namespace Nop.Data.Mapping.BonusApp.Logging
 {
@@ -8,7 +7,7 @@ namespace Nop.Data.Mapping.BonusApp.Logging
         public BonusApp_WithdrawLogMap()
         {
             this.HasKey(al => al.Id);
-            this.Property(al => al.Amount).IsRequired();
+            this.Property(al => al.Amount).IsRequired().HasPrecision(18, 2);
             this.Property(al => al.Comment).IsRequired();
             this.Property(al => al.IpAddress).HasMaxLength(200);
 

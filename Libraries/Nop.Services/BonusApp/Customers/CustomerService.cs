@@ -24,8 +24,9 @@ namespace Nop.Services.BonusApp.Customers
         private readonly IDataProvider _dataProvider;
         private readonly IDbContext _dbContext;
         private readonly ICacheManager _cacheManager;
-        private readonly IEventPublisher _eventPublisher; 
+        private readonly IEventPublisher _eventPublisher;
         private readonly IEncryptionService _encryptionService;
+        private readonly IWebHelper _webHelper;
         private readonly BonusAppSettings _bonusAppSettings;
         private readonly HttpContextBase _httpContext;
 
@@ -40,6 +41,7 @@ namespace Nop.Services.BonusApp.Customers
             IDbContext dbContext,
             IEventPublisher eventPublisher,
             IEncryptionService encryptionService,
+            IWebHelper webHelper,
             BonusAppSettings bonusAppSettings,
             HttpContextBase httpContext)
         {
@@ -51,6 +53,7 @@ namespace Nop.Services.BonusApp.Customers
             this._dbContext = dbContext;
             this._eventPublisher = eventPublisher;
             this._encryptionService = encryptionService;
+            this._webHelper = webHelper;
             this._bonusAppSettings = bonusAppSettings;
             this._httpContext = httpContext;
         }
@@ -296,7 +299,7 @@ namespace Nop.Services.BonusApp.Customers
         public virtual CustomerLoginResults ValidateCustomer(string username, string password)
         {
             var customer = GetCustomerByUsername(username);
-            
+
             if (customer == null)
                 return CustomerLoginResults.CustomerNotExist;
             if (customer.Deleted)
@@ -398,7 +401,7 @@ namespace Nop.Services.BonusApp.Customers
             {
                 query = query.Where(w => w.IpAddress == ipAddress);
             }
-            
+
             query = query.OrderByDescending(c => c.CreatedOnUtc);
             query = query.IncludeProperties(c => c.Customer);
 
@@ -421,13 +424,35 @@ namespace Nop.Services.BonusApp.Customers
             _eventPublisher.EntityInserted(comment);
         }
 
+        public virtual void InsertComment(BonusApp_Customer customer, string content, int rate)
+        {
+            if (customer == null)
+                throw new ArgumentNullException("customer");
 
+            if (content == null)
+                throw new ArgumentNullException("content");
+
+            if (rate <= 0)
+                throw new ArgumentException("rate");
+
+            BonusApp_CustomerComment comment = new BonusApp_CustomerComment
+            {
+                CustomerId = customer.Id,
+                Comment = content,
+                Rate = rate,
+                Enabled = true,
+                IpAddress = _webHelper.GetCurrentIpAddress(),
+                CreatedOnUtc = DateTime.UtcNow
+            };
+
+            InsertComment(comment);
+        }
 
         /// <summary>
         /// Updates the customer
         /// </summary>
         /// <param name="customer">Customer</param>
-        public virtual void UpdateCustomer(BonusApp_CustomerComment comment)
+        public virtual void UpdateComment(BonusApp_CustomerComment comment)
         {
             if (comment == null)
                 throw new ArgumentNullException("comment");
@@ -458,7 +483,7 @@ namespace Nop.Services.BonusApp.Customers
         {
             if (comment == null)
                 throw new ArgumentNullException("comment");
-            
+
             _customerCommentRepository.Delete(comment);
 
             //event notification

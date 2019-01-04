@@ -17,11 +17,6 @@
             setSize();
         }
     }, false);
-
-    // scroll top  
-    $('.totop').tottTop({
-        scrollTop: 100
-    });
 })(document, window);
 
 function SAlert(msg) {
@@ -32,6 +27,32 @@ function SAlert(msg) {
         showConfirmButton: false,
         timer: 1000
       });
+}
+function SSuccess(msg, callback) {
+    Swal({
+        type: 'success',
+        //padding: '0.3rem',
+        title: msg,
+        showConfirmButton: false,
+        timer: 2400,
+        onClose: callback
+      });
+}
+
+function postLoading(url, params, callback) {
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: params,
+        beforeSend: function () {
+            $('body').preloader();
+        },
+        success: function (response) {
+            callback(response);
+        }
+    }).done(function () {
+        $('body').preloader('remove');
+    });
 }
 
 function loadingScrollData(container, url, params) {

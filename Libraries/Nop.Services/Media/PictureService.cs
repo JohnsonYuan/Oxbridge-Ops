@@ -107,7 +107,7 @@ namespace Nop.Services.Media
         /// <param name="thumbFileName">Thumb file name</param>
         /// <param name="mimeType">MIME type</param>
         /// <param name="binary">Picture binary</param>
-        protected virtual void SaveThumb(string thumbFilePath, string thumbFileName, string mimeType, byte[] binary)
+        protected virtual void SaveThumb(string thumbFilePath, byte[] binary)
         {
             File.WriteAllBytes(thumbFilePath, binary);
         }
@@ -144,14 +144,14 @@ namespace Nop.Services.Media
             return GetPictureUrl(defaultImageFileName, targetSize, storeLocation);
         }
 
-        public virtual string GetPictureUrl(string fileName, 
+        public virtual string GetPictureUrl(string fileName,
             int targetSize = 0,
             string storeLocation = null)
         {
             string filePath = GetPictureLocalPath(fileName);
             if (!File.Exists(filePath))
             {
-                return "";
+                return GetDefaultPictureUrl(targetSize, storeLocation);
             }
 
             if (targetSize == 0)
@@ -186,7 +186,7 @@ namespace Nop.Services.Media
                                 Quality = 90
                             });
                             var destBinary = destStream.ToArray();
-                            SaveThumb(thumbFilePath, thumbFileName, "", destBinary);
+                            SaveThumb(thumbFilePath, destBinary);
                         }
                     }
                 }
@@ -207,7 +207,7 @@ namespace Nop.Services.Media
             int targetSize = 0)
         {
             string lastPart = GetFileExtensionFromMimeType(mimeType);
-            string fileName = string.Format("{0}_0.{1}", Guid.NewGuid().ToString(), lastPart);
+            string fileName = string.Format("{0}_0.{1}", Guid.NewGuid().ToString("N"), lastPart);
             if (targetSize == 0)
             {
                 File.WriteAllBytes(GetPictureLocalPath(fileName), pictureBinary);
@@ -240,10 +240,25 @@ namespace Nop.Services.Media
                         Quality = 90
                     });
                     var destBinary = destStream.ToArray();
-                    SaveThumb(thumbFilePath, thumbFileName, "", destBinary);
+                    SaveThumb(thumbFilePath, destBinary);
 
-                    var url = GetPictureLocalPath(thumbFileName);
-                    return url;
+                    return thumbFileName;
+                }
+            }
+        }
+
+        public virtual void DeleteUploadPicture(string fileName)
+        {
+            string filePath = GetPictureLocalPath(fileName);
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    File.Delete(filePath);
+                }
+                catch
+                {
+
                 }
             }
         }

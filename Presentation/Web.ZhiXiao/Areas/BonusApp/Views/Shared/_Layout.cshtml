@@ -2,16 +2,16 @@
 @using Nop.Web.Framework.UI
 @{
     //CSS resources
-
+    Html.AppendCssFileParts("~/Scripts/loading/preloader.css");
     Html.AppendCssFileParts("~/Content/bonus/css/page.css");
     Html.AppendCssFileParts("~/Content/bonus/css/base.css");
 
     //scripts
+    Html.AppendScriptParts("~/Scripts/loading/jquery.preloader.min.js");
     Html.AppendScriptParts("~/Scripts/jquery-1.10.2.min.js");
     
-    Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/bonus/public.common.js");
-    Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/bonus/totop.min.js");
-
+    Html.AppendScriptParts("~/Scripts/bonus/public.common.js");
+ 
     //page title
     string pageTitle = !String.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title : "";
     //adminPageTitle += T("Admin.PageTitle").Text;
@@ -56,7 +56,6 @@
         @Html.Partial("_Menu")
     }
     <!--footer end-->
-    <div class="totop">&uarr;</div>
 
     @Html.NopScripts(this.Url, ResourceLocation.Foot, false)
     @RenderSection("scripts", false)
