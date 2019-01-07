@@ -5,6 +5,7 @@ using Nop.Admin.Models.News;
 using Nop.Admin.Models.Settings;
 using Nop.Admin.Models.Stores;
 using Nop.Core;
+using Nop.Core.Domain.BonusApp.Configuration;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Logging;
@@ -13,6 +14,7 @@ using Nop.Core.Domain.Stores;
 using Nop.Core.Domain.ZhiXiao;
 using Nop.Models.Customers;
 using Nop.Web.Framework.Mvc;
+using Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp;
 
 namespace Nop.Extensions
 {
@@ -290,6 +292,19 @@ namespace Nop.Extensions
         }
 
         public static NewsItem ToEntity(this NewsItemModel model, NewsItem destination)
+        {
+            return model.MapTo(destination);
+        }
+
+        #endregion
+
+        #region Bonus app
+
+        public static BonusAppSettingsModel ToModel(this BonusAppSettings entity)
+        {
+            return entity.MapTo<BonusAppSettings, BonusAppSettingsModel>();
+        }
+        public static BonusAppSettings ToEntity(this BonusAppSettingsModel model, BonusAppSettings destination)
         {
             return model.MapTo(destination);
         }

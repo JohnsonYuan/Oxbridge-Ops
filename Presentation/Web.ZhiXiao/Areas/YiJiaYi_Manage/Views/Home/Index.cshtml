@@ -7,6 +7,8 @@
 
     //page title
     ViewBag.Title = T("Admin.Dashboard").Text;
+    
+    Html.SetActiveMenuItemSystemName("Dashboard");
 
     var permissionService = EngineContext.Current.Resolve<IPermissionService>();
     var canManageOrders = permissionService.Authorize(StandardPermissionProvider.ManageOrders);

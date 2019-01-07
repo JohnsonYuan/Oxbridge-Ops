@@ -28,7 +28,9 @@ namespace Web.ZhiXiao.Areas.Admin
                 "Admin_default",
                 "YiJiaYi_Manage/{controller}/{action}/{id}",
                 new { action = "Index", id = UrlParameter.Optional },
-                new[] { "Web.ZhiXiao.Areas.Admin.Controllers" }
+                new[] { "Web.ZhiXiao.Areas.Admin.Controllers",  // zhixiao controllers
+                        "Web.ZhiXiao.Areas.YiJiaYi_Manage.Controllers.BonusApp"
+                }
             );
         }
     }

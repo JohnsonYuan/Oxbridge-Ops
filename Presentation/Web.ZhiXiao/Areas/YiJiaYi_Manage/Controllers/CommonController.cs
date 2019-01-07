@@ -143,7 +143,7 @@ namespace Web.ZhiXiao.Areas.Admin.Controllers
         public virtual ActionResult Login(bool? checkoutAsGuest)
         {
             var model = _customerModelFactory.PrepareLoginModel(checkoutAsGuest);
-            return View("~/Views/Common/Login.cshtml", model);
+            return View(model);
         }
 
 

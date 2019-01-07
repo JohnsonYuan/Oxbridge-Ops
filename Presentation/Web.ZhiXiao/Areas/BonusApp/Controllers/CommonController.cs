@@ -1,15 +1,10 @@
-using System;
-using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.BonusApp;
-using Nop.Core.Domain.BonusApp.Customers;
 using Nop.Core.Domain.Customers;
-using Nop.Core.Infrastructure;
 using Nop.Models.Customers;
-using Nop.Services.Authentication;
 using Nop.Services.BonusApp.Authentication;
 using Nop.Services.BonusApp.Customers;
 using Nop.Services.BonusApp.Logging;
@@ -18,9 +13,7 @@ using Nop.Services.Customers;
 using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
-using Nop.Services.Media;
 using Nop.Services.Security;
-using Web.ZhiXiao.Factories;
 
 namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 {

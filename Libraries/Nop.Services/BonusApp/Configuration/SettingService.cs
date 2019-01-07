@@ -28,7 +28,7 @@ namespace Nop.Services.BonusApp.Configuration
         /// <summary>
         /// Key pattern to clear cache
         /// </summary>
-        private const string SETTINGS_PATTERN_KEY = "Nopbonusapp..setting.";
+        private const string SETTINGS_PATTERN_KEY = "Nop.bonusapp.setting.";
 
         #endregion
 

@@ -5,6 +5,7 @@ using Nop.Admin.Models.Logging;
 using Nop.Admin.Models.News;
 using Nop.Admin.Models.Settings;
 using Nop.Admin.Models.Stores;
+using Nop.Core.Domain.BonusApp.Configuration;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Logging;
@@ -15,6 +16,7 @@ using Nop.Core.Infrastructure.Mapper;
 using Nop.Models.Customers;
 using Nop.Services.Common;
 using Nop.Services.Customers;
+using Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp;
 
 namespace Nop.Admin.Infrastructure.Mapper
 {
@@ -153,6 +155,11 @@ namespace Nop.Admin.Infrastructure.Mapper
                     .ForMember(dest => dest.EndDateUtc, mo => mo.Ignore())
                     .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
                     .ForMember(dest => dest.LimitedToStores, mo => mo.Ignore());
+
+
+                ///  Bonusapp
+                cfg.CreateMap<BonusAppSettings, BonusAppSettingsModel>();
+                cfg.CreateMap<BonusAppSettingsModel, BonusAppSettings>();
             };
 
             return action;

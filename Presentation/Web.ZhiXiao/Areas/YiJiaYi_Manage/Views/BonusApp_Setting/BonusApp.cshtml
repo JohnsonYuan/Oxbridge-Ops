@@ -1,0 +1,108 @@
+﻿@model Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp.BonusAppSettingsModel
+
+@{
+    //page title
+    ViewBag.Title = "奖金池系统";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("BonusApp Basic Settings");
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            奖金池系统相关设置
+        </h1>
+        <div class="pull-right">
+            <button type="submit" name="save" class="btn bg-blue">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="form-horizontal">
+            @Html.Action("StoreScopeConfiguration", "Setting")
+            @Html.Action("Mode", "Setting")
+            @Html.ValidationSummary(false)
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    基础设置
+                </div>
+                <div class="panel-body">
+                    
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.SiteTitle)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.SiteTitle)
+                            @Html.ValidationMessageFor(model => model.SiteTitle)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.SaveToAppMoneyPercent)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.SaveToAppMoneyPercent)
+                            @Html.ValidationMessageFor(model => model.SaveToAppMoneyPercent)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    其它
+                </div>
+                <div class="panel-body">
+                    <div class="form-group advanced-setting">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.Withdraw_Rate)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.Withdraw_Rate)
+                            @Html.ValidationMessageFor(model => model.Withdraw_Rate)
+                        </div>
+                    </div>
+                    <div class="form-group advanced-setting">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.UserReturnMoneyPercent)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.UserReturnMoneyPercent)
+                            @Html.ValidationMessageFor(model => model.UserReturnMoneyPercent)
+                        </div>
+                    </div>
+
+                    <div class="form-group advanced-setting">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.AuthCookieName)
+                        </div><div class="col-md-8">
+                            @Html.NopEditorFor(model => model.AuthCookieName)
+                            @Html.ValidationMessageFor(model => model.AuthCookieName)
+                        </div>
+                    </div>
+                    <div class="form-group advanced-setting">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.HashedPasswordFormat)
+                        </div><div class="col-md-8">
+                            @Html.NopDisplayFor(model => model.HashedPasswordFormat)
+                            @Html.ValidationMessageFor(model => model.HashedPasswordFormat)
+                        </div>
+                    </div>
+
+                    <div class="form-group advanced-setting">
+                        <div class="col-md-4">
+                            @Html.NopLabelFor(model => model.CustomerPasswordSalt)
+                        </div><div class="col-md-8">
+                            @Html.NopDisplayFor(model => model.CustomerPasswordSalt)
+                            @Html.ValidationMessageFor(model => model.CustomerPasswordSalt)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
