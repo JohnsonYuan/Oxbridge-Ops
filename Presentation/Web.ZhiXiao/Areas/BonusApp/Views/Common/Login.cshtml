@@ -48,6 +48,15 @@
 
 @section scripts {
     <script>
+        $("".concat(
+        "#username, ",
+        "#password")).keydown(function (event) {
+            if (event.keyCode === 13) {
+                $("button").click();
+                return false;
+            }
+        });
+
         $("button").click(function () {
             var name = $('#username').val();
             if (!name) {

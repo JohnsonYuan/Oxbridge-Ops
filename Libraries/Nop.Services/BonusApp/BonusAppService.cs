@@ -89,6 +89,8 @@ namespace Nop.Services.ZhiXiao.BonusApp
                 firstWaitingLog.MoneyReturnStatus = Core.Domain.BonusApp.Logging.BonusApp_MoneyReturnStatus.Complete;
                 // return money to user
                 firstWaitingLog.Customer.Money += firstWaitingLog.ReturnMoney;
+                // complete time
+                firstWaitingLog.CompleteOnUtc = DateTime.UtcNow;
                 // update
                 activityService.UpdateMoneyLog(firstWaitingLog);
 

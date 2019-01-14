@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Nop.Core.Domain.Customers;
 using Nop.Models.Customers;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Mvc;

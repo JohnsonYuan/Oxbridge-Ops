@@ -1,0 +1,252 @@
+﻿@model Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp.BonusAppOverviewModel
+@{
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = "业绩统计";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Bonusapp overview");
+
+    int waitingUserCount = Model.AppStatus.WaitingUserCount,
+        completeUserCount = Model.AppStatus.CompleteUserCount;
+    var totalUser = waitingUserCount + completeUserCount;
+    var description = string.Format("共 {0} 人, 排队中 {1}人, 已完成{2}人", totalUser, waitingUserCount, completeUserCount);
+}
+
+@Html.AntiForgeryToken()
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        业绩统计(@description)
+    </h1>
+</div>
+
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default panel-search">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    历史总金额
+                                </div>
+                                <div class="col-md-8">
+                                    @Model.AppStatus.AllUserMoney
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    送出收益
+                                </div>
+                                <div class="col-md-8">
+                                    @Model.AppStatus.MoneyPaied
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    奖金池金额
+                                </div>
+                                <div class="col-md-8">
+                                    @Model.AppStatus.CurrentMoney
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    @Html.NopLabelFor(model => model.CreatedOnFrom)
+                                </div>
+                                <div class="col-md-8">
+                                    @Html.NopEditorFor(model => model.CreatedOnFrom)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    @Html.NopLabelFor(model => model.CreatedOnTo)
+                                </div>
+                                <div class="col-md-8">
+                                    @Html.NopEditorFor(model => model.CreatedOnTo)
+                                </div>
+                            </div>
+                            <div class="form-group hide" >
+                                <div class="col-md-4">
+                                    @Html.NopLabelFor(model => model.IpAddress)
+                                </div>
+                                <div class="col-md-8">
+                                    @Html.NopEditorFor(model => model.IpAddress)
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    @Html.NopLabelFor(model => model.LogStatus)
+                                </div>
+                                <div class="col-md-8">
+                                    @Html.NopDropDownListFor(model => model.LogStatusId, Model.LogStatus)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-8 col-md-offset-4">
+                                    <button type="button" id="search-log" class="btn btn-primary btn-search">
+                                        <i class="fa fa-search"></i>
+                                        @T("Admin.Common.Search")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="moneyLog-grid"></div>
+
+                    <script>
+                        $(document).ready(function() {
+                            $("#moneyLog-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                                    transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("MoneyOverview"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: additionalData
+                                        }
+                },
+                                    schema: {
+                    data: "Data",
+                                        total: "Total",
+                                        errors: "Errors",
+                                        model: {
+                        id: "Id",
+                                            fields: {
+                            //do not implicitly specify all fields
+                            //we do it only for fields which implicitly require it
+                            //otherwise, they'll be formatted wrong way
+                            CreatedOn: { type: "date" }
+                        }
+                    }
+                },
+                                    error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                                    pageSize: @(defaultGridPageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                refresh: true,
+                                    pageSizes: [@(gridPageSizes)],
+                                    @Html.Partial("_GridPagerMessages")
+                                },
+                                editable: {
+                confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+
+                                columns: [
+                                    {
+                                        field: "CustomerId",
+                                        title: "@T("Admin.Configuration.ActivityLog.ActivityLog.Fields.Customer") (昵称)",
+                                        width: 150,
+                                        template: '<a href="@Url.Action("~/YiJiaYi_Manage/BonusApp_Customer/CustomerEdit/")#=CustomerId#">#=Username# (#=Nickname#)</a>'
+                                    },
+                                    {
+                                        //field: "OrderNum",
+                                        title: "队列顺序",
+                                        width: 80,
+                                        template: "第#=OrderNum#位"
+                                    }, {
+                                        field: "Money",
+                                        title: "消费金额",
+                                        width: 80,
+                                    }, {
+                                        field: "AppMoneyDelta",
+                                        title: "存入奖金池",
+                                        width: 90,
+                                    }, {
+                                        field: "AppMoneyBefore",
+                                        title: "奖金池原金额",
+                                        width: 100,
+                                    }, {
+                                        field: "AppMoneyAfter",
+                                        title: "存入奖金池后金额",
+                                        width: 130,
+                                    }, {
+                                        //field: "MoneyReturnStatusId",
+                                        title: "状态",
+                                        width: 80,
+                                        template: kendo.template($("#statusTemplate").html())
+                                    }, {
+                                        field: "CreatedOn",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.CreatedOn")",
+                                        width: 120,
+                                        type: "date",
+                                        format: "{0:yyyy-MM-dd hh:mm}"
+                                    }, {
+                                        field: "CompleteOn",
+                                        title: "完成时间",
+                                        width: 120,
+                                        type: "date",
+                                        format: "{0:yyyy-MM-dd hh:mm}"
+                                    }
+                                ]
+                            });
+                        });
+                    </script>
+                    <script type="text/javascript">
+                        $(document).ready(function() {
+                            $('#search-log').click(function() {
+                                var grid = $('#moneyLog-grid').data('kendoGrid');
+                                grid.dataSource.page(1); //new search. Set page size to 1
+                                //grid.dataSource.read(); we already loaded the grid above using "page" function
+                                return false;
+                            });
+                        });
+
+                        $("".concat(
+                            "#@Html.FieldIdFor(model => model.CreatedOnFrom),",
+                            "#@Html.FieldIdFor(model => model.CreatedOnTo),",
+                            "#@Html.FieldIdFor(model => model.IpAddress),",
+                            "#@Html.FieldIdFor(model => model.LogStatusId)")).keydown(function (event) {
+                                if (event.keyCode === 13) {
+                                    $("#search-customers").click();
+                                    return false;
+                                }
+                            });
+
+                        function additionalData() {
+                            var data = {
+                                CreatedOnFrom: $('#@Html.FieldIdFor(model => model.CreatedOnFrom)').val(),
+                                CreatedOnTo: $('#@Html.FieldIdFor(model => model.CreatedOnTo)').val(),
+                                IpAddress: $('#@Html.FieldIdFor(model => model.IpAddress)').val(),
+                                LogStatusId: $('#@Html.FieldIdFor(model => model.LogStatusId)').val()
+                            };
+                            addAntiForgeryToken(data);
+                            return data;
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/x-kendo-template" id="statusTemplate">
+    #if(MoneyReturnStatusId == @((int)Nop.Core.Domain.BonusApp.Logging.BonusApp_MoneyReturnStatus.Complete)) {#
+        <span class="label label-success">已完成</span>
+    #} else {#
+        <span class="label label-warning">排队中</span>
+    #}#
+    @*<a class="btn btn-default" href="CustomerEdit/#=Id#"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</a>
+    <a class="btn btn-primary recharge" data-id="#=Id#"><i class="fa fa-cny"></i>充值</a>*@
+</script>

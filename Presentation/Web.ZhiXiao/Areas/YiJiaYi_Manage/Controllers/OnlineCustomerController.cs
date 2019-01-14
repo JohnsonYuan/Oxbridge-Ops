@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
-using Nop.Models.Customers;
 using Nop.Core.Domain.Customers;
+using Nop.Models.Customers;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Security;
-using Nop.Web.Framework.Kendoui;
-using Web.ZhiXiao.Controllers;
 using Nop.Web.Framework.Controllers;
+using Nop.Web.Framework.Kendoui;
 
 namespace Web.ZhiXiao.Areas.Admin.Controllers
 {

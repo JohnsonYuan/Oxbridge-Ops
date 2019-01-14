@@ -10,5 +10,9 @@ namespace Nop.Core.Domain.BonusApp
         public const string LogType_User_Logout = "BonusApp.Store.Logout";
         public const string LogType_User_ChangePwd = "BonusApp.Store.ChangePwd";
         public const string LogType_User_TiXian = "BonusApp.Store.TiXian";
+
+        public const string LogType_Admin_ProcessTiXian = "BonusApp.Store.ProcessTiXian";
+
+        public const string LogType_Admin_Recharge = "BonusApp.Store.Recharge";
     }
 }

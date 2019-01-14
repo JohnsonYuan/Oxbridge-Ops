@@ -64,7 +64,7 @@ namespace Nop.Services.BonusApp.Customers
 
         #region Customers
 
-        public IPagedList<BonusApp_Customer> GetAllCustomers(DateTime? createdFromUtc = null, DateTime? createdToUtc = null, string username = null, string phone = null, string ipAddress = null, int pageIndex = 0, int pageSize = int.MaxValue)
+        public IPagedList<BonusApp_Customer> GetAllCustomers(DateTime? createdFromUtc = null, DateTime? createdToUtc = null, string username = null, string nickname = null, string phone = null, string ipAddress = null, decimal? minMoney = null, int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = _customerRepository.Table;
 
@@ -78,6 +78,9 @@ namespace Nop.Services.BonusApp.Customers
             if (!String.IsNullOrWhiteSpace(username))
                 query = query.Where(c => c.Username.Contains(username));
 
+            if (!String.IsNullOrWhiteSpace(nickname))
+                query = query.Where(c => c.Nickname.Contains(nickname));
+
             //search by phone
             if (!String.IsNullOrWhiteSpace(phone))
                 query = query.Where(c => c.PhoneNumber.Contains(phone));
@@ -86,6 +89,11 @@ namespace Nop.Services.BonusApp.Customers
             if (!String.IsNullOrWhiteSpace(ipAddress) && CommonHelper.IsValidIpAddress(ipAddress))
             {
                 query = query.Where(w => w.LastIpAddress == ipAddress);
+            }
+
+            if (minMoney.HasValue)
+            {
+                query = query.Where(w => w.Money >= minMoney);
             }
 
             query = query.OrderByDescending(c => c.CreatedOnUtc);
@@ -277,19 +285,28 @@ namespace Nop.Services.BonusApp.Customers
         /// </summary>
         /// <param name="customer"></param>
         /// <param name="newPassword"></param>
-        public virtual void UpdateCustomerPassword(BonusApp_Customer customer, string newPassword)
+        public virtual ChangePasswordResult ChangeCustomerPassword(BonusApp_Customer customer, string newPassword)
         {
+            var result = new ChangePasswordResult();
             if (customer == null)
-                throw new ArgumentNullException("customer");
+            {
+                result.AddError("用户不存在");
+                return result;
+            }
 
-            if (string.IsNullOrEmpty(newPassword))
-                throw new ArgumentNullException("newPassword");
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                result.AddError("新密码没有输入");
+                return result;
+            }
 
             customer.Password = _encryptionService.CreatePasswordHash(newPassword, _bonusAppSettings.CustomerPasswordSalt, _bonusAppSettings.HashedPasswordFormat);
             _customerRepository.Update(customer);
 
             //event notification
             _eventPublisher.EntityUpdated(customer);
+
+            return result;
         }
 
         #endregion

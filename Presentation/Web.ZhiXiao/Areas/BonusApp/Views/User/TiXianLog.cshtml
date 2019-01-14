@@ -19,24 +19,30 @@
             @foreach (var item in Model)
             {
                 <text>
-                <div class="list clearfloat fl">
-                    <div class="clearfloat">
-                        <div class="zuo clearfloat fl">
-                            <ul>
-                                <li>¥ @item.Amount</li>
-                                <li>
-                                    <p class="you clearfloat fr" style="float: none;">
-                                        @(item.IsDone ? "已完成" : "处理中")
-                                    </p>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="you time clearfloat fr">
-                            @item.CreatedOnUtc.ToString("yyyy-MM-dd HH:mm")
+                    <div class="list clearfloat fl">
+                        <div class="clearfloat">
+                            <div class="zuo clearfloat fl">
+                                <ul>
+                                    <li>¥ @item.Amount</li>
+                                    <li>
+                                        <p class="you clearfloat fr" style="float: none;">
+                                            @if (item.IsDone)
+                                            {
+                                                <span class="label label-success">已完成(@item.CompleteOn.Value.ToString("yyyy-MM-dd"))</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="label label-warning">处理中</span>
+                                            }
+                                        </p>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="you time clearfloat fr">
+                                @item.CreatedOn.ToString("yyyy-MM-dd HH:mm")
+                            </div>
                         </div>
                     </div>
-                </div>
                 </text>
             }
         </div>

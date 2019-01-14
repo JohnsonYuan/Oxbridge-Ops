@@ -15,6 +15,7 @@ using Nop.Core.Domain.ZhiXiao;
 using Nop.Models.Customers;
 using Nop.Web.Framework.Mvc;
 using Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp;
+using Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp.Log;
 
 namespace Nop.Extensions
 {
@@ -307,6 +308,24 @@ namespace Nop.Extensions
         public static BonusAppSettings ToEntity(this BonusAppSettingsModel model, BonusAppSettings destination)
         {
             return model.MapTo(destination);
+        }
+
+        // activity log
+        public static ActivityLogModel ToModel(this Core.Domain.BonusApp.Logging.BonusApp_ActivityLog entity)
+        {
+            return entity.MapTo<Core.Domain.BonusApp.Logging.BonusApp_ActivityLog, ActivityLogModel>();
+        }
+
+        // withdraw log
+        public static BonusAppWithdrawLogModel ToModel(this Core.Domain.BonusApp.Logging.BonusApp_WithdrawLog entity)
+        {
+            return entity.MapTo<Core.Domain.BonusApp.Logging.BonusApp_WithdrawLog, BonusAppWithdrawLogModel>();
+        }
+
+        // money log
+        public static BonusAppMoneyLogModel ToModel(this Core.Domain.BonusApp.Logging.BonusApp_MoneyLog entity)
+        {
+            return entity.MapTo<Core.Domain.BonusApp.Logging.BonusApp_MoneyLog, BonusAppMoneyLogModel>();
         }
 
         #endregion

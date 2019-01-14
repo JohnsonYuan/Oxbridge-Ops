@@ -5,6 +5,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 {
     [AdminAntiForgery]
     [BonusAppCustomerAuthorize]
+    [BonusAppCustomerLastActivity]
     public class BaseUserController : BonusAppBaseController
     {
     }

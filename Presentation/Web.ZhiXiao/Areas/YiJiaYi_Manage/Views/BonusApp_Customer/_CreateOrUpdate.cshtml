@@ -1,0 +1,451 @@
+﻿@using Nop.Core;
+
+@model Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp.Customer.BonusAppCustomerModel
+
+@functions {
+    int defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    string gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+}
+
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+<script>
+    $(document).ready(function () {
+        bindBootstrapTabSelectEvent('customer-edit');
+    });
+</script>
+
+<div class="content">
+    <div class="form-horizontal">
+        <div id="customer-edit" class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                @Html.RenderBootstrapTabHeader("tab-info", @T("Admin.Customers.Customers.Info"), true)
+                @if (Model.Id > 0)
+                {
+                    @Html.RenderBootstrapTabHeader("tab-moneylog", new Nop.Web.Framework.Localization.LocalizedString("资金记录"))
+                    @Html.RenderBootstrapTabHeader("tab-withdrawlog", new Nop.Web.Framework.Localization.LocalizedString("提现申请"))
+                    @Html.RenderBootstrapTabHeader("tab-activitylog", @T("Admin.Customers.Customers.ActivityLog"))
+                }
+            </ul>
+            <div class="tab-content">
+                @Html.RenderBootstrapTabContent("tab-info", @TabInfo(), true)
+                @if (Model.Id > 0)
+                {
+
+                    @Html.RenderBootstrapTabContent(
+                                       "tab-moneylog",
+                                       @MoneyLog("moneylog-grid",
+                                               Url.Action("MoneyLog", new { customerId = Model.Id })
+                                               )
+                                   )
+
+                    @Html.RenderBootstrapTabContent(
+                                       "tab-withdrawlog",
+                                       @WithdrawLog("withdraw-grid",
+                                               Url.Action("WithdrawLog", new { customerId = Model.Id })
+                                               )
+                                   )
+
+                    @Html.RenderBootstrapTabContent(
+                                       "tab-activitylog",
+                                       @ActivityLog("activitylog-grid",
+                                               Url.Action("ActivityLog", new { customerId = Model.Id })
+                                               )
+                                   )
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@*save selected tab name*@
+<input type="hidden" id="selected-tab-name" name="selected-tab-name" value="@(Html.GetSelectedTabName())">
+
+@helper TabInfo()
+{
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.Username)
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.Username)
+                        @Html.ValidationMessageFor(model => model.Username)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.NickName)
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.NickName)
+                        @Html.ValidationMessageFor(model => model.NickName)
+                    </div>
+                </div>
+
+                @*<div class="form-group">
+                        <div class="col-md-3">
+                            @Html.NopLabelFor(model => model.Email)
+                        </div>
+                        <div class="col-md-9">
+                            @Html.NopEditorFor(model => model.Email)
+                            @Html.ValidationMessageFor(model => model.Email)
+                        </div>
+                    </div>*@
+                @*password, password2*@
+                <div class="form-group">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.Password)
+                    </div>
+                    <div class="col-md-9">
+                        <div class="input-group">
+                            @Html.NopEditorFor(model => model.Password)
+                            <div class="input-group-btn">
+                                @if (Model.Id > 0)
+                                {
+                                    <button type="submit" name="changepassword" class="btn btn-info">
+                                        @T("Admin.Customers.Customers.Fields.Password.Change")
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        @Html.ValidationMessageFor(model => model.Password)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.Phone)
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.Phone)
+                        @Html.ValidationMessageFor(model => model.Phone)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.AdminComment)
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopTextAreaFor(model => model.AdminComment)
+                        @Html.ValidationMessageFor(model => model.AdminComment)
+                    </div>
+                </div>
+                @*<div class="form-group">
+                        <div class="col-md-3">
+                            @Html.NopLabelFor(model => model.IsTaxExempt)
+                        </div>
+                        <div class="col-md-9">
+                            @Html.NopEditorFor(model => model.IsTaxExempt)
+                            @Html.ValidationMessageFor(model => model.IsTaxExempt)
+                        </div>
+                    </div>*@
+
+                <div class="form-group">
+                    <div class="col-md-3">
+                        @Html.NopLabelFor(model => model.Active)
+                    </div>
+                    <div class="col-md-9">
+                        @Html.NopEditorFor(model => model.Active)
+                        @Html.ValidationMessageFor(model => model.Active)
+                    </div>
+                </div>
+                @if (Model.Id > 0)
+                {
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            @Html.NopLabelFor(model => model.LastIpAddress)
+                        </div>
+                        <div class="col-md-9">
+                            @Html.NopDisplayFor(model => model.LastIpAddress)
+                        </div>
+                    </div>
+                }
+                @if (Model.Id > 0)
+                {
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            @Html.NopLabelFor(model => model.CreatedOn)
+                        </div>
+                        <div class="col-md-9">
+                            @Html.NopDisplayFor(model => model.CreatedOn)
+                        </div>
+                    </div>
+                }
+                @if (Model.Id > 0)
+                {
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            @Html.NopLabelFor(model => model.LastActivityDate)
+                        </div>
+                        <div class="col-md-9">
+                            @Html.NopDisplayFor(model => model.LastActivityDate)
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@helper MoneyLog(string elementId, string requestUrl)
+{
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="@elementId"></div>
+                <script>
+                        $(document).ready(function () {
+                            $("#@elementId").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(requestUrl)",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(defaultGridPageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(gridPageSizes)],
+                                    @Html.Partial("_GridPagerMessages")
+                                },
+                                editable: {
+                                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [{
+                                        //field: "OrderNum",
+                                        title: "队列顺序",
+                                        width: 70,
+                                        template: "第#=OrderNum#位"
+                                    }, {
+                                        field: "Money",
+                                        title: "消费金额",
+                                        width: 70,
+                                    }, {
+                                        field: "AppMoneyDelta",
+                                        title: "存入奖金池",
+                                        width: 70,
+                                    }, {
+                                        field: "AppMoneyBefore",
+                                        title: "奖金池原金额",
+                                        width: 80,
+                                    }, {
+                                        field: "AppMoneyAfter",
+                                        title: "存入奖金池后金额",
+                                        width: 100,
+                                    }, {
+                                        //field: "MoneyReturnStatusId",
+                                        title: "状态",
+                                        width: 80,
+                                        template: kendo.template($("#statusTemplate").html())
+                                    }, {
+                                        field: "Comment",
+                                        title: "备注",
+                                        width: 120,
+                                    }, {
+                                        field: "CreatedOn",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.CreatedOn")",
+                                        width: 150,
+                                        type: "date",
+                                        format: "{0:yyyy-MM-dd hh:mm}"
+                                    }, {
+                                        field: "CompleteOn",
+                                        title: "完成时间",
+                                        width: 150,
+                                        type: "date",
+                                        format: "{0:yyyy-MM-dd hh:mm}"
+                                    }
+                                ]
+                            });
+                        });
+                </script>
+            </div>
+        </div>
+    </div>
+}
+
+
+@helper WithdrawLog(string elementId, string requestUrl)
+{
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="@elementId"></div>
+                <script>
+                        $(document).ready(function () {
+                            $("#@elementId").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(requestUrl)",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(defaultGridPageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(gridPageSizes)],
+                                    @Html.Partial("_GridPagerMessages")
+                                },
+                                editable: {
+                                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [{
+                                        field: "Amount",
+                                        title: "提现金额",
+                                        width: 80,
+                                    }, {
+                                        field: "Comment",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.Comment")",
+                                        width: 350,
+                                    }, {
+                                        //field: "MoneyBefore",
+                                        title: "状态",
+                                        width: 80,
+                                        template: '# if(IsDone) {# <button class="btn btn-success" disabled><i class="fa fa-pencil"></i>已处理</button> #} else {# <button class="btn btn-warning"><i class="fa fa-pencil"></i>未处理</button> #} #'
+                                    }, {
+                                        field: "CreatedOn",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.CreatedOn")",
+                                        width: 100,
+                                        type: "date",
+                                        format: "{0:yyyy-MM-dd}"
+                                    }, {
+                                        field: "CompleteOn",
+                                        title: "处理日期",
+                                        width: 100,
+                                        type: "date",
+                                        format: "{0:yyyy-MM-dd hh:mm}"
+                                    }
+                                ]
+                            });
+                        });
+                </script>
+            </div>
+        </div>
+    </div>
+}
+
+@helper ActivityLog(string elementId, string requestUrl)
+{
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="@elementId"></div>
+                <script>
+                        $(document).ready(function () {
+                            $("#@elementId").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(requestUrl)",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(defaultGridPageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(gridPageSizes)],
+                                    @Html.Partial("_GridPagerMessages")
+                                },
+                                editable: {
+                                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [{
+                                        field: "ActivityLogTypeName",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.ActivityLogType")",
+                                        width: 150,
+                                    }, {
+                                        field: "Comment",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.Comment")",
+                                        width: 300,
+                                    }, {
+                                        field: "CreatedOn",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.CreatedOn")",
+                                        width: 200,
+                                        type: "date",
+                                        format: "{0:G}"
+                                    }, {
+                                        field: "IpAddress",
+                                        title: "@T("Admin.Customers.Customers.ActivityLog.IpAddress")",
+                                        width: 100
+                                    }
+                                ]
+                            });
+                        });
+                </script>
+            </div>
+        </div>
+    </div>
+}
+
+
+<script type="text/x-kendo-template" id="statusTemplate">
+    #if(MoneyReturnStatusId == @((int)Nop.Core.Domain.BonusApp.Logging.BonusApp_MoneyReturnStatus.Complete)) {#
+        <button class="btn bg-gray">已完成</button>
+    #} else {#
+        <button class="btn bg-green">排队中</button>
+    #}#
+    @*<a class="btn btn-default" href="CustomerEdit/#=Id#"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</a>
+    <a class="btn btn-primary recharge" data-id="#=Id#"><i class="fa fa-cny"></i>充值</a>*@
+</script>

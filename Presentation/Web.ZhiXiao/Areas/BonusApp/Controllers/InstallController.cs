@@ -129,7 +129,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             {
                 Enabled = true,
                 SystemKeyword = BonusAppConstants.LogType_User_Logout,
-                Name = "退出"
+                Name = "退出登陆"
             };
             _customerActivityService.InsertActivityType(logType);
 
@@ -149,6 +149,21 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             };
             _customerActivityService.InsertActivityType(logType);
 
+            logType = new BonusApp_ActivityLogType
+            {
+                Enabled = true,
+                SystemKeyword = BonusAppConstants.LogType_Admin_ProcessTiXian,
+                Name = "处理用户提现"
+            };
+            _customerActivityService.InsertActivityType(logType);
+
+            logType = new BonusApp_ActivityLogType
+            {
+                Enabled = true,
+                SystemKeyword = BonusAppConstants.LogType_Admin_Recharge,
+                Name = "充值金额"
+            };
+            _customerActivityService.InsertActivityType(logType);
 
             // 3. customers and money log
             const int totalUserCount = 80;
@@ -174,7 +189,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 _customerService.InsertCustomer(waitingCustomer);
 
                 // log and update pool money, check to see if need return money
-                _customerActivityService.InsertMoneyLog(waitingCustomer, randomMoney, "金额 {0}", randomMoney);
+                _customerActivityService.InsertMoneyLog(waitingCustomer, randomMoney, "充值金额 {0}", randomMoney);
             }
 
             // random comment

@@ -22,12 +22,12 @@ namespace Web.ZhiXiao.Areas.BonusApp.Models.Log
         /// <summary>
         /// Gets or sets the date and time of instance creation
         /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
+        public DateTime CreatedOn { get; set; }
 
         /// <summary>
         /// Gets or sets the date and time when this work is done.
         /// </summary>
-        public DateTime? CompleteOnUtc { get; set; }
+        public DateTime? CompleteOn { get; set; }
 
         /// <summary>
         /// Gets or sets the ip address

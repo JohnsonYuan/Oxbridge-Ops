@@ -1,20 +1,19 @@
-﻿@model DashboardModel
-
-@using Nop.Services.Security
+﻿@using Nop.Services.Security
 
 @{
     Html.AppendCssFileParts("~/Content/lib/ionicons/css/ionicons-2.0.1.min.css");
 
     //page title
     ViewBag.Title = T("Admin.Dashboard").Text;
-    
-    Html.SetActiveMenuItemSystemName("ZhiXiao Dashboard");
+
+    Html.SetActiveMenuItemSystemName("BonusApp Dashboard");
 
     var permissionService = EngineContext.Current.Resolve<IPermissionService>();
-    var canManageOrders = permissionService.Authorize(StandardPermissionProvider.ManageOrders);
+    //var canManageOrders = permissionService.Authorize(StandardPermissionProvider.ManageOrders);
     var canManageCustomers = permissionService.Authorize(StandardPermissionProvider.ManageCustomers);
-    var canManageProducts = permissionService.Authorize(StandardPermissionProvider.ManageProducts);
-    var canManageReturnRequests = permissionService.Authorize(StandardPermissionProvider.ManageReturnRequests);
+
+    //var canManageProducts = permissionService.Authorize(StandardPermissionProvider.ManageProducts);
+    //var canManageReturnRequests = permissionService.Authorize(StandardPermissionProvider.ManageReturnRequests);
 }
 
 @Html.AntiForgeryToken()
@@ -27,11 +26,11 @@
 <div class="content">
     <div class="row">
         <div class="col-md-12">
-            @if (canManageOrders && canManageCustomers && canManageProducts && canManageReturnRequests)
+            @if (canManageCustomers)
             {
                 <div class="row">
                     <div class="col-md-12">
-                        @Html.Action("CommonStatistics", "Home")
+                        @Html.Action("CommonStatistics")
                     </div>
                 </div>
             }

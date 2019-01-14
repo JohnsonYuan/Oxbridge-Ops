@@ -1,0 +1,85 @@
+﻿@{
+
+    Layout = "~/Views/Shared/_AdminPopupLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "金额充值";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("BonusApp Customers list");
+}
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script type="text/javascript">
+        try {
+            window.opener.document.getElementById('@(ViewBag.btnId)').click();
+        } catch (e) {
+            alert(e);
+        }
+        window.close();
+    </script>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            金额充值
+        </h1>
+        <div class="pull-right">
+            <button type="submit" name="save" class="btn bg-blue" onclick="return confirm('确认充值?')">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </div>
+    </div>
+    
+    @Html.ValidationSummary(false)
+
+    <div class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                <div class="label-wrapper">
+                                    <label class="control-label" for="Name" title="">
+                                    用户</label>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="form-text-row">
+                                   @ViewBag.NickName (@ViewBag.Username), 当前金额@(ViewBag.MoneyNum)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                <div class="label-wrapper">
+                                    <label class="control-label" for="amount" 
+                                           title="">充值金额</label>
+                                    <div class="ico-help" title="输入充值金额。"><i class="fa fa-question-circle"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <input id="money" type="number" value="0" name="money" />
+                                <script>
+                                    $(document).ready(function () {
+                                        $("#money").kendoNumericTextBox({
+                                            format: "n2",
+                                            step: "500",
+                                            placeholder: "输入金额"
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

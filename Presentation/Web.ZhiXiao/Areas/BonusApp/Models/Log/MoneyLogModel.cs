@@ -12,7 +12,8 @@ namespace Web.ZhiXiao.Areas.BonusApp.Models.Log
         /// <summary>
         /// Gets or sets the date and time of instance creation
         /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public DateTime? CompleteOn { get; set; }
 
         public string IpAddress { get; set; }
 

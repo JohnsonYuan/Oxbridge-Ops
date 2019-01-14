@@ -22,6 +22,7 @@ namespace Nop.Core.Domain.BonusApp.Logging
         /// Gets or sets the date and time of instance creation
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }
+        public DateTime? CompleteOnUtc { get; set; }
 
         public string IpAddress { get; set; }
 

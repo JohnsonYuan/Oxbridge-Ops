@@ -23,8 +23,9 @@ namespace Nop.Services.BonusApp.Customers
         /// <param name="pageSize">Page size</param>
         /// <returns>Customers</returns>
         IPagedList<BonusApp_Customer> GetAllCustomers(DateTime? createdFromUtc = null,
-            DateTime? createdToUtc = null, string username = null,
+            DateTime? createdToUtc = null, string username = null, string nickname = null,
             string phone = null, string ipAddress = null,
+            decimal? minMoney = null,
             int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>
@@ -95,7 +96,7 @@ namespace Nop.Services.BonusApp.Customers
         /// <param name="customer">Customer</param>
         void UpdateCustomer(BonusApp_Customer customer);
         
-        void UpdateCustomerPassword(BonusApp_Customer customer, string newPassword);
+        ChangePasswordResult ChangeCustomerPassword(BonusApp_Customer customer, string newPassword);
         
         #endregion
 

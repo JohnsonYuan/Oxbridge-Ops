@@ -1,0 +1,196 @@
+﻿@model Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp.Log.BonusAppWithdrawLogSearchModel
+
+@{
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    // page title
+    ViewBag.Title = "提现申请";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("BonusApp Withdraw");
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            提现申请
+        </h1>
+    </div>
+
+    <div class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default panel-search">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(Model => Model.IsDone)
+                                    </div>
+                                    <div class="col-md-8">
+                                        @Html.NopDropDownListFor(Model => Model.IsDone, Model.LogStatus)
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(Model => Model.CreatedOnFrom)
+                                    </div>
+                                    <div class="col-md-8">
+                                        @Html.NopEditorFor(model => model.CreatedOnFrom)
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(model => model.CreatedOnTo)
+                                    </div>
+                                    <div class="col-md-8">
+                                        @Html.NopEditorFor(model => model.CreatedOnTo)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8 col-md-offset-4">
+                                <button type="button" id="search-terms" class="btn btn-primary btn-search">
+                                    <i class="fa fa-search"></i>
+                                    @T("Admin.Common.Search")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="withdraws-grid"></div>
+                        <script type="text/x-kendo-template" id="editTemplate">
+                            #if(IsDone){#
+                                <button type="button" class="btn btn-success disabled">已处理</button>
+                            #}else{#
+                                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="\\#process-window" data-id="#=Id#">处理</button>
+                            #}#
+                        </script>
+                        <script type="text/x-kendo-template" id="editTemplate2">
+                            #if(IsDone){#
+                                <button type="button" class="btn btn-success disabled">已处理</button>
+                            #}else{#
+                                <button type="button" class="btn btn-warning">处理</button>
+                            #}#
+                        </script>
+                        <script>
+                            $(document).ready(function () {
+                                $("#withdraws-grid").kendoGrid({
+                                    dataSource: {
+                                        type: "json",
+                                        transport: {
+                                            read: {
+                                                url: "@Html.Raw(Url.Action("Withdraw"))",
+                                                type: "POST",
+                                                dataType: "json",
+                                                data: additionalData
+                                            }
+                                        },
+                                        schema: {
+                                            data: "Data",
+                                            total: "Total",
+                                            errors: "Errors"
+                                        },
+                                        error: function (e) {
+                                            display_kendoui_grid_error(e);
+                                            // Cancel the changes
+                                            this.cancelChanges();
+                                        },
+                                        pageSize: @(defaultGridPageSize),
+                                        serverPaging: true,
+                                        serverFiltering: true,
+                                        serverSorting: true
+                                    },
+                                    pageable: {
+                                        refersh: true,
+                                        pageSizes: [@(gridPageSizes)],
+                                        @Html.Partial("_GridPagerMessages")
+                                    },
+                                    scrollable: false,
+                                    //dataBound: onDataBound,
+                                    columns: [
+                                        {
+                                            //field: "CustomerNickName",
+                                            title: "用户",
+                                            width: 100,
+                                            template: '<a target="_blank" href="@Url.Action("CustomerEdit")/#=CustomerId#">#=Username# (#=Nickname#)</a>'
+                                        }, {
+                                            //field: "Amount",
+                                            title: "提取金额",
+                                            width: 100,
+                                            template: '<h4> #if(IsDone){# <span class="label label-success">#=Amount#</span> #} else {# <span class="label label-warning">#=Amount#</span> #}# </h4>'
+                                        }, {
+                                            field: "Comment",
+                                            title: "备注",
+                                            width: 120
+                                        },
+                                        {
+                                            field: "CreatedOn",
+                                            title: "@T("Admin.Customers.Customers.Fields.CreatedOn")",
+                                            width: 80,
+                                            type: "date",
+                                            format: "{0:g}"
+                                        },
+                                        {
+                                            field: "CompleteOn",
+                                            title: "处理日期",
+                                            width: 80,
+                                            type: "date",
+                                            format: "{0:g}",
+                                            //template: '#if(IsDone){# <i class="fa fa-check true-icon"></i>#=CompleteOn# #} else {# <i class="fa fa-close false-icon"></i> #}#'
+                                        },
+                                        {
+                                            title: "操作",
+                                            width: 50,
+                                            headerAttributes: { style: "text-align:center" },
+                                            attributes: { style: "text-align:center" },
+                                            template: '# if(IsDone) {# <a class="btn btn-success process" data-id="#=Id#"><i class="fa fa-pencil"></i>查看</a> #} else {# <a class="btn btn-warning process" data-id="#=Id#"><i class="fa fa-pencil"></i>处理</a> #} #'
+                                        }
+                                    ]
+                                });
+                            });
+                        </script>
+                        <script type="text/javascript">
+                            $(document).ready(function () {
+                                $('#withdraws-grid').on('click', 'a.process', function () {
+                                    var id = $(this).data('id');
+                                    var url = '@(Url.Action("ProcessWithdrawPopup", new { id = "__id__", btnId = "search-terms" }))';
+                                    OpenWindow(url.replace('__id__', id), 600, 700, true);
+                                    return false;
+                                });
+
+                                //search button
+                                $('#search-terms').click(function () {
+                                    var grid = $('#withdraws-grid').data('kendoGrid');
+                                    grid.dataSource.page(1); // new search. Set page size to 1
+                                    //grid.dataSource.read(); we already loaded the grid above using "page" function
+                                    //clear selected checkboxes
+                                    $('.checkboxGroups').attr('checked', false).change();
+                                    selectedIds = [];
+                                    return false;
+                                });
+                            });
+
+                            function additionalData() {
+                                var data = {
+                                    IsDone: $('#@Html.FieldIdFor(model => model.IsDone)').val(),
+                                    CreatedOnFrom: $('#@Html.FieldIdFor(model => model.CreatedOnFrom)').val(),
+                                    CreatedOnTo: $('#@Html.FieldIdFor(model => model.CreatedOnTo)').val()
+                                };
+                                addAntiForgeryToken(data);
+                                return data;
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -498,7 +498,7 @@ namespace Nop.Services.BonusApp.Logging
 
             _moneyLogRepository.Update(moneyLog);
             // clear cache
-            _cacheManager.RemoveByPattern(ACTIVITYTYPE_PATTERN_KEY);
+            _cacheManager.RemoveByPattern(MONEYLOG_PATTERN_KEY);
         }
 
         /// <summary>
@@ -512,7 +512,7 @@ namespace Nop.Services.BonusApp.Logging
 
             _moneyLogRepository.Delete(moneyLog);
             // clear cache
-            _cacheManager.RemoveByPattern(ACTIVITYTYPE_PATTERN_KEY);
+            _cacheManager.RemoveByPattern(MONEYLOG_PATTERN_KEY);
         }
 
         /// <summary>
@@ -527,7 +527,7 @@ namespace Nop.Services.BonusApp.Logging
         /// <param name="ipAddress">IP address; null or empty to load all activities</param>
         /// <returns>Money log items</returns>
         public virtual IPagedList<BonusApp_MoneyLog> GetAllMoneyLogs(DateTime? createdOnFrom = null,
-            DateTime? createdOnTo = null, int? customerId = null, BonusApp_MoneyReturnStatus? moneyReturnStatus = null,
+            DateTime? createdOnTo = null, int? customerId = null, int? moneyReturnStatusId = null,
             int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null)
         {
             var query = _moneyLogRepository.Table;
@@ -537,8 +537,8 @@ namespace Nop.Services.BonusApp.Logging
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
                 query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
-            if (moneyReturnStatus.HasValue)
-                query = query.Where(al => (int)moneyReturnStatus == al.MoneyReturnStatusId);
+            if (moneyReturnStatusId.HasValue)
+                query = query.Where(al => moneyReturnStatusId.Value == al.MoneyReturnStatusId);
             if (customerId.HasValue)
                 query = query.Where(al => customerId.Value == al.CustomerId);
             // load customer info
@@ -557,6 +557,15 @@ namespace Nop.Services.BonusApp.Logging
         /// <returns></returns>
         public virtual int GetMoneyLogOrderNumber(BonusApp_MoneyLog log)
         {
+            var allLogs = GetAllMoneyLogsCached();
+            var curretTypeLogs = allLogs.Where(x => x.MoneyReturnStatus == log.MoneyReturnStatus)
+                .ToList();
+
+            // 当前在缓存中位置
+            var findLog = curretTypeLogs.FirstOrDefault(x => x.Id == log.Id);
+
+            return curretTypeLogs.IndexOf(findLog) + 1;
+
             // 当前log status的排序
             string tableName = _dbContext.GetTableName<BonusApp_MoneyLog>();
             /*
@@ -722,7 +731,7 @@ namespace Nop.Services.BonusApp.Logging
         /// <param name="ipAddress">IP address; null or empty to load all activities</param>
         /// <returns>Activity log items</returns>
         public virtual IPagedList<BonusApp_WithdrawLog> GetAllWithdraws(DateTime? createdOnFrom = null,
-            DateTime? createdOnTo = null, int? customerId = null, bool? isDone = false,
+            DateTime? createdOnTo = null, int? customerId = null, bool? isDone = null,
             int pageIndex = 0, int pageSize = int.MaxValue, string ipAddress = null)
         {
             var query = _withdrawLogRepository.Table;

@@ -88,6 +88,7 @@
   <ItemGroup>
     <Compile Include="Authentication\FormsAuthenticationService.cs" />
     <Compile Include="Authentication\IAuthenticationService.cs" />
+    <Compile Include="BonusApp\Customers\ChangePasswordResult.cs" />
     <Compile Include="Common\Cache\CustomerCacheEventConsumer.cs" />
     <Compile Include="Common\GenericAttributeExtensions.cs" />
     <Compile Include="Common\GenericAttributeService.cs" />

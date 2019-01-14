@@ -108,7 +108,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             if (loginResult != Nop.Core.Domain.Customers.CustomerLoginResults.Successful)
                 return ErrorJson("原密码错误");
 
-            _customerService.UpdateCustomerPassword(_workContext.CurrentBonusAppCustomer,newPwd);
+            _customerService.ChangeCustomerPassword(_workContext.CurrentBonusAppCustomer,newPwd);
             _customerActivityService.InsertActivity(BonusAppConstants.LogType_User_ChangePwd, "旧密码: {0}, 新密码: {1}", oldPwd, newPwd);
 
             return SuccessJson("修改密码成功");
@@ -266,8 +266,8 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 Comment = x.Comment,
                 Amount = x.Amount,
                 IsDone = x.IsDone,
-                CreatedOnUtc = x.CreatedOnUtc,
-                CompleteOnUtc = x.CompleteOnUtc,
+                CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                CompleteOn = x.CompleteOnUtc.HasValue ? _dateTimeHelper.ConvertToUserTime(x.CompleteOnUtc.Value, DateTimeKind.Utc) : (DateTime?) null,
                 IpAddress = x.IpAddress,
             });
             return View(model);
@@ -284,6 +284,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             {
                 var m = x.ToModel<MoneyLogModel>();
                 m.OrderNum = _customerActivityService.GetMoneyLogOrderNumber(x);
+                m.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                 return m;
             });
             return View(model);

@@ -28,7 +28,7 @@ namespace Nop.Web.Framework
                 var langId = EngineContext.Current.Resolve<IWorkContext>().WorkingLanguage.Id;
                     _resourceValue = EngineContext.Current
                         .Resolve<ILocalizationService>()
-                        .GetResource(ResourceKey, langId, true, ResourceKey);
+                        .GetResource(ResourceKey, langId, false, ResourceKey);
                 //    _resourceValueRetrived = true;
                 //}
                 return _resourceValue;

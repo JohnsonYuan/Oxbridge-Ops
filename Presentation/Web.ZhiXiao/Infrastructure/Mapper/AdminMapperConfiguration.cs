@@ -17,6 +17,7 @@ using Nop.Models.Customers;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp;
+using Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp.Log;
 
 namespace Nop.Admin.Infrastructure.Mapper
 {
@@ -160,6 +161,24 @@ namespace Nop.Admin.Infrastructure.Mapper
                 ///  Bonusapp
                 cfg.CreateMap<BonusAppSettings, BonusAppSettingsModel>();
                 cfg.CreateMap<BonusAppSettingsModel, BonusAppSettings>();
+
+                cfg.CreateMap<Core.Domain.BonusApp.Logging.BonusApp_ActivityLog, ActivityLogModel>()
+                    .ForMember(dest => dest.ActivityLogTypeName, mo => mo.MapFrom(src => src.ActivityLogType.Name))
+                    .ForMember(dest => dest.CustomerUserName, mo => mo.MapFrom(src => src.Customer.Username))
+                    .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
+                    .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
+
+                cfg.CreateMap<Core.Domain.BonusApp.Logging.BonusApp_WithdrawLog, BonusAppWithdrawLogModel>()
+                    .ForMember(dest => dest.CustomerModel, mo => mo.Ignore())
+                    .ForMember(dest => dest.Username, mo => mo.Ignore())
+                    .ForMember(dest => dest.Nickname, mo => mo.Ignore());
+
+                cfg.CreateMap<Core.Domain.BonusApp.Logging.BonusApp_MoneyLog, BonusAppMoneyLogModel>()
+                    .ForMember(dest => dest.CustomerModel, mo => mo.Ignore())
+                    .ForMember(dest => dest.Username, mo => mo.Ignore())
+                    .ForMember(dest => dest.Nickname, mo => mo.Ignore())
+                    .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
+                    .ForMember(dest => dest.CompleteOn, mo => mo.Ignore());
             };
 
             return action;
