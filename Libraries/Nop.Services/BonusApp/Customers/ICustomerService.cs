@@ -108,7 +108,7 @@ namespace Nop.Services.BonusApp.Customers
 
         #region Register
 
-        string Register(string username, string password);
+        string Register(string username, string password, string nickname, string phone);
 
         #endregion
 

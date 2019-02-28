@@ -343,7 +343,7 @@ namespace Nop.Services.BonusApp.Customers
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public virtual string Register(string username, string password)
+        public virtual string Register(string username, string password, string nickname, string phone)
         {
             // 验证新用户(CustomerModel)的是否重复
             if (!String.IsNullOrWhiteSpace(username))
@@ -353,11 +353,12 @@ namespace Nop.Services.BonusApp.Customers
                     return "用户名已经使用";
             }
 
-            {
-                var cust2 = GetCustomerByNickName(username);
-                if (cust2 != null)
-                    return ("昵称已经使用");
-            }
+            // 不验证姓名nickname是否重复
+            //{
+            //    var cust2 = GetCustomerByNickName(username);
+            //    if (cust2 != null)
+            //        return ("姓名已经使用");
+            //}
 
             //if (!String.IsNullOrWhiteSpace(model.))
             //{
@@ -373,8 +374,8 @@ namespace Nop.Services.BonusApp.Customers
                 // 邮箱默认后缀为@yourStore.com
                 Username = username,
                 Password = _encryptionService.CreatePasswordHash(password, _bonusAppSettings.CustomerPasswordSalt, _bonusAppSettings.HashedPasswordFormat),
-                Nickname = username,    //todo
-                PhoneNumber = username, //todo
+                Nickname = nickname,
+                PhoneNumber = phone, 
                 Money = 0,
                 //VendorId = model.VendorId,
                 Active = true,

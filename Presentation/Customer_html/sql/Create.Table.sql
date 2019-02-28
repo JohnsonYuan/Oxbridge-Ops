@@ -46,6 +46,8 @@ CREATE TABLE [dbo].[BonusApp_Customer]
       [LastLoginDateUtc] [DATETIME] NULL ,
       [LastActivityDateUtc] [DATETIME] NOT NULL ,
       [Money] [DECIMAL](18, 2) NOT NULL default(0),
+      [NotificationMoneyLogId] int NULL default(null),
+      [NotificationMoney] [DECIMAL](18, 2) NULL default(null),
       PRIMARY KEY ( [Id] )
     );
 CREATE TABLE [dbo].[BonusApp_CustomerComment]

@@ -1,10 +1,10 @@
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.BonusApp;
 using Nop.Core.Domain.Customers;
-using Nop.Models.Customers;
 using Nop.Services.BonusApp.Authentication;
 using Nop.Services.BonusApp.Customers;
 using Nop.Services.BonusApp.Logging;
@@ -83,7 +83,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
         }
 
         [HttpPost]
-        public virtual ActionResult Login(LoginModel model, string returnUrl)
+        public virtual ActionResult Login(Nop.Models.Customers.LoginModel model, string returnUrl)
         {
             if (string.IsNullOrEmpty(model.Username))
                 return ErrorJson("请输入用户名");
@@ -148,16 +148,22 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult Register([Bind(Include = "Username,Password")]LoginModel model)
+        public ActionResult Register([Bind(Include = "username, password, nickname, phone")]BonusApp.Models.RegisterModel model)
         {
             if (string.IsNullOrEmpty(model.Username))
                 return ErrorJson("请输入用户名");
+            if (string.IsNullOrEmpty(model.Nickname))
+                return ErrorJson("请输入姓名");
+            if (string.IsNullOrEmpty(model.Phone))
+                return ErrorJson("请输入手机号");
+            if (!Regex.IsMatch(model.Phone, "^1[34578]\\d{9}$"))
+                return ErrorJson("手机号格式不正确");
             if (string.IsNullOrEmpty(model.Password))
                 return ErrorJson("请输入密码");
 
             var result = new CustomerRegistrationResult();
             // validate model
-            var modelError = _customerService.Register(model.Username, model.Password);
+            var modelError = _customerService.Register(model.Username, model.Password, model.Nickname, model.Phone);
             if (!string.IsNullOrEmpty(modelError))
             {
                 return ErrorJson(modelError);
@@ -169,7 +175,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             var customer = _customerService.GetCustomerByUsername(model.Username);
 
             //sign in new customer
-            _authenticationService.SignIn(customer, model.RememberMe);
+            _authenticationService.SignIn(customer, createPersistentCookie: false);
 
             //activity log
             _customerActivityService.InsertActivity(customer, BonusAppConstants.LogType_User_Login, _localizationService.GetResource("ActivityLog.PublicStore.Login"));

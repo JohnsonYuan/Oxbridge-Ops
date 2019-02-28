@@ -21,7 +21,27 @@
                 </p>
                 <div class="nr clearfloat fl">
                     <span class="opa3"></span>
-                    <input type="text" name="username" id="username" placeholder="用户名" />
+                    <input type="text" name="username" id="username" placeholder="用户名(登陆账户)" />
+                </div>
+            </li>
+            <li class="ra3">
+                <p class="fl clearfloat">
+                    <span class="opa5"></span>
+                    <i class="icofont-ui-user"></i>
+                </p>
+                <div class="nr clearfloat fl">
+                    <span class="opa3"></span>
+                    <input type="text" name="nickname" id="nickname" placeholder="姓名(真实姓名, 用于提现)" />
+                </div>
+            </li>
+            <li class="ra3">
+                <p class="fl clearfloat">
+                    <span class="opa5"></span>
+                    <i class="icofont-smart-phone"></i>
+                </p>
+                <div class="nr clearfloat fl">
+                    <span class="opa3"></span>
+                    <input type="text" name="phone" id="phone" placeholder="手机号" />
                 </div>
             </li>
             <li class="ra3">
@@ -62,6 +82,22 @@
                 SAlert('请输入用户名');
                 return;
             }
+            var nickName = $('#nickname').val();
+            if (!nickName) {
+                SAlert('请输入姓名');
+                return;
+            }
+
+            var phone = $('#phone').val();
+            if (!phone) {
+                SAlert('请输入手机号');
+                return;
+            }
+            if (!(/^1[34578]\d{9}$/.test(phone))) {
+                SAlert('手机号格式不正确');
+                return;
+            }
+
             var pwd = $('#password').val();
             if (!pwd) {
                 SAlert('请输入密码');

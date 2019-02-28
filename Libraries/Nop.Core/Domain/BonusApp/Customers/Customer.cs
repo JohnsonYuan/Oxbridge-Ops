@@ -79,6 +79,14 @@ namespace Nop.Core.Domain.BonusApp.Customers
                   
         public decimal Money { get; set; }
 
+        /// <summary>
+        /// 如果当前用户在队列中金额返还, 
+        /// 需要提示用户可提现, 保存BonusApp_MoneyLog表对应id和金额
+        /// 默认为null
+        /// </summary>
+        public int? NotificationMoneyLogId { get; set; }
+        public decimal? NotificationMoney { get; set; }
+
         #endregion
 
         #region Navigation properties
