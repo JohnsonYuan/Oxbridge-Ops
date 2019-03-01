@@ -1,4 +1,4 @@
-﻿@model Web.ZhiXiao.Areas.BonusApp.Models.CustomerModel
+﻿@model bool
 
 @{
     Html.SetActiveMenuItemSystemName("User");
@@ -24,22 +24,46 @@
                 </div>
                 <div class="czhi clearfloat box-s">
 					<p>评分</p>
-					<input type="hidden" id="rate" placeholder="评分" />
-            
-        <div class='starrr' id='rateStar'></div>
+					<input type="hidden" id="rate" value="5" placeholder="评分" />
+                    <div class='starrr' id='rateStar'></div>
 				</div>
                 <!--<a href="#" class="center-btn center-btntwo db ra3">点击上传文件</a>-->
                 <div class="bottom clearfloat">
-                    <button class="db fl btn ra3">评论</button>
+                    @if (!Model)
+                    {
+                        <button class="db fl btn ra3" disabled>不能评论</button>
+                    }
+                    else
+                    {
+                        <button class="db fl btn ra3">评论</button>
+                    }
                 </div>
             </div>
         </div>
 </div>
-@section scripts {
+@section scripts { 
     <script type="text/javascript">
+    @if (!Model)
+    {
+        <text>
+        $(function () {
+            Swal({
+                type: 'warning',
+                title: '未获得奖励用户不能评论',
+                showCancelButton: true,
+                confirmButtonText: '<a style="color:white;" href=\"@(Url.Action("Index", "User"))\">返回个人中心</a>',
+                cancelButtonText: '关闭'
+            });
+        });
+        </text>
+    }
+    else
+    {
+        // 可以评论
+        <text>
         $(function () {
             $('#rateStar').starrr({
-                rating: 5,
+                rating: $('#rate').val(),
                 change: function (e, value) {
                     if (value) {
                         $('#rate').val(value);
@@ -76,5 +100,7 @@
                     });
             });
         });
+        </text>
+    }
     </script>
 }

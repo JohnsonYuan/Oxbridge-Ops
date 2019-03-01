@@ -36,7 +36,7 @@ namespace Nop.Core.Domain.BonusApp.Customers
         public string AvatarFileName { get; set; }
 
         /// <summary>
-        /// Gets or sets the nickname
+        /// Gets or sets the nickname（姓名, 奖金池队列列表显示）
         /// </summary>
         public string Nickname { get; set; }
 
@@ -86,6 +86,15 @@ namespace Nop.Core.Domain.BonusApp.Customers
         /// </summary>
         public int? NotificationMoneyLogId { get; set; }
         public decimal? NotificationMoney { get; set; }
+
+        #endregion
+
+        #region Comment
+
+        /// <summary>
+        /// 是否可以评论(奖金池奖励的用户才能评论)
+        /// </summary>
+        public bool? CanComment { get; set; }
 
         #endregion
 

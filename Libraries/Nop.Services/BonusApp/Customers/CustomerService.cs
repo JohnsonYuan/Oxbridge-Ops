@@ -9,7 +9,9 @@ using Nop.Core.Data;
 using Nop.Core.Domain.BonusApp.Configuration;
 using Nop.Core.Domain.BonusApp.Customers;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Infrastructure;
 using Nop.Data;
+using Nop.Services.BonusApp.Logging;
 using Nop.Services.Events;
 using Nop.Services.Security;
 
@@ -27,6 +29,7 @@ namespace Nop.Services.BonusApp.Customers
         private readonly IEventPublisher _eventPublisher;
         private readonly IEncryptionService _encryptionService;
         private readonly IWebHelper _webHelper;
+
         private readonly BonusAppSettings _bonusAppSettings;
         private readonly HttpContextBase _httpContext;
 
@@ -54,6 +57,7 @@ namespace Nop.Services.BonusApp.Customers
             this._eventPublisher = eventPublisher;
             this._encryptionService = encryptionService;
             this._webHelper = webHelper;
+
             this._bonusAppSettings = bonusAppSettings;
             this._httpContext = httpContext;
         }
@@ -375,7 +379,7 @@ namespace Nop.Services.BonusApp.Customers
                 Username = username,
                 Password = _encryptionService.CreatePasswordHash(password, _bonusAppSettings.CustomerPasswordSalt, _bonusAppSettings.HashedPasswordFormat),
                 Nickname = nickname,
-                PhoneNumber = phone, 
+                PhoneNumber = phone,
                 Money = 0,
                 //VendorId = model.VendorId,
                 Active = true,
@@ -392,6 +396,35 @@ namespace Nop.Services.BonusApp.Customers
         #endregion
 
         #region Comments
+
+        /// <summary>
+        /// 当前用户是否可以评论(奖金池奖励过的用户才能评论)
+        /// </summary>
+        /// <param name=""></param>
+        /// <returns></returns>
+        public bool CanCustomerComment(BonusApp_Customer customer)
+        {
+            // 如果CanComment有值, 直接返回
+            if (customer.CanComment.HasValue)
+                return customer.CanComment.Value;
+
+            // 查看奖金池log
+            var customerActivityService = EngineContext.Current.Resolve<IBonusApp_CustomerActivityService>();
+            var completeMoneyLogs = customerActivityService.GetMoneyLogByType(Core.Domain.BonusApp.Logging.BonusApp_MoneyReturnStatus.Complete);
+            var customerLog = completeMoneyLogs.FirstOrDefault(l => l.CustomerId == customer.Id);
+            if (customerLog != null)
+            {
+                // 更新CanComment字段
+                customer.CanComment = true;
+                UpdateCustomer(customer);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         public IPagedList<BonusApp_CustomerComment> GetAllCustomerComments(DateTime? createdFromUtc = null,
             DateTime? createdToUtc = null,
