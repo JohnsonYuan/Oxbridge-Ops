@@ -114,6 +114,13 @@ namespace Nop.Services.BonusApp.Customers
 
         #region Comment
 
+        /// <summary>
+        /// 当前用户是否可以评论(奖金池奖励过的用户才能评论)
+        /// </summary>
+        /// <param name=""></param>
+        /// <returns></returns>
+        bool CanCustomerComment(BonusApp_Customer customer);
+
         IPagedList<BonusApp_CustomerComment> GetAllCustomerComments(DateTime? createdFromUtc = null,
             DateTime? createdToUtc = null,
             int? customerId = null,

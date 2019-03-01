@@ -469,7 +469,7 @@ namespace Web.ZhiXiao.Areas.YiJiaYi_Manage.Controllers.BonusApp
                     m.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                     if (x.CompleteOnUtc.HasValue)
                         m.CompleteOn = _dateTimeHelper.ConvertToUserTime(x.CompleteOnUtc.Value, DateTimeKind.Utc);
-                
+
                     return m;
                 }),
                 Total = moneyLogs.TotalCount
@@ -604,7 +604,9 @@ namespace Web.ZhiXiao.Areas.YiJiaYi_Manage.Controllers.BonusApp
                         money,
                         moneyChangeStr);
 
-                    // 放入奖金池
+                    /************************************************/
+                    /**********放入奖金池(最主要判断逻辑)*********/
+                    /************************************************/
                     _customerActivityService.InsertMoneyLog(customer, money,
                         "充值 {0}, {1}", money, moneyChangeStr);
 

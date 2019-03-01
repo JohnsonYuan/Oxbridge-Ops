@@ -46,6 +46,12 @@ namespace Nop.Services.BonusApp.Logging
         void UpdateMoneyLog(BonusApp_MoneyLog moneyLog);
 
         /// <summary>
+        /// 返回最近一次成功的记录, 显示在首页消息提醒
+        /// </summary>
+        /// <returns></returns>
+        BonusApp_MoneyLog GetLastCompleteLog();
+
+        /// <summary>
         /// Return first waiting log
         /// </summary>
         /// <returns></returns>

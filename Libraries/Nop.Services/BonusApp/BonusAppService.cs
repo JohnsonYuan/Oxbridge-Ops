@@ -87,8 +87,19 @@ namespace Nop.Services.ZhiXiao.BonusApp
             {
                 // request complete
                 firstWaitingLog.MoneyReturnStatus = Core.Domain.BonusApp.Logging.BonusApp_MoneyReturnStatus.Complete;
-                // return money to user
+                firstWaitingLog.CompleteOnUtc = DateTime.UtcNow;
+                // return money to user, and save notification info(log id, money)
                 firstWaitingLog.Customer.Money += firstWaitingLog.ReturnMoney;
+                // 提示用户已经奖励
+                firstWaitingLog.Customer.NotificationMoneyLogId = firstWaitingLog.Id;
+                firstWaitingLog.Customer.NotificationMoney = firstWaitingLog.ReturnMoney;
+                // 当前用户可以评论(null, false时更新)
+                if (!firstWaitingLog.Customer.CanComment.HasValue
+                    || !firstWaitingLog.Customer.CanComment.Value)
+                {
+                    firstWaitingLog.Customer.CanComment = true;
+                }
+
                 // complete time
                 firstWaitingLog.CompleteOnUtc = DateTime.UtcNow;
                 // update

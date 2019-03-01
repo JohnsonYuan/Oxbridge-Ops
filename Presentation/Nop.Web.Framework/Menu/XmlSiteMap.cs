@@ -88,8 +88,9 @@ namespace Nop.Web.Framework.Menu
                 siteMapNode.ControllerName = controllerName;
                 siteMapNode.ActionName = actionName;
 
+                // 不需要增加route, 前台链接会错误
                 //apply admin area as described here - http://www.nopcommerce.com/boards/t/20478/broken-menus-in-admin-area-whilst-trying-to-make-a-plugin-admin-page.aspx
-                siteMapNode.RouteValues = new RouteValueDictionary { { "area", "YiJiaYi_Manage" } };
+                //siteMapNode.RouteValues = new RouteValueDictionary { { "area", "YiJiaYi_Manage" } };
             }
             else if (!string.IsNullOrEmpty(url))
             {

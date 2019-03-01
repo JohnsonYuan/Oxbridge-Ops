@@ -16,6 +16,7 @@ using Nop.Services.ZhiXiao.BonusApp;
 using Web.ZhiXiao.Areas.BonusApp.Factories;
 using Web.ZhiXiao.Areas.BonusApp.Models;
 using Web.ZhiXiao.Areas.BonusApp.Models.Log;
+using Web.ZhiXiao.Areas.BonusApp.Models.Users;
 
 namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 {
@@ -206,46 +207,83 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
         }
 
         [HttpPost]
-        public ActionResult TiXian(decimal money,
-            string account,
-            string method)
+        public ActionResult TiXian(TiXianModel model)
         {
-            if (string.IsNullOrEmpty(account))
-                return ErrorJson("请输入提现账号");
-            if (string.IsNullOrEmpty(method))
-                return ErrorJson("请输入提现类型");
+            #region validate
 
-            var moneyRegex = new Regex(@"^\d+(\.\d{1,2})?$");
-            if (!moneyRegex.IsMatch(money.ToString()))
-                return ErrorJson("提现金额最多两位小数");
+            if (model.PayType != (int)TiXianPayType.Alipay
+                && model.PayType != (int)TiXianPayType.Bank)    
+                return ErrorJson("提现类型错误");
+
+            // 支付宝
+            if (model.PayType == (int)TiXianPayType.Alipay)
+            {
+                if (string.IsNullOrEmpty(model.AlipayName))
+                    return ErrorJson("请输入支付宝账号");
+            }
+
+            if (model.PayType == (int)TiXianPayType.Bank)
+            {
+                if (string.IsNullOrEmpty(model.KaiHuMing))
+                    return ErrorJson("请输入开户行");
+                
+                if (string.IsNullOrEmpty(model.KaiHuHang))
+                    return ErrorJson("请输入开户名");
+                
+                if (string.IsNullOrEmpty(model.CardNum))
+                    return ErrorJson("请输入银行卡号");
+            }
+
+            // 金额改为整数 注释验证小数个数
+            //var moneyRegex = new Regex(@"^\d+(\.\d{1,2})?$");
+            //if (!moneyRegex.IsMatch(money.ToString()))
+            //    return ErrorJson("提现金额最多两位小数");
 
             // 实际提取金额会扣除手续费
             // var actualAmount = Convert.ToInt32(_zhiXiaoSettings.Withdraw_Rate * amount);
-            var actualAmount = money;
+            var actualAmount = model.Money;
 
             var customer = _workContext.CurrentBonusAppCustomer;
             
+            // 验证提现金额
             if (customer.Money <= 0)
                 return ErrorJson("当前余额为0, 不能提现");
 
             if (actualAmount > customer.Money)
                 return ErrorJson("提现金额超出当前余额");
 
+            #endregion
+
+            // 提现log
+            string tixianMsg;
+            if (model.PayType == (int)TiXianPayType.Alipay)
+            {
+                tixianMsg = string.Format("提现方式: 支付宝<br/>支付宝账号: {0}", model.AlipayName);
+            }
+            else
+            {
+                tixianMsg = string.Format("提现方式: 银行卡<br/>开户行: {0}<br/>开户名: {0}<br/>银行卡号: {0}", 
+                    model.KaiHuHang,
+                    model.KaiHuMing,
+                    model.CardNum);
+            }
+
+            // 加入log
             _customerActivityService.InsertWithdraw(customer,
                 actualAmount,
-                "提现申请金额{0}, 账号: {1}, 提现方式: {2}",
+                "提现申请金额: {0}<br/>{1}",
                 actualAmount,
-                account,
-                method);
+                tixianMsg);
 
             var userMoneyAfterTiXian = customer.Money - actualAmount;
 
             // log 记录金额变化
             _customerActivityService.InsertActivity(BonusAppConstants.LogType_User_TiXian,
-                "提现申请, 原金额: {0}, 提现金额: {1}, 提现后金额: {2}",
+                "提现申请, 原金额: {0}, 提现金额: {1}, 提现后金额: {2}<br/>备注: {3}",
                 customer.Money,
                 actualAmount,
-                userMoneyAfterTiXian);
+                userMoneyAfterTiXian,
+                tixianMsg);
 
             // update user money
             customer.Money = userMoneyAfterTiXian;
@@ -296,13 +334,24 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
         
         public ActionResult Comment()
         {
-            return View();
+            var customer = _workContext.CurrentBonusAppCustomer;
+            var canComment = _customerService.CanCustomerComment(customer);
+
+            return View(canComment);
         }
 
         [HttpPost]
-        public ActionResult Comment(string content,
+        public ActionResult Comment(
+            string content,
             int rate)
-        {   
+        {
+            var customer = _workContext.CurrentBonusAppCustomer;
+            var canComment = _customerService.CanCustomerComment(customer);
+            if (!canComment)
+            {
+                return ErrorJson("未获得奖励用户不能评论");
+            }
+
             if (string.IsNullOrEmpty(content))
                 return ErrorJson("请输入评论内容");
 

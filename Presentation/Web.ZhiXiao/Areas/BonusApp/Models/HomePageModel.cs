@@ -6,6 +6,18 @@ namespace Web.ZhiXiao.Areas.BonusApp.Models
 {
     public partial class HomePageModel
     {
+        public string CurrentUserName { get; set; }
+
+        /// <summary>
+        /// 当前用户在派对中队列中排名(null为不在派对中)
+        /// </summary>
+        public int? WaitingLogOrderNum { get; set; }
+
+        /// <summary>
+        /// 首页最上方提示最近成功的记录
+        /// </summary>
+        public string LastSuccessLogMessage { get; set; }
+
         public BonusAppStatus BonusAppStatus { get; set; }
 
         /// <summary>
@@ -17,6 +29,16 @@ namespace Web.ZhiXiao.Areas.BonusApp.Models
         /// pool items
         /// </summary>
         public PoolItemListModel PoolItems { get; set; }
+
+        /// <summary>
+        /// 是否提醒用户金额已返还
+        /// </summary>
+        public bool ShouldNotifyUser { get; set; }
+        public string NotifyUserMessage { get; set; }
+        /// <summary>
+        /// 提示金额
+        /// </summary>
+        public decimal NotifyMoney { get; set; }
     }
 
     public class PoolItemListModel : BasePagedListModel<PoolItemModel>

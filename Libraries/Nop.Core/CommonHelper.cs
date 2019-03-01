@@ -352,6 +352,29 @@ namespace Nop.Core
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             path = path.Replace("~/", "").TrimStart('/').Replace('/', '\\');
             return Path.Combine(baseDirectory, path);
-        }        
+        }
+
+        /// <summary>
+        /// 隐藏真实姓名, 用*
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public static string MaskUserName(string userName, char maskChar = '*')
+        {
+            if (string.IsNullOrEmpty(userName))
+                throw new ArgumentNullException(nameof(userName));
+
+            if (userName.Length <= 1)
+                return userName;
+
+            // aa  -> a*
+            // aaa -> a**
+            // aaaa -> aa** (只显示头2个)
+            if (userName.Length >= 2
+                && userName.Length <= 3)
+                return userName.Substring(0, 1) + new string(maskChar, userName.Length - 1);
+            else // length >= 4
+                return userName.Substring(0, 2) + new string(maskChar, userName.Length - 2); 
+        }
     }
 }

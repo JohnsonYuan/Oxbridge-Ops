@@ -448,9 +448,10 @@ namespace Nop.Services.BonusApp.Logging
                 moneyLog.Comment = comment;
                 moneyLog.CreatedOnUtc = DateTime.UtcNow;
                 moneyLog.IpAddress = _webHelper.GetCurrentIpAddress();
-                // Bonus info
+                // Bonus info(返回金额取整数, 不按照四舍五入)
                 moneyLog.Money = moneyDelta;
-                moneyLog.ReturnMoney = Math.Round(moneyDelta * (decimal)_bonusAppSettings.UserReturnMoneyPercent, 2);   // current return 100%
+                //moneyLog.ReturnMoney = Math.Round(moneyDelta * (decimal)_bonusAppSettings.UserReturnMoneyPercent, 2);   // current return 100%
+                moneyLog.ReturnMoney = (int)moneyDelta;   // 返还金额取整数
                 moneyLog.MoneyReturnStatusId = (int)BonusApp_MoneyReturnStatus.Waiting;
 
                 // Bonus pool info
@@ -477,8 +478,10 @@ namespace Nop.Services.BonusApp.Logging
                 bonusPoolInfo.WaitingUserCount += 1;
                 bonusPoolInfo.AllUserMoney += moneyDelta; // all user's money
                 _bonusAppStatusRepository.Update(bonusPoolInfo);
-
-                // 是否需要返还金额
+                
+                /************************************************/
+                /**********是否需要返还金额(最主要判断逻辑)*********/
+                /************************************************/
                 _bonusAppService.ReturnUserMoneyIfNeeded(this);
 
                 // clear cache
@@ -583,6 +586,19 @@ namespace Nop.Services.BonusApp.Logging
         }
 
         #region Bonus Logic
+
+        /// <summary>
+        /// 返回最近一次成功的记录, 显示在首页消息提醒
+        /// </summary>
+        /// <returns></returns>
+        public BonusApp_MoneyLog GetLastCompleteLog()
+        {
+            var completeLogs = GetCompleteMoneyLog();
+            if (completeLogs.Count == 0)
+                return null;
+
+            return completeLogs.OrderByDescending(x => x.CompleteOnUtc).First();
+        }
 
         /// <summary>
         /// Order by create time

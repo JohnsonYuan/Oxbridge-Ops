@@ -3,7 +3,8 @@
 @using Nop.Core.Domain.BonusApp.Logging;
 
 @{
-    var currentCustomer = EngineContext.Current.Resolve<IWorkContext>().CurrentBonusAppCustomer;
+    Html.AddCssFileParts("~/Content/sweetalert2/sweetalert2.min.css");
+    Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/sweetalert2/sweetalert2.min.js");
 
     var isWaitingType = Model.Status == BonusApp_MoneyReturnStatus.Waiting;
 
@@ -11,13 +12,22 @@
     var inActiveStatus = isWaitingType ? BonusApp_MoneyReturnStatus.Complete : BonusApp_MoneyReturnStatus.Waiting;
     var inActiveUrl = Url.Action("Index", !isWaitingType ? null : new { status = (int)inActiveStatus });
 
+    var waitingOrderMessage = string.Empty;
+    if (Model.WaitingLogOrderNum.HasValue)
+    {
+        waitingOrderMessage = string.Format("(您在第{0}位)", Model.WaitingLogOrderNum.Value);
+    }
+
     Html.SetActiveMenuItemSystemName("Index");
 }
 <div class="shouyi clearfloat main">
     <!-- 收益 star -->
     <div class="top clearfloat">
         <div class="one clearfloat box-s">
-            你好, @currentCustomer.Nickname
+            您好, @Model.CurrentUserName
+            <span class="fr">
+                @Model.LastSuccessLogMessage
+            </span>
         </div>
         <div class="three clearfloat">
             <div class="zuo clearfloat fl">
@@ -48,7 +58,7 @@
             <p class="tit fl bt @(isWaitingType ? "active" : "")">
                 <a href="@(isWaitingType ? "javascript:void(0);" : inActiveUrl)">
                     <img src="/Content/bonus/img/48.png">
-                    排队中 @(Model.BonusAppStatus.WaitingUserCount)位
+                    排队中 @(Model.BonusAppStatus.WaitingUserCount)位 @waitingOrderMessage
                 </a>
             </p>
             <p class="tit fr fu-tit @( !isWaitingType ? "active" : "")">
@@ -92,6 +102,13 @@
             //prefill: true,
             status: '.page-load-status'
         });
+
+        @if (Model.ShouldNotifyUser)
+        {
+            <text>
+            SComfirm('@Html.Raw(Model.NotifyUserMessage)', '<a style="color:white;" href=\"@Url.Action("TiXian", "User")\">提现</a>');
+            </text>
+        }
 
         function getPath() {
             var availableCount = @(Model.PoolItems.TotalPages - 1);

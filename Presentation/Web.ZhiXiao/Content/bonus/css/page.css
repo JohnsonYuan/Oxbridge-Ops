@@ -1739,11 +1739,11 @@
  .h-topone p samp{font-size: .45rem; font-family: "å¾®è½¯é›…é»‘";}
  .h-topone span{font-size: .45rem; color: #fff;}
  .recharge{width: 100%;}
- .recharge .czhi:first-child{margin-top: 0;}
+ .recharge > .czhi:first-child{margin-top: 0;}
  .recharge .czhi{width: 100%; padding: 0 3%; background-color: #fff; height: 1.5rem; line-height: 1.5rem; margin-top: 1%;}
  .recharge .czhi p,
  .recharge .czhi span{width: 20%; float: left; font-size: .4rem; color: #333333;}
- .recharge .czhi input{margin: 0; padding: 0; height: 1.5rem; float: left; width: 70%; border: none; font-size: .4rem; color: #333333;}
+ .recharge .czhi input, .recharge .czhi select{margin: 0; padding: 0; height: 1.5rem; float: left; width: 70%; border: none; font-size: .4rem; color: #333333;}
  .recharge .czhi span{display: block; width: 10%; text-align: right;}
  .recharge .czhi i{font-size: .8rem; color: #c2c2c2;}
  .center-btntwo{margin: 3% auto;}

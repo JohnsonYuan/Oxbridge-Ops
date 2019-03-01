@@ -31,12 +31,12 @@ CREATE TABLE [dbo].[BonusApp_WithdrawLog] (
 GO
 CREATE TABLE [dbo].[BonusApp_Customer]
     (
-      [Id] [INT] NOT NULL
-                 IDENTITY ,
+      [Id] [INT] NOT NULL IDENTITY ,
       [CustomerGuid] [UNIQUEIDENTIFIER] NOT NULL ,
       [Username] [NVARCHAR](MAX) NULL ,
       [Password] [NVARCHAR](MAX) NULL ,
       [AvatarFileName] [NVARCHAR](MAX) NULL ,
+      [Nickname] [NVARCHAR](MAX) NULL ,
       [Nickname] [NVARCHAR](MAX) NULL ,
       [PhoneNumber] [NVARCHAR](MAX) NULL ,
       [Active] [BIT] NOT NULL default(1),
@@ -48,6 +48,7 @@ CREATE TABLE [dbo].[BonusApp_Customer]
       [Money] [DECIMAL](18, 2) NOT NULL default(0),
       [NotificationMoneyLogId] int NULL default(null),
       [NotificationMoney] [DECIMAL](18, 2) NULL default(null),
+	  [CanComment] BIT NULL DEFAULT(NULL)
       PRIMARY KEY ( [Id] )
     );
 CREATE TABLE [dbo].[BonusApp_CustomerComment]

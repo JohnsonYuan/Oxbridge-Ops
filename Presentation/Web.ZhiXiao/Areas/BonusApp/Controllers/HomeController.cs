@@ -11,7 +11,6 @@ using Nop.Services.Helpers;
 using Nop.Services.Media;
 using Nop.Services.ZhiXiao.BonusApp;
 using Nop.Web.Framework;
-using Web.ZhiXiao.Areas.BonusApp.Factories;
 using Web.ZhiXiao.Areas.BonusApp.Models;
 
 namespace Web.ZhiXiao.Areas.BonusApp.Controllers
@@ -24,7 +23,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 
         private IBonusAppService _appService;
         private IBonusApp_CustomerService _customerService;
-        private IBonusApp_CustomerActivityService _customerActivityService;      
+        private IBonusApp_CustomerActivityService _customerActivityService;
         private IPictureService _pictureService;
 
         private IDateTimeHelper _dateTimeHelper;
@@ -78,7 +77,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                     {
                         OrderNumber = index + firstItemNumber,
                         CustomerAvatar = _pictureService.GetPictureUrl(logItem.Customer.AvatarFileName),
-                        CustomerName = logItem.Customer.Nickname,
+                        CustomerName = CommonHelper.MaskUserName(logItem.Customer.Nickname),
                         Money = (double)logItem.ReturnMoney,
                         DisplayDateTime = _dateTimeHelper.ConvertToUserTime(logItem.CreatedOnUtc, DateTimeKind.Utc).ToString("yyyy-MM-dd HH:mm")
                     }),
@@ -94,6 +93,46 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             model.BonusAppStatus = _appService.GetAppStatus();
             model.Status = status;
             model.PoolItems = PreparePoolIListModel(status, pageNumber);
+
+            // 最近成功log提示信息
+            var lastSuccessLog = _customerActivityService.GetLastCompleteLog();
+            if (lastSuccessLog != null)
+            {
+                model.LastSuccessLogMessage = string.Format(
+                    "{0} {1}奖金已到账({2})",
+                    CommonHelper.MaskUserName(lastSuccessLog.Customer.Nickname),
+                    lastSuccessLog.ReturnMoney,
+                    _dateTimeHelper.ConvertToUserTime(lastSuccessLog.CompleteOnUtc.Value, DateTimeKind.Utc).ToString("MM-dd"));
+            }
+
+            var currentCustomer = EngineContext.Current.Resolve<IWorkContext>().CurrentBonusAppCustomer;
+            model.CurrentUserName = currentCustomer.Username;   // 显示用户名 
+
+            // 当前用户的奖金池队列排队位置            
+            var waitingLogs = _customerActivityService.GetWaitingMoneyLog();
+            var currentUserWaitingLog = waitingLogs.FirstOrDefault(l => l.CustomerId == currentCustomer.Id);
+            if (currentUserWaitingLog != null)
+            {
+                model.WaitingLogOrderNum = waitingLogs.IndexOf(currentUserWaitingLog) + 1;
+            }
+
+            if (currentCustomer.NotificationMoney.HasValue)
+            {
+                model.ShouldNotifyUser = true;
+                model.NotifyUserMessage = string.Format(
+                    "恭喜, 您的{0}奖金已到账, 可以到个人中心申请提现.",
+                    currentCustomer.NotificationMoney.Value);
+
+                // 如果用户有提示奖金已到账, 清空(只提示一次)
+                currentCustomer.NotificationMoney = null;
+                currentCustomer.NotificationMoneyLogId = null;
+                _customerService.UpdateCustomer(currentCustomer);
+            }
+            else
+            {
+                model.ShouldNotifyUser = false;
+            }
+
             return model;
         }
 
@@ -137,6 +176,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
         public ActionResult Index(BonusApp_MoneyReturnStatus status = BonusApp_MoneyReturnStatus.Waiting)
         {
             var model = PrepareHomePageModel(status, 1);
+
             return View(model);
         }
         /// <summary>

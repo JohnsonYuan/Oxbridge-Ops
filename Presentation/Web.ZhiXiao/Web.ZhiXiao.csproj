@@ -1442,6 +1442,7 @@
     <Compile Include="Areas\BonusApp\Models\RegisterModel.cs" />
     <Compile Include="Areas\BonusApp\Models\UI\Response.cs" />
     <Compile Include="Areas\BonusApp\Models\Log\WithdrawLogModel.cs" />
+    <Compile Include="Areas\BonusApp\Models\Users\TiXianModel.cs" />
     <Compile Include="Areas\BonusApp\Mvc\BonusAppCustomerAuthorizeAttribute.cs" />
     <Compile Include="Areas\BonusApp\Mvc\BonusAppCustomerLastActivityAttribute.cs" />
     <Compile Include="Areas\YiJiaYi_Manage\AdminAreaRegistration.cs" />

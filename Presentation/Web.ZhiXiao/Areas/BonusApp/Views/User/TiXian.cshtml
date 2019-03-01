@@ -12,48 +12,70 @@
 
 <div class="main clearfloat">
     <div class="warp warpthree clearfloat">
-            <div class="h-top h-topone clearfloat box-s">
-                <p>@Model.Money</p>
-                <span>账户余额(元)</span>
+        <div class="h-top h-topone clearfloat box-s">
+            <p>@Model.Money</p>
+            <span>账户余额(元)</span>
+        </div>
+        <div class="recharge clearfloat">
+            <div class="czhi clearfloat box-s">
+                <p>提现金额</p>
+                <input type="number" id="money" placeholder="请输入金额" />
+                <span>元</span>
             </div>
-            <div class="recharge clearfloat">
+            <div class="czhi clearfloat box-s">
+                <p>支付方式</p>
+                <select class="select" name="paytype">
+                    <option value="1">支付宝</option>
+                    <option value="2">银行卡</option>
+                </select>
+            </div>
+            <div id="pay_alipay">
                 <div class="czhi clearfloat box-s">
-                    <p>提现金额</p>
-                    <input type="number" id="money" placeholder="请输入金额" />
-                    <span>元</span>
+                    <p>支付宝</p>
+                    <input type="text" id="alipayname" name="alipayname" placeholder="请输入账号" />
+                </div>
+            </div>
+            <div id="pay_bank">
+                <div class="czhi clearfloat box-s">
+                    <p>开户行</p>
+                    <input type="text" id="kaihuhang" name="kaihuhang" placeholder="请输入开户行" />
                 </div>
                 <div class="czhi clearfloat box-s">
-					<p>提现账号</p>
-					<input type="text" id="account" placeholder="请输入账号" />
-				</div>
-                <div class="czhi clearfloat box-s" id='showUserPicker'>
-                    <p>支付方式</p>
-                    <i class="iconfont icon-xiala fr"></i> 
-					<input type="text" id="method" placeholder="请输支付方式" />
+                    <p>开户名</p>
+                    <input type="text" id="kaihuming" name="kaihuhang" placeholder="请输入开户名" />
                 </div>
-                <!--<a href="#" class="center-btn center-btntwo db ra3">点击上传文件</a>-->
-                <div class="bottom clearfloat">
-                    @if (Model.Money > 0)
-                    {
-                        <button class="db fl btn ra3">确定</button>
-                    }
-                    else
-                    {
-                        <button class="db fl btn ra3" disabled>当前余额为0, 不能提现</button>
-                    }
+                <div class="czhi clearfloat box-s">
+                    <p>银行卡号</p>
+                    <input type="text" id="cardnum" name="cardnum" placeholder="请输入卡号" />
                 </div>
-				<div class="guize clearfloat box-s ra3">
-                    <h3>提现规则</h3>
-                    <div class="content clearfloat">
-                        提现规则提现规则提现规则提现规则提现规则提现规则
-                    </div>
+            </div>
+
+            <!--<a href="#" class="center-btn center-btntwo db ra3">点击上传文件</a>-->
+            <div class="bottom clearfloat">
+                @if (Model.Money > 0)
+                {
+                    <button class="db fl btn ra3">确定</button>
+                }
+                else
+                {
+                    <button class="db fl btn ra3" disabled>当前余额为0, 不能提现</button>
+                }
+            </div>
+            <div class="guize clearfloat box-s ra3">
+                <h3>提现规则</h3>
+                <div class="content clearfloat">
+                    提现扣取个人所得税10%
                 </div>
             </div>
         </div>
+    </div>
 </div>
 
 @section scripts {
     <script type="text/javascript">
+        $('select[name=paytype]').click(togglePayType);
+        togglePayType();
+
         $("button").click(function () {
             var money = $('#money').val();
             if (!money) {
@@ -64,8 +86,38 @@
                 SAlert('提现金额不能超过@(Model.Money)');
                 return;
             }
-            if (!/^\d+(\.\d{1,2})?$/.test(money)) {
-                SAlert('提现金额最多两位小数');
+            //if (!/^\d+(\.\d{1,2})?$/.test(money)) {
+            if (!/^\d+$/.test(money)) {
+                SAlert('提现金额必须为整数');
+                return;
+            }
+
+            var selectedType = $("select[name=paytype]").val()
+            if (selectedType == '1') {
+                var account = $('#alipayname').val();
+                if (!account) {
+                    SAlert('请输入支付宝账号');
+                    return;
+                }
+            }
+            else if (selectedType == '2') {
+                if (!$('#kaihuhang').val()) {
+                    SAlert('请输入开户名');
+                    return;
+                }
+
+                if (!$('#kaihuming').val()) {
+                    SAlert('请输入开户行');
+                    return;
+                }
+
+                if (!$('#cardnum').val()) {
+                    SAlert('请输入银行卡号');
+                    return;
+                }
+            }
+            else {
+                SAlert('支付方式错误');
                 return;
             }
 
@@ -75,11 +127,6 @@
                 return;
             }
 
-            var method = $('#method').val();
-            if (!method) {
-                SAlert('请输入支付方式');
-                return;
-            }
 
             postLoading('@Url.Content("~/User/TiXian")', {
                 money: money,
@@ -94,5 +141,16 @@
                     });
             });
         });
+
+        function togglePayType() {
+            var selectedType = $("select[name=paytype]").val();
+            if (selectedType == '1') {
+                $('#pay_alipay').show();
+                $('#pay_bank').hide();
+            } else {
+                $('#pay_alipay').hide();
+                $('#pay_bank').show();
+            }
+        }
     </script>
 }
