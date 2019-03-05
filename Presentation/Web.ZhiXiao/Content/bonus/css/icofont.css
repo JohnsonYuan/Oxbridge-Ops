@@ -33,6 +33,11 @@ url("./fonts/icofont.woff") format("woff");
   -webkit-font-smoothing: antialiased;
 }
 
+.icofont-smart-phone:before
+{
+  content: "\efec";
+}
+
 .icofont-ui-user:before
 {
   content: "\ec8e";
@@ -41,11 +46,6 @@ url("./fonts/icofont.woff") format("woff");
 .icofont-ui-password:before
 {
   content: "\ec71";
-}
-
-.icofont-star:before
-{
-  content: "\f000";
 }
 
 .icofont-xs

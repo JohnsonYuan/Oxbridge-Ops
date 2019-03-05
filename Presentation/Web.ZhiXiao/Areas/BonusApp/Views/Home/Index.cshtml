@@ -3,9 +3,6 @@
 @using Nop.Core.Domain.BonusApp.Logging;
 
 @{
-    Html.AddCssFileParts("~/Content/sweetalert2/sweetalert2.min.css");
-    Html.AppendScriptParts(ResourceLocation.Foot, "~/Scripts/sweetalert2/sweetalert2.min.js");
-
     var isWaitingType = Model.Status == BonusApp_MoneyReturnStatus.Waiting;
 
     // 当前选中的不显示url, 未选中的url
@@ -102,13 +99,6 @@
             //prefill: true,
             status: '.page-load-status'
         });
-
-        @if (Model.ShouldNotifyUser)
-        {
-            <text>
-            SComfirm('@Html.Raw(Model.NotifyUserMessage)', '<a style="color:white;" href=\"@Url.Action("TiXian", "User")\">提现</a>');
-            </text>
-        }
 
         function getPath() {
             var availableCount = @(Model.PoolItems.TotalPages - 1);

@@ -21,7 +21,7 @@ namespace Nop.Core.Configuration
             var config = new NopConfig();
  
             var bonusAppNode = section.SelectSingleNode("BonusApp");
-            config.BonusAppDomain = GetString(bonusAppNode, "Domain");
+            config.BonusAppDomains = GetString(bonusAppNode, "Domains").Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             var startupNode = section.SelectSingleNode("Startup");
             config.IgnoreStartupTasks = GetBool(startupNode, "IgnoreStartupTasks");
@@ -74,9 +74,9 @@ namespace Nop.Core.Configuration
         }
 
         /// <summary>
-        /// 奖金池系统domain
+        /// 奖金池系统domain(使用多个)
         /// </summary>
-        public string BonusAppDomain { get; private set; }
+        public string[] BonusAppDomains { get; private set; }
 
         /// <summary>
         /// Indicates whether we should ignore startup tasks

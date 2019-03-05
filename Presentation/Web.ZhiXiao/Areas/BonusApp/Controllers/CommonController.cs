@@ -168,7 +168,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             {
                 return ErrorJson(modelError);
             }
-            
+
             //standard logout 
             _authenticationService.SignOut();
 
@@ -181,6 +181,32 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             _customerActivityService.InsertActivity(customer, BonusAppConstants.LogType_User_Login, _localizationService.GetResource("ActivityLog.PublicStore.Login"));
 
             return SuccessJson("注册成功");
+        }
+
+        #endregion
+
+        #region 提示用户得到奖金
+
+        public ActionResult NotifyUser()
+        {
+            var currentCustomer = _workContext.CurrentBonusAppCustomer;
+            if (_workContext.CurrentBonusAppCustomer == null)
+                return Content("");
+
+            // 是否需要提示？
+            if (!currentCustomer.NotificationMoney.HasValue)
+                return Content("");
+
+            var notifyUserMessage = string.Format(
+                "恭喜, 您的{0}奖金已到账, 可以到个人中心申请提现.",
+                currentCustomer.NotificationMoney.Value);
+
+            // 如果用户有提示奖金已到账, 清空(只提示一次)
+            currentCustomer.NotificationMoney = null;
+            currentCustomer.NotificationMoneyLogId = null;
+            _customerService.UpdateCustomer(currentCustomer);
+
+            return PartialView((object)notifyUserMessage);
         }
 
         #endregion
