@@ -211,6 +211,9 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
         {
             #region validate
 
+            if (model.Money <= 0)
+                return ErrorJson("提现金额必须大于0");
+
             if (model.PayType != (int)TiXianPayType.Alipay
                 && model.PayType != (int)TiXianPayType.Bank)    
                 return ErrorJson("提现类型错误");
@@ -224,10 +227,10 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
 
             if (model.PayType == (int)TiXianPayType.Bank)
             {
-                if (string.IsNullOrEmpty(model.KaiHuMing))
+                if (string.IsNullOrEmpty(model.KaiHuHang))
                     return ErrorJson("请输入开户行");
                 
-                if (string.IsNullOrEmpty(model.KaiHuHang))
+                if (string.IsNullOrEmpty(model.KaiHuMing))
                     return ErrorJson("请输入开户名");
                 
                 if (string.IsNullOrEmpty(model.CardNum))
@@ -262,7 +265,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
             }
             else
             {
-                tixianMsg = string.Format("提现方式: 银行卡<br/>开户行: {0}<br/>开户名: {0}<br/>银行卡号: {0}", 
+                tixianMsg = string.Format("提现方式: 银行卡<br/>开户行: {0}<br/>开户名: {1}<br/>银行卡号: {2}", 
                     model.KaiHuHang,
                     model.KaiHuMing,
                     model.CardNum);

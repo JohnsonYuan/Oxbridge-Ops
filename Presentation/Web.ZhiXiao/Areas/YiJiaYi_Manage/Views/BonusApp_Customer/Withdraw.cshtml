@@ -127,8 +127,8 @@
                                             width: 100,
                                             template: '<h4> #if(IsDone){# <span class="label label-success">#=Amount#</span> #} else {# <span class="label label-warning">#=Amount#</span> #}# </h4>'
                                         }, {
-                                            field: "Comment",
-                                            title: "备注",
+                                            //field: "Comment",
+                                            title: "提现方式",
                                             width: 120
                                         },
                                         {
@@ -162,7 +162,7 @@
                                 $('#withdraws-grid').on('click', 'a.process', function () {
                                     var id = $(this).data('id');
                                     var url = '@(Url.Action("ProcessWithdrawPopup", new { id = "__id__", btnId = "search-terms" }))';
-                                    OpenWindow(url.replace('__id__', id), 600, 700, true);
+                                    OpenWindow(url.replace('__id__', id), 700, 550, true);
                                     return false;
                                 });
 

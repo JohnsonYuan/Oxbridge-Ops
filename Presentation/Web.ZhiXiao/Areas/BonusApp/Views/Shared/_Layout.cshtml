@@ -2,11 +2,13 @@
 @using Nop.Web.Framework.UI
 @{
     //CSS resources
+    Html.AddCssFileParts("~/Content/sweetalert2/sweetalert2.min.css");
     Html.AppendCssFileParts("~/Scripts/loading/preloader.css");
     Html.AppendCssFileParts("~/Content/bonus/css/page.css");
     Html.AppendCssFileParts("~/Content/bonus/css/base.css");
 
     //scripts
+    Html.AppendScriptParts("~/Scripts/sweetalert2/sweetalert2.min.js");
     Html.AppendScriptParts("~/Scripts/loading/jquery.preloader.min.js");
     Html.AppendScriptParts("~/Scripts/jquery-1.10.2.min.js");
     
@@ -58,6 +60,8 @@
     <!--footer end-->
 
     @Html.NopScripts(this.Url, ResourceLocation.Foot, false)
+    <!--提示用户可以提现-->
+    @Html.Action("NotifyUser", "Common")
     @RenderSection("scripts", false)
 </body>
 </html>

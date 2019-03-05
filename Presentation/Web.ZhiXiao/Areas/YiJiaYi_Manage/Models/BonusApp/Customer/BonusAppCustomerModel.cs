@@ -16,7 +16,7 @@ namespace Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp.Customer
         [AllowHtml]
         public string Username { get; set; }
 
-        [NopResourceDisplayName("Admin.Customers.Customers.Fields.NickName")]
+        [NopResourceDisplayName("Admin.Customers.Customers.Fields.FullName")]
         public string NickName { get; set; }
 
 

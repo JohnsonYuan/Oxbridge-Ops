@@ -29,16 +29,6 @@ namespace Web.ZhiXiao.Areas.BonusApp.Models
         /// pool items
         /// </summary>
         public PoolItemListModel PoolItems { get; set; }
-
-        /// <summary>
-        /// 是否提醒用户金额已返还
-        /// </summary>
-        public bool ShouldNotifyUser { get; set; }
-        public string NotifyUserMessage { get; set; }
-        /// <summary>
-        /// 提示金额
-        /// </summary>
-        public decimal NotifyMoney { get; set; }
     }
 
     public class PoolItemListModel : BasePagedListModel<PoolItemModel>

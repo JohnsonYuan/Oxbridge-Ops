@@ -42,7 +42,7 @@
                 </div>
                 <div class="czhi clearfloat box-s">
                     <p>开户名</p>
-                    <input type="text" id="kaihuming" name="kaihuhang" placeholder="请输入开户名" />
+                    <input type="text" id="kaihuming" name="kaihuming" placeholder="请输入开户名" />
                 </div>
                 <div class="czhi clearfloat box-s">
                     <p>银行卡号</p>
@@ -73,8 +73,9 @@
 
 @section scripts {
     <script type="text/javascript">
-        $('select[name=paytype]').click(togglePayType);
         togglePayType();
+
+        $('select[name=paytype]').change(togglePayType);
 
         $("button").click(function () {
             var money = $('#money').val();
@@ -82,7 +83,7 @@
                 SAlert('请输入提现金额');
                 return;
             }
-            if (money < 0 || money > @Model.Money) {
+            if (money <= 0 || money > @Model.Money) {
                 SAlert('提现金额不能超过@(Model.Money)');
                 return;
             }
@@ -93,25 +94,29 @@
             }
 
             var selectedType = $("select[name=paytype]").val()
+            var alipayName = $('#alipayname').val();
+            
+            var kaiHuHang = $('#kaihuhang').val();
+            var kaiHuMing = $('#kaihuming').val();
+            var cardNum = $('#cardnum').val();
             if (selectedType == '1') {
-                var account = $('#alipayname').val();
-                if (!account) {
+                if (!alipayName) {
                     SAlert('请输入支付宝账号');
                     return;
                 }
             }
             else if (selectedType == '2') {
-                if (!$('#kaihuhang').val()) {
+                if (!kaiHuHang) {
                     SAlert('请输入开户名');
                     return;
                 }
 
-                if (!$('#kaihuming').val()) {
+                if (!kaiHuMing) {
                     SAlert('请输入开户行');
                     return;
                 }
 
-                if (!$('#cardnum').val()) {
+                if (!cardNum) {
                     SAlert('请输入银行卡号');
                     return;
                 }
@@ -121,18 +126,24 @@
                 return;
             }
 
-            var account = $('#account').val();
-            if (!account) {
-                SAlert('请输入提现账号');
-                return;
+            var postParams = {
+                money: money
+            };
+
+            if (selectedType == '1') {
+                postParams.payType = 1;
+                postParams.alipayName = alipayName;
+            }
+            else {
+                postParams.payType = 2;
+                postParams.kaiHuHang = kaiHuHang;
+                postParams.kaiHuMing = kaiHuMing;
+                postParams.cardNum = cardNum;
             }
 
-
-            postLoading('@Url.Content("~/User/TiXian")', {
-                money: money,
-                account: account,
-                method: method
-            }, function (response) {
+            postLoading('@Url.Content("~/User/TiXian")',
+                postParams,
+                function (response) {
                 if (!response.Result)
                     SAlert(response.Message);
                 else

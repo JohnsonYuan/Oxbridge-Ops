@@ -363,6 +363,7 @@ namespace Web.ZhiXiao.Areas.YiJiaYi_Manage.Controllers.BonusApp
                 Data = withdraws.Select(x =>
                 {
                     var m = x.ToModel();
+                    m.Comment = x.Comment.Replace("<br/>", " ");    // 替换html
                     m.Username = x.Customer.Username;
                     m.Nickname = x.Customer.Nickname;
                     m.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
@@ -428,6 +429,11 @@ namespace Web.ZhiXiao.Areas.YiJiaYi_Manage.Controllers.BonusApp
                     customer.Username,
                     customer.Nickname,
                     withDraw.Amount);
+
+                // 提示用户提现成功
+                customer.NotificationMoneyLogId = withDraw.Id;
+                customer.NotificationMoney = (int)withDraw.Amount;
+                _customerService.UpdateCustomer(customer);
 
                 //_customerActivityService.InsertMoneyLog(withDraw.Customer, SystemZhiXiaoLogTypes.ProcessWithdraw,
                 //    0,

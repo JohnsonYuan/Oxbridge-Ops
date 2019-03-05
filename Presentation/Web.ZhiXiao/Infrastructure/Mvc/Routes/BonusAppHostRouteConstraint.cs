@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Routing;
@@ -9,22 +10,41 @@ namespace Nop.Web.Infrastructure.Mvc.Routes
     ///</summary>
     public class BonusAppHostRouteConstraint : IRouteConstraint
     {
-        private readonly Regex _host;
+        private readonly List<Regex> _hostRegexes;
 
-        public BonusAppHostRouteConstraint(string pattern)
+        public BonusAppHostRouteConstraint(string[] patterns)
         {
-            _host = new Regex(pattern,
-                RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            _hostRegexes = new List<Regex>();
+
+            foreach (var pattern in patterns)
+            {
+                _hostRegexes.Add(new Regex(
+                    pattern,
+                    RegexOptions.Compiled | RegexOptions.IgnoreCase));
+            }
         }
 
         public bool Match(HttpContextBase httpContext, Route route, string parameterName, RouteValueDictionary values, RouteDirection routeDirection)
         {
-#if DEBUG
-            return _host.IsMatch(httpContext.Request.ServerVariables["HTTP_HOST"])
-                && httpContext.Request.UserAgent.Contains("Chrome");  // 本地测试 验证增加Edge浏览器条件
+            foreach (var regex in _hostRegexes)
+            {
+
+#if !DEBUG
+                if (regex.IsMatch(httpContext.Request.ServerVariables["HTTP_HOST"]))
+                {
+                    return true;
+                }
 #else
-            return _host.IsMatch(httpContext.Request.ServerVariables["HTTP_HOST"]);
+                // 本地测试 验证增加Edge浏览器条件
+                if (regex.IsMatch(httpContext.Request.ServerVariables["HTTP_HOST"])
+                    && httpContext.Request.UserAgent.Contains("Chrome"))    // 本地测试 验证增加Edge浏览器条件
+                {
+                    return true;
+                }
 #endif
+            }
+
+            return false;
         }
     }
 }

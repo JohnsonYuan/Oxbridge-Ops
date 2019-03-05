@@ -169,8 +169,8 @@
     <Content Include="Content\bonus\css\other.css" />
     <Content Include="Content\bonus\css\page.css" />
     <Content Include="Content\bonus\img\14.png" />
+    <Content Include="Content\Images\bg2.jpg" />
     <Content Include="Content\sweetalert2\sweetalert2.min.css" />
-    <Content Include="Content\bonus\fonts\icofont.svg" />
     <Content Include="Content\bonus\img\10.png" />
     <Content Include="Content\bonus\img\10_#_00cc7d.png" />
     <Content Include="Content\bonus\img\11.png" />
@@ -951,10 +951,6 @@
     <Content Include="Areas\YiJiaYi_Manage\Views\Common\SystemInfo.cshtml" />
     <Content Include="Areas\YiJiaYi_Manage\Views\CustomerManage\UpgradeNormalUser.cshtml" />
     <Content Include="Areas\YiJiaYi_Manage\Views\CustomerManage\MoneyOverview.cshtml" />
-    <Content Include="Content\bonus\fonts\icofont.eot" />
-    <Content Include="Content\bonus\fonts\icofont.ttf" />
-    <Content Include="Content\bonus\fonts\icofont.woff" />
-    <Content Include="Content\bonus\fonts\icofont.woff2" />
     <Content Include="Areas\BonusApp\Views\Common\Login.cshtml" />
     <Content Include="Areas\BonusApp\Views\_ViewStart.cshtml" />
     <Content Include="Areas\BonusApp\Views\Shared\_Layout.cshtml" />
@@ -990,6 +986,7 @@
     <Content Include="Areas\YiJiaYi_Manage\Views\BonusApp_Customer\_CreateOrUpdate.cshtml" />
     <Content Include="Areas\YiJiaYi_Manage\Views\BonusApp_Customer\Recharge.cshtml" />
     <Content Include="Areas\YiJiaYi_Manage\Views\BonusApp_Home\MoneyOverview.cshtml" />
+    <Content Include="Areas\BonusApp\Views\Common\NotifyUser.cshtml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap\bootstrap.js" />

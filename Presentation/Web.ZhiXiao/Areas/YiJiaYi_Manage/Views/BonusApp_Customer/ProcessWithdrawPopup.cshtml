@@ -64,6 +64,14 @@
                         </div>
                         <div class="form-group">
                             <div class="col-xs-4">
+                                @Html.NopLabelFor(model => model.CustomerModel.NickName)
+                            </div>
+                            <div class="col-xs-6">
+                                @Html.NopDisplayFor(model => model.CustomerModel.NickName)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-xs-4">
                                 @Html.NopLabelFor(model => model.CustomerModel.Phone)
                             </div>
                             <div class="col-xs-6">
@@ -75,7 +83,10 @@
                                 @Html.NopLabelFor(model => model.Comment)
                             </div>
                             <div class="col-xs-6">
-                                @Html.NopDisplayFor(model => model.Comment)
+                                <div class="form-text-row">
+                                    @Html.Raw(Model.Comment)
+                                </div>
+                                @*@Html.NopDisplayFor(model => model.Comment)*@
                             </div>
                         </div> 
                         @*<div class="form-group">

@@ -23,13 +23,13 @@ namespace Web.ZhiXiao.Areas.YiJiaYi_Manage.Models.BonusApp
             //});
             LogStatus.Add(new SelectListItem
             {
-                Text = "未处理",
+                Text = "排队中",
                 Value = ((int)Nop.Core.Domain.BonusApp.Logging.BonusApp_MoneyReturnStatus.Waiting).ToString()
             });
 
             LogStatus.Add(new SelectListItem
             {
-                Text = "已处理",
+                Text = "已奖励",
                 Value = ((int)Nop.Core.Domain.BonusApp.Logging.BonusApp_MoneyReturnStatus.Complete).ToString()
             });
         }

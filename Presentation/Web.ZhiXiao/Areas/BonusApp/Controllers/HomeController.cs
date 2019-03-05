@@ -116,23 +116,6 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 model.WaitingLogOrderNum = waitingLogs.IndexOf(currentUserWaitingLog) + 1;
             }
 
-            if (currentCustomer.NotificationMoney.HasValue)
-            {
-                model.ShouldNotifyUser = true;
-                model.NotifyUserMessage = string.Format(
-                    "恭喜, 您的{0}奖金已到账, 可以到个人中心申请提现.",
-                    currentCustomer.NotificationMoney.Value);
-
-                // 如果用户有提示奖金已到账, 清空(只提示一次)
-                currentCustomer.NotificationMoney = null;
-                currentCustomer.NotificationMoneyLogId = null;
-                _customerService.UpdateCustomer(currentCustomer);
-            }
-            else
-            {
-                model.ShouldNotifyUser = false;
-            }
-
             return model;
         }
 
@@ -151,6 +134,7 @@ namespace Web.ZhiXiao.Areas.BonusApp.Controllers
                 Data = comments.Select(x =>
                 {
                     var m = x.ToModel<CommentModel>();
+                    m.CustomerNickName = CommonHelper.MaskUserName(x.Customer.Nickname);
                     m.CustomerAvatar = _pictureService.GetPictureUrl(x.Customer.AvatarFileName);
                     m.CreatedOn = x.CreatedOnUtc.RelativeFormat(true, "yyyy-MM-dd");
                     return m;

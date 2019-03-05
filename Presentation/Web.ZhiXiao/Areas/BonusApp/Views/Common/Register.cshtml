@@ -117,7 +117,9 @@
 
             postLoading('@Url.RouteUrl("BonusApp_Register")', {
                 Username: name,
-                Password: pwd
+                Password: pwd,
+                Nickname: nickName,
+                Phone: phone
             }, function (response) {
                 if (!response.Result)
                     SAlert(response.Message);
